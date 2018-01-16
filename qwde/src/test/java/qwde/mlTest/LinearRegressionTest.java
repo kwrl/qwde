@@ -17,8 +17,9 @@ import org.junit.jupiter.api.Test;
 class LinearRegressionTest {
 	@Test
 	void test() throws Exception {
-		File resourcesDirectory = new File("src/test/resources/qwde.mlTest/POOP");
-		//LinearRegression.process(new File("linear-test.arff"));
+		File resourcesDirectory = new File("src/test/resources/qwde.mlTest/linear-test.arff");
+		assertThat(resourcesDirectory.exists()).isTrue();
+		LinearRegression.process(resourcesDirectory);
 		assertWithMessage("test").that(1).isAtLeast(9);
 	}
 }
