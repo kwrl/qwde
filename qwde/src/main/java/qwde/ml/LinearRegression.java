@@ -16,7 +16,7 @@ public class LinearRegression {
 	
 	/** file names are defined*/
 	public static final String TRAINING_DATA_SET_FILENAME="src/main/resources/qwde.ml/linear-train.arff";
-	public static final String PREDICTION_DATA_SET_FILENAME="test-confused.arff";
+	public static final String PREDICTION_DATA_SET_FILENAME="src/main/resources/qwde.ml/linear-prediction.arff";
 
 	/**
 	 * This method is to load the data set.
@@ -24,7 +24,7 @@ public class LinearRegression {
 	 * @return
 	 * @throws IOException
 	 */
-	public static Instances getDataSet(String fileName) throws IOException {
+	public static Instances getDataSet(File file) throws IOException {
 		/**
 		 * we can set the file i.e., loader.setFile("finename") to load the data
 		 */
@@ -32,7 +32,7 @@ public class LinearRegression {
 		/** the arffloader to load the arff file */
 		ArffLoader loader = new ArffLoader();
 		/** load the traing data */
-		loader.setSource(LinearRegression.class.getResourceAsStream("/" + fileName));
+		loader.setSource(file);
 		/**
 		 * we can also set the file like loader3.setFile(new
 		 * File("test-confused.arff"));
@@ -51,8 +51,8 @@ public class LinearRegression {
 	public static void process(File dataSetFile) throws Exception {
 
 		assert new File(TRAINING_DATA_SET_FILENAME).exists();
-		Instances trainingDataSet = getDataSet(new File(TRAINING_DATA_SET_FILENAME).getAbsolutePath());
-		Instances dataSet = getDataSet(dataSetFile.toString());
+		Instances trainingDataSet = getDataSet(new File(TRAINING_DATA_SET_FILENAME));
+		Instances dataSet = getDataSet(dataSetFile);
 		/** Classifier here is Linear Regression */
 		Classifier classifier = new weka.classifiers.functions.LinearRegression();
 		/** */
@@ -69,7 +69,7 @@ public class LinearRegression {
 		System.out.print(" the expression for the input data as per alogorithm is ");
 		System.out.println(classifier);
 
-		Instance predicationDataSet = getDataSet(PREDICTION_DATA_SET_FILENAME).lastInstance();
+		Instance predicationDataSet = getDataSet(new File(PREDICTION_DATA_SET_FILENAME)).lastInstance();
 		double value = classifier.classifyInstance(predicationDataSet);
 		/** Prediction Output */
 		System.out.println(value);

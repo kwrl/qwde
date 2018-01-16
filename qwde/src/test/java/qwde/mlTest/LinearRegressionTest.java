@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.io.IOException;
-import org.apache.commons.io.IOUtils;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -20,6 +19,5 @@ class LinearRegressionTest {
 		File resourcesDirectory = new File("src/test/resources/qwde.mlTest/linear-test.arff");
 		assertThat(resourcesDirectory.exists()).isTrue();
 		LinearRegression.process(resourcesDirectory);
-		assertWithMessage("test").that(1).isAtLeast(9);
 	}
 }
