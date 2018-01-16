@@ -84,6 +84,7 @@ public class PystockStockPriceReader implements StockPriceReader {
 		return stockPrices.remove(0);
 	}
 
+	/*
 	public static void main(String[] args) throws IOException {
 		StockPriceReader reader = new PystockStockPriceReader("C:\\Users\\Haakon Kaurel\\pystock-data");
 		StockPrice price;
@@ -91,4 +92,5 @@ public class PystockStockPriceReader implements StockPriceReader {
 			System.out.println(price);
 		}
 	}
+	*/
 }
