@@ -1,0 +1,20 @@
+@relation icecreamsales.symbolic
+
+@attribute temperature numeric
+@attribute icecreamsales numeric
+
+@data
+
+11 111
+21 211
+31 311
+41 411
+51 511
+61 511
+61 511
+61 511
+61 511
+61 511
+61 511
+61 511
+61 511
