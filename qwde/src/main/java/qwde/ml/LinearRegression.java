@@ -15,8 +15,8 @@ import weka.core.converters.ArffLoader;
 public class LinearRegression {
 	
 	/** file names are defined*/
-	public static final String TRAINING_DATA_SET_FILENAME="src/main/resources/qwde.ml/linear-train.arff";
-	public static final String PREDICTION_DATA_SET_FILENAME="src/main/resources/qwde.ml/linear-prediction.arff";
+	public static final String TRAINING_DATA_SET_FILENAME="linear-train.arff";
+	public static final String PREDICTION_DATA_SET_FILENAME="linear-prediction.arff";
 
 	/**
 	 * This method is to load the data set.
@@ -49,9 +49,10 @@ public class LinearRegression {
 	 * @throws Exception
 	 */
 	public static void process(File dataSetFile) throws Exception {
-
-		assert new File(TRAINING_DATA_SET_FILENAME).exists();
-		Instances trainingDataSet = getDataSet(new File(TRAINING_DATA_SET_FILENAME));
+		ClassLoader classLoader = LinearRegression.class.getClassLoader();
+		File trainingDataFile = new File(classLoader.getResource(TRAINING_DATA_SET_FILENAME).getFile());
+		assert trainingDataFile.exists();
+		Instances trainingDataSet = getDataSet(trainingDataFile);
 		Instances dataSet = getDataSet(dataSetFile);
 		/** Classifier here is Linear Regression */
 		Classifier classifier = new weka.classifiers.functions.LinearRegression();

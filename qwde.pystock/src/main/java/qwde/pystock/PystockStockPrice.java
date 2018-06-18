@@ -3,12 +3,14 @@ package qwde.pystock;
 import java.sql.Timestamp;
 
 import qwde.models.StockPrice;
+import qwde.ml.LinearRegression;
 
 public class PystockStockPrice implements StockPrice {
 	private final double highPrice;
 	private final double lowPrice;
 	private final String company;
 	private final Timestamp timestamp;
+	LinearRegression test;
 
 	public PystockStockPrice(double highPrice, double lowPrice, String company, Timestamp timestamp) {
 		super();
