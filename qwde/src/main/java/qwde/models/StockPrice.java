@@ -1,9 +1,9 @@
 package qwde.models;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 public interface StockPrice {
 	public double getPrice();
 	public String getCompany();
-	public Timestamp getTimestamp();
+	public LocalDateTime getTimestamp();
 }

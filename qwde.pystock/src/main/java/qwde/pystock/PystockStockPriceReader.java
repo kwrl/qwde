@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -71,10 +71,9 @@ public class PystockStockPriceReader implements StockPriceReader {
 		return new PystockStockPrice(Double.parseDouble(tokens[3]), Double.parseDouble(tokens[4]), tokens[0], parseTimestamp(tokens[1]));
 	}
 	
-	@SuppressWarnings("deprecation")
-	private static Timestamp parseTimestamp(String line) {
+	private static LocalDateTime parseTimestamp(String line) {
 		String[] tokens = line.split("-");
-		return new Timestamp(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]), 0, 0, 0, 0);
+		return LocalDateTime.of(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]), 0, 0, 0, 0);
 	}
 
 	public StockPrice read() {
