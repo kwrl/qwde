@@ -1,0 +1,3 @@
+[submodule "pystock-data"]
+	path = pystock-data
+	url = https://github.com/eliangcs/pystock-data.git
