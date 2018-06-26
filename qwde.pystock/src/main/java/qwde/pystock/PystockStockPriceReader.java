@@ -90,6 +90,9 @@ public class PystockStockPriceReader implements StockPriceReader {
 		while((price = reader.read()) != null) {
 			System.out.println(price);
 		}
+	@Override
+	public List<StockPrice> read() {
+		return this.stockPrices;
 	}
 	*/
 }

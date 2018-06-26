@@ -1,7 +1,9 @@
 package qwde.util;
 
+import java.util.Collection;
+
 import qwde.models.StockPrice;
 
 public interface StockPriceReader {
-	public StockPrice read();
+	public Collection<StockPrice> read();
 }
