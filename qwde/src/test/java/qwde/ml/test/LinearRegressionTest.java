@@ -7,6 +7,7 @@ import qwde.ml.LinearRegression;
 import org.junit.Test;
 
 public class LinearRegressionTest {
+
 	@Test
 	public void test() throws Exception {
 		ClassLoader classLoader = getClass().getClassLoader();
