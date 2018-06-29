@@ -22,66 +22,66 @@ import qwde.models.StockPrice;
 import qwde.util.StockPriceReader;
 
 public class PystockStockPriceReader implements StockPriceReader {
-	private final List<StockPrice> stockPrices;
-	
-	public PystockStockPriceReader(Path directoryPath) throws IOException {
-		stockPrices = Files.walk(directoryPath)
-			.map(path -> path.toFile())
-			 .filter(File::isFile)
-			 .filter(file -> file.getName().endsWith(".tar.gz"))
-			 .parallel()
-			 .flatMap(PystockStockPriceReader::getPricesFromCompressedArchive)
-			 .collect(Collectors.toList());
-	}
+  private final List<StockPrice> stockPrices;
 
-	public PystockStockPriceReader(File stockPriceFile) throws IOException {
-		this.stockPrices = getPricesFromCompressedArchive(stockPriceFile).collect(Collectors.toList());
-	}
+  public PystockStockPriceReader(Path directoryPath) throws IOException {
+    stockPrices = Files.walk(directoryPath)
+        .map(path -> path.toFile())
+         .filter(File::isFile)
+         .filter(file -> file.getName().endsWith(".tar.gz"))
+         .parallel()
+         .flatMap(PystockStockPriceReader::getPricesFromCompressedArchive)
+         .collect(Collectors.toList());
+  }
 
-	public static Stream<StockPrice> getPricesFromCompressedArchive(File compressedArchive) {
-		try {
-			TarArchiveInputStream stream = new TarArchiveInputStream(new GzipCompressorInputStream(new BufferedInputStream(new FileInputStream(compressedArchive))));
-			TarArchiveEntry entry;
-			while((entry = stream.getNextTarEntry()) != null) {
-				if("prices.csv".equals(entry.getName())) {
-					BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-					List<StockPrice> prices = reader.lines()
-							.map(line -> {
-								try {
-									return parseStockPrice(line);
-								} catch(Exception e) {
-									return null;
-								}
-							})
-							.filter(x -> x != null)
-							.collect(Collectors.toList());
-					
-					reader.close();
-					return prices.stream();
-				}
-			}
-			stream.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		return Stream.empty();
-	}
-	
-	private static StockPrice parseStockPrice(String line) {
-		String[] tokens = line.split(",");
-		return new PystockStockPrice(Double.parseDouble(tokens[3]), Double.parseDouble(tokens[4]), tokens[0], parseTimestamp(tokens[1]));
-	}
-	
-	private static LocalDateTime parseTimestamp(String line) {
-		String[] tokens = line.split("-");
-		return LocalDateTime.of(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]), 0, 0, 0, 0);
-	}
+  public PystockStockPriceReader(File stockPriceFile) throws IOException {
+    this.stockPrices = getPricesFromCompressedArchive(stockPriceFile).collect(Collectors.toList());
+  }
 
-	@Override
-	public List<StockPrice> read() {
-		return this.stockPrices;
-	}
+  public static Stream<StockPrice> getPricesFromCompressedArchive(File compressedArchive) {
+    try {
+      TarArchiveInputStream stream = new TarArchiveInputStream(new GzipCompressorInputStream(new BufferedInputStream(new FileInputStream(compressedArchive))));
+      TarArchiveEntry entry;
+      while ((entry = stream.getNextTarEntry()) != null) {
+        if ("prices.csv".equals(entry.getName())) {
+          BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+          List<StockPrice> prices = reader.lines()
+              .map(line -> {
+                try {
+                  return parseStockPrice(line);
+                } catch (Exception e) {
+                  return null;
+                }
+              })
+              .filter(x -> x != null)
+              .collect(Collectors.toList());
+
+          reader.close();
+          return prices.stream();
+        }
+      }
+      stream.close();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    return Stream.empty();
+  }
+
+  private static StockPrice parseStockPrice(String line) {
+    String[] tokens = line.split(",");
+    return new PystockStockPrice(Double.parseDouble(tokens[3]), Double.parseDouble(tokens[4]), tokens[0], parseTimestamp(tokens[1]));
+  }
+
+  private static LocalDateTime parseTimestamp(String line) {
+    String[] tokens = line.split("-");
+    return LocalDateTime.of(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]), 0, 0, 0, 0);
+  }
+
+  @Override
+  public List<StockPrice> read() {
+    return this.stockPrices;
+  }
 }
