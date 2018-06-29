@@ -8,8 +8,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.sql.Timestamp;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,17 +24,21 @@ import qwde.util.StockPriceReader;
 public class PystockStockPriceReader implements StockPriceReader {
 	private final List<StockPrice> stockPrices;
 	
-	public PystockStockPriceReader(String directoryPath) throws IOException {
-		stockPrices = Files.walk(Paths.get(directoryPath))
-		.map(path -> path.toFile())
-		.filter(File::isFile)
-		.filter(file -> file.getName().endsWith(".tar.gz"))
-		.parallel()
-		.flatMap(PystockStockPriceReader::getPricesFromCompressedArchive)
-		.collect(Collectors.toList());
+	public PystockStockPriceReader(Path directoryPath) throws IOException {
+		stockPrices = Files.walk(directoryPath)
+			.map(path -> path.toFile())
+			 .filter(File::isFile)
+			 .filter(file -> file.getName().endsWith(".tar.gz"))
+			 .parallel()
+			 .flatMap(PystockStockPriceReader::getPricesFromCompressedArchive)
+			 .collect(Collectors.toList());
 	}
 
-	private static Stream<StockPrice> getPricesFromCompressedArchive(File compressedArchive) {
+	public PystockStockPriceReader(File stockPriceFile) throws IOException {
+		this.stockPrices = getPricesFromCompressedArchive(stockPriceFile).collect(Collectors.toList());
+	}
+
+	public static Stream<StockPrice> getPricesFromCompressedArchive(File compressedArchive) {
 		try {
 			TarArchiveInputStream stream = new TarArchiveInputStream(new GzipCompressorInputStream(new BufferedInputStream(new FileInputStream(compressedArchive))));
 			TarArchiveEntry entry;
@@ -71,26 +75,13 @@ public class PystockStockPriceReader implements StockPriceReader {
 		return new PystockStockPrice(Double.parseDouble(tokens[3]), Double.parseDouble(tokens[4]), tokens[0], parseTimestamp(tokens[1]));
 	}
 	
-	@SuppressWarnings("deprecation")
-	private static Timestamp parseTimestamp(String line) {
+	private static LocalDateTime parseTimestamp(String line) {
 		String[] tokens = line.split("-");
-		return new Timestamp(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]), 0, 0, 0, 0);
+		return LocalDateTime.of(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]), 0, 0, 0, 0);
 	}
 
-	public StockPrice read() {
-		if(stockPrices.isEmpty()) {
-			return null;
-		}
-		return stockPrices.remove(0);
+	@Override
+	public List<StockPrice> read() {
+		return this.stockPrices;
 	}
-
-	/*
-	public static void main(String[] args) throws IOException {
-		StockPriceReader reader = new PystockStockPriceReader("C:\\Users\\Haakon Kaurel\\pystock-data");
-		StockPrice price;
-		while((price = reader.read()) != null) {
-			System.out.println(price);
-		}
-	}
-	*/
 }

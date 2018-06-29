@@ -1,6 +1,6 @@
 package qwde.pystock;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 import qwde.models.StockPrice;
 import qwde.ml.LinearRegression;
@@ -9,10 +9,10 @@ public class PystockStockPrice implements StockPrice {
 	private final double highPrice;
 	private final double lowPrice;
 	private final String company;
-	private final Timestamp timestamp;
+	private final LocalDateTime timestamp;
 	LinearRegression test;
 
-	public PystockStockPrice(double highPrice, double lowPrice, String company, Timestamp timestamp) {
+	public PystockStockPrice(double highPrice, double lowPrice, String company, LocalDateTime timestamp) {
 		super();
 		this.highPrice = highPrice;
 		this.lowPrice = lowPrice;
@@ -39,14 +39,13 @@ public class PystockStockPrice implements StockPrice {
 	}
 
 	@Override
-	public Timestamp getTimestamp() {
+	public LocalDateTime getTimestamp() {
 		return timestamp;
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
 	public String toString() {
-		return company + " [" + timestamp.toGMTString() +"]: "+getPrice();
+		return company + " [" + timestamp.toString() +"]: " + getPrice();
 	}
 
 }
