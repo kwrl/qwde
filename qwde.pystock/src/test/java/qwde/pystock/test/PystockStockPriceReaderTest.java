@@ -11,7 +11,6 @@ import com.google.common.truth.Truth;
 import qwde.pystock.PystockStockPriceReader;
 
 public class PystockStockPriceReaderTest {
-
   @Test
   public void testRead() throws IOException {
     ClassLoader classLoader = getClass().getClassLoader();
@@ -24,5 +23,4 @@ public class PystockStockPriceReaderTest {
     Truth.assertThat(pyReader.read().get(0).getCompany()).isEqualTo("FAX");
     Truth.assertThat(pyReader.read().get(0).getTimestamp()).isEqualTo(LocalDateTime.of(2016, 12, 30, 0, 0));
   }
-
 }

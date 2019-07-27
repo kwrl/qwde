@@ -51,5 +51,6 @@
   <modules>
     <module>qwde</module>
     <module>qwde.pystock</module>
+    <module>main</module>
   </modules>
 </project>

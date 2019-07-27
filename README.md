@@ -5,6 +5,6 @@ Getting around with stock data.
 `mvn test`
 
 # Executables
-`(cd qwde.pystock; mvn exec:java)`  
+`(cd main; mvn clean compile && mvn exec:java)`  
 or  
-`(cd qwde.pystock && mvn clean compile assembly:single && java -jar qwde.pystock-0.0.1-SNAPSHOT-jar-with-dependencies.jar)`
+`(cd main && mvn clean compile assembly:single && java -jar main-0.0.1-SNAPSHOT-jar-with-dependencies.jar)`

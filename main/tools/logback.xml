@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration scan="true" scanPeriod="10 seconds">
+  <property name="LOGDIR" value="${LOGDIR:-/tmp/smarts-prometheus-exporter/log}"/>
+    <property name="LOGNAME" value="${APPNAME:-SmartsPrometheusExporter}"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <encoder>
+            <pattern>%d{yyyyMMdd-HHmmss.SSS};%-5level;${HOSTNAME};${APPNAME:-app};[%thread];%logger{35};%msg %n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGDIR}/${LOGNAME}.log</file>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <encoder>
+            <pattern>%d{yyyyMMdd-HHmmss.SSS};%-5level;${HOSTNAME};${APPNAME:-app};[%thread];%logger{35};%msg %n
+            </pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- rollover daily -->
+            <fileNamePattern>${LOGDIR}/archive/${LOGNAME}-%d{yyyy-MM-dd}.%i.zip</fileNamePattern>
+            <!-- each file should be at most 10MB, keep 30 days worth of history, but at most 10GB -->
+            <maxFileSize>1GB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <logger name="org.mortbay.log" level="info"/>
+    <logger name="org.eclipse.jetty" level="info"/>
+    <logger name="com.netflix.discovery" level="info"/>
+
+    <logger name="org.apache.http" level="info"/>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+        <!-- <appender-ref ref="syslog"/> -->
+    </root>
+
+</configuration>
+
