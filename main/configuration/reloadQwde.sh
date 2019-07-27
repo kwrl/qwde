@@ -2,7 +2,7 @@
 
 set -xe
 
-cd ./qwde/
+cd /home/dev/qwde/
 git clean -f
 git fetch --all
 git reset --hard origin/master
