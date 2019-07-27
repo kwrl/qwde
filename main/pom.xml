@@ -72,12 +72,22 @@
 
   </dependencies>
   <build>
-      <resources>
-        <resource>
-          <directory>tools/</directory>
-        </resource>
-      </resources>
+    <finalName>qwde_web</finalName>
+    <resources>
+      <resource>
+        <directory>tools/</directory>
+      </resource>
+    </resources>
     <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <failOnMissingWebXml>false</failOnMissingWebXml>
+        </configuration>
+        <version>3.2.3</version>
+      </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
