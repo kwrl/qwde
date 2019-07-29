@@ -70,6 +70,30 @@
       <version>9.4.19.v20190610</version>
     </dependency>
 
+    <dependency>
+      <groupId>tech.tablesaw</groupId>
+      <artifactId>tablesaw-core</artifactId>
+      <version>0.34.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>tech.tablesaw</groupId>
+      <artifactId>tablesaw-plot</artifactId>
+      <version>0.24.4</version>
+    </dependency>
+
+    <dependency>
+      <groupId>tech.tablesaw</groupId>
+      <artifactId>tablesaw-jsplot</artifactId>
+      <version>0.34.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>tech.tablesaw</groupId>
+      <artifactId>tablesaw-html</artifactId>
+      <version>0.34.1</version>
+    </dependency>
+
   </dependencies>
   <build>
     <finalName>qwde_web</finalName>
