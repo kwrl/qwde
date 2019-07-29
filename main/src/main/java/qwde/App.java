@@ -15,7 +15,6 @@ import picocli.CommandLine.Option;
 import qwde.servlets.IndexServlet;
 import qwde.servlets.SharkToothServlet;
 
-
 @Command(name = "qwde stuff", mixinStandardHelpOptions = true, version = "0.1")
 public class App implements Runnable {
   private static Logger logger = LoggerFactory.getLogger(App.class);
@@ -30,7 +29,7 @@ public class App implements Runnable {
   description = "Port to run HTTP server on",
   defaultValue = "8080"
   )
-    private String serverPort;
+  private String serverPort;
 
   @Override
   public void run() {
@@ -43,7 +42,7 @@ public class App implements Runnable {
       ServletContextHandler context = new ServletContextHandler();
       context.setContextPath("/");
     } catch (IOException exception) {
-      logger.error("Could not start prometheus server at 9456");
+      logger.error("Could not start prometheus server at 9456", exception);
       System.exit(1);
     }
 
