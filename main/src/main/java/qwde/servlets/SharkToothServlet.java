@@ -8,10 +8,15 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import qwde.plotly.LinePlotRenderer;
+import qwde.pystock.PystockStockPriceReader;
 import tech.tablesaw.api.DoubleColumn;
 import tech.tablesaw.api.NumberColumn;
 import tech.tablesaw.api.Table;
@@ -46,61 +51,20 @@ public class SharkToothServlet extends HttpServlet {
 
       String paramName = parameterNames.nextElement();
       System.out.println(paramName);
-      System.out.println(paramName);
-      System.out.println(paramName);
       String[] paramValues = request.getParameterValues(paramName);
       for (int i = 0; i < paramValues.length; i++) {
         System.out.println(paramValues[i]);
-        System.out.println(paramValues[i]);
-        System.out.println(paramValues[i]);
       }
     }
 
-    double[] testdataX = {1,2,3,4};
-    double[] testdataY = {4,3,2,1};
-    DoubleColumn testcolumnX = DoubleColumn.create("xcol", testdataX);
-    DoubleColumn testcolumnY = DoubleColumn.create("ycol", testdataY);
+    PystockStockPriceReader pyReader = PystockStockPriceReader.FromDate("20170102.tar.gz");
 
-    Table testtable = Table.create("test table").addColumns(testcolumnX, testcolumnY);
-    NumberColumn x = testtable.nCol("xcol");
-    NumberColumn y = testtable.nCol("ycol");
-
-    Layout layout = Layout.builder()
-            .title("Monthly Boston Armed Robberies Jan. 1966 - Oct. 1975")
-            .build();
-    ScatterTrace trace = ScatterTrace.builder(x, y)
-            .mode(ScatterTrace.Mode.LINE)
-            .showLegend(true)
-            .build();
-
-    Figure figuretest = new Figure(trace);
-
-    Page page = Page.pageBuilder(figuretest, "testdiv").build();
-    String output = page.asJavascript();
-
-    try {
-      Writer writer = new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8);
-
-      try {
-        writer.write(output);
-      } catch (IOException exception) {
-          logger.error("", exception);
-      } finally {
-          writer.close();
-      }
-    } catch (IOException var18) {
-      var18.printStackTrace();
-    }
-
-
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    testtable.write().usingOptions(HtmlWriteOptions.builder(byteArrayOutputStream).build());
+    Double[] testdataY = pyReader.read().stream().map(val -> val.getPrice().doubleValue()).toArray(Double[]::new);
+    LinePlotRenderer.renderFrom1d(testdataY, response.getOutputStream());
 
     response.setContentType("text/html");
     response.setStatus(HttpServletResponse.SC_OK);
-    //response.getWriter().println("<h1>New Hello Shark rawr </h1>");
-    //response.getWriter().println(byteArrayOutputStream.toString());
-    //response.getWriter().println(figuretest.asJavascript("testDiv"));
+    //response.getWriter().println("<h1>You can write HTML like this :)</h1>");
   }
 }
 

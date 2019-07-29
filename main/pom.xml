@@ -94,6 +94,19 @@
       <version>0.34.1</version>
     </dependency>
 
+    <dependency>
+      <groupId>qwde</groupId>
+      <artifactId>qwde</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>qwde</groupId>
+      <artifactId>qwde.pystock</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+
+
   </dependencies>
   <build>
     <finalName>qwde_web</finalName>

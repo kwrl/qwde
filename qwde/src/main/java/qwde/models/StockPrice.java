@@ -1,9 +1,10 @@
 package qwde.models;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public interface StockPrice {
-  double getPrice();
+  BigDecimal getPrice();
 
   String getCompany();
 

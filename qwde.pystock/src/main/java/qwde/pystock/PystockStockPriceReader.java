@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -25,7 +26,7 @@ public class PystockStockPriceReader implements StockPriceReader {
   private final List<StockPrice> stockPrices;
 
   public PystockStockPriceReader(Path directoryPath) throws IOException {
-    stockPrices = Files.walk(directoryPath)
+    this.stockPrices = Files.walk(directoryPath)
         .map(path -> path.toFile())
          .filter(File::isFile)
          .filter(file -> file.getName().endsWith(".tar.gz"))
@@ -36,6 +37,11 @@ public class PystockStockPriceReader implements StockPriceReader {
 
   public PystockStockPriceReader(File stockPriceFile) throws IOException {
     this.stockPrices = getPricesFromCompressedArchive(stockPriceFile).collect(Collectors.toList());
+  }
+
+  public static PystockStockPriceReader FromDate(String date) throws IOException {
+    ClassLoader classLoader = PystockStockPriceReader.class.getClassLoader();
+    return new PystockStockPriceReader(new File(classLoader.getResource(date).getFile()));
   }
 
   public static Stream<StockPrice> getPricesFromCompressedArchive(File compressedArchive) {
@@ -72,7 +78,7 @@ public class PystockStockPriceReader implements StockPriceReader {
 
   private static StockPrice parseStockPrice(String line) {
     String[] tokens = line.split(",");
-    return new PystockStockPrice(Double.parseDouble(tokens[3]), Double.parseDouble(tokens[4]), tokens[0], parseTimestamp(tokens[1]));
+    return new PystockStockPrice(new BigDecimal(tokens[3]), new BigDecimal(tokens[4]), tokens[0], parseTimestamp(tokens[1]));
   }
 
   private static LocalDateTime parseTimestamp(String line) {
