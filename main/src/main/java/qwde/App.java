@@ -45,7 +45,7 @@ public class App implements Runnable {
 
     ServerSocket server = null;
     try {
-      server = new ServerSocket(Integer.valueOf(serverPort), 10, InetAddress.getByName("127.0.0.1"));
+      server = new ServerSocket(Integer.valueOf(serverPort), 10);
     } catch (IOException exception) {
       logger.error("", exception);
       System.exit(1);
