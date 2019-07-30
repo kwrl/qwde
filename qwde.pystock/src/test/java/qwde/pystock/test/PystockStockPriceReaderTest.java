@@ -1,7 +1,7 @@
 package qwde.pystock.test;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 
 import org.junit.Test;
@@ -14,7 +14,7 @@ public class PystockStockPriceReaderTest {
   @Test
   public void testRead() throws IOException {
     ClassLoader classLoader = getClass().getClassLoader();
-    File pyStockFile = new File(classLoader.getResource("20170102.tar.gz").getFile());
+    InputStream pyStockFile = classLoader.getResourceAsStream("20170102.tar.gz");
 
     PystockStockPriceReader pyReader = new PystockStockPriceReader(pyStockFile);
 

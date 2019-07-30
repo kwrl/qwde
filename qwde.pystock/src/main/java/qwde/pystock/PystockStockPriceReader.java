@@ -3,9 +3,11 @@ package qwde.pystock;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.net.URL;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -35,13 +37,50 @@ public class PystockStockPriceReader implements StockPriceReader {
          .collect(Collectors.toList());
   }
 
-  public PystockStockPriceReader(File stockPriceFile) throws IOException {
+  public PystockStockPriceReader(InputStream stockPriceFile) throws IOException {
     this.stockPrices = getPricesFromCompressedArchive(stockPriceFile).collect(Collectors.toList());
   }
 
   public static PystockStockPriceReader FromDate(String date) throws IOException {
     ClassLoader classLoader = PystockStockPriceReader.class.getClassLoader();
-    return new PystockStockPriceReader(new File(classLoader.getResource(date).getFile()));
+    InputStream resourceStream = classLoader.getResourceAsStream(date);
+    if (resourceStream == null) {
+      throw new FileNotFoundException(String.format("Could not find file '%s'", date));
+    }
+
+    return new PystockStockPriceReader(resourceStream);
+  }
+
+  public static Stream<StockPrice> getPricesFromCompressedArchive(InputStream compressedArchive) {
+    try {
+      TarArchiveInputStream stream = new TarArchiveInputStream(new GzipCompressorInputStream(compressedArchive));
+      TarArchiveEntry entry;
+      while ((entry = stream.getNextTarEntry()) != null) {
+        if ("prices.csv".equals(entry.getName())) {
+          BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+          List<StockPrice> prices = reader.lines()
+              .map(line -> {
+                try {
+                  return parseStockPrice(line);
+                } catch (Exception e) {
+                  return null;
+                }
+              })
+              .filter(x -> x != null)
+              .collect(Collectors.toList());
+
+          reader.close();
+          return prices.stream();
+        }
+      }
+      stream.close();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    return Stream.empty();
   }
 
   public static Stream<StockPrice> getPricesFromCompressedArchive(File compressedArchive) {
