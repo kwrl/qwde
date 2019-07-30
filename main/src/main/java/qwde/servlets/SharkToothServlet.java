@@ -1,42 +1,17 @@
 package qwde.servlets;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.util.Enumeration;
-import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import qwde.plotly.LinePlotRenderer;
-import qwde.pystock.PystockStockPriceReader;
-import tech.tablesaw.api.DoubleColumn;
-import tech.tablesaw.api.NumberColumn;
-import tech.tablesaw.api.Table;
-import tech.tablesaw.columns.Column;
-import tech.tablesaw.io.html.HtmlWriteOptions;
-import tech.tablesaw.plotly.Plot;
-import tech.tablesaw.plotly.api.BubblePlot;
-import tech.tablesaw.plotly.components.Figure;
-import tech.tablesaw.plotly.components.Layout;
-import tech.tablesaw.plotly.components.Marker;
-import tech.tablesaw.plotly.components.Page;
-import tech.tablesaw.plotly.traces.ScatterTrace;
-import tech.tablesaw.selection.Selection;
-
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Enumeration;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import qwde.plotly.LinePlotRenderer;
+import qwde.pystock.PystockStockPriceReader;
 
 @WebServlet("/sharktooth")
 public class SharkToothServlet extends HttpServlet {
