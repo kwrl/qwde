@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import qwde.plotly.LinePlotRenderer;
 import qwde.pystock.PystockStockPriceReader;
 
-@WebServlet("/sharktooth")
+@WebServlet(urlPatterns = {"/sharktooth"})
 public class SharkToothServlet extends HttpServlet {
   private static Logger logger = LoggerFactory.getLogger(SharkToothServlet.class);
   private static final long serialVersionUID = 1L;
