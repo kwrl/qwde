@@ -12,45 +12,61 @@ import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.commons.io.FilenameUtils;
 
 import qwde.models.StockPrice;
 import qwde.util.StockPriceReader;
 
 public class PystockStockPriceReader implements StockPriceReader {
   private final List<StockPrice> stockPrices;
+  public final static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
-  public PystockStockPriceReader(Path directoryPath) throws IOException {
-    this.stockPrices = Files.walk(directoryPath)
-        .map(path -> path.toFile())
-         .filter(File::isFile)
-         .filter(file -> file.getName().endsWith(".tar.gz"))
-         .map(file -> {
-           try {
-             return new FileInputStream(file);
-           } catch (FileNotFoundException exception) {
-             throw new UncheckedIOException(exception);
-           }
-         })
-         .parallel()
-         .flatMap(PystockStockPriceReader::getPricesFromCompressedArchive)
-         .collect(Collectors.toList());
+  private boolean fileNameMatchesDate(File file, Set<LocalDate> dates) {
+    LocalDate fileNameAsDate = LocalDate.parse(FilenameUtils.getBaseName(file.getName()), dateTimeFormatter);
+    return dates.contains(fileNameAsDate);
+  }
+
+  public PystockStockPriceReader(Set<LocalDate> desirableDates) throws IOException {
+    this.stockPrices = Files.walk(new File("../../..").toPath())
+            .map(path -> path.toFile())
+            .filter(File::isFile)
+            .filter(file -> file.getName().endsWith(".tar.gz"))
+            .filter(file -> fileNameMatchesDate(file, desirableDates))
+            .map(file -> {
+              try {
+                return new FileInputStream(file);
+              } catch (FileNotFoundException exception) {
+                throw new UncheckedIOException(exception);
+              }
+            })
+            .parallel()
+            .flatMap(PystockStockPriceReader::getPricesFromCompressedArchive)
+            .collect(Collectors.toList());
   }
 
   public PystockStockPriceReader(InputStream stockPriceFile) throws IOException {
     this.stockPrices = getPricesFromCompressedArchive(stockPriceFile).collect(Collectors.toList());
   }
 
-  public static PystockStockPriceReader FromDate(String date) throws IOException {
+  public static PystockStockPriceReader FromDate(LocalDate date) throws IOException {
+    DateTimeFormatter yearFormatter = DateTimeFormatter.ofPattern("yyyy");
+
     ClassLoader classLoader = PystockStockPriceReader.class.getClassLoader();
-    InputStream resourceStream = classLoader.getResourceAsStream(date);
+    InputStream resourceStream = classLoader.getResourceAsStream(String.format("pystock-data/%s/%s.tar.gz",
+            date.format(yearFormatter),
+            date.format(PystockStockPriceReader.dateTimeFormatter)));
     if (resourceStream == null) {
       throw new FileNotFoundException(String.format("Could not find file '%s'", date));
     }
@@ -66,15 +82,15 @@ public class PystockStockPriceReader implements StockPriceReader {
         if ("prices.csv".equals(entry.getName())) {
           BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
           List<StockPrice> prices = reader.lines()
-              .map(line -> {
-                try {
-                  return parseStockPrice(line);
-                } catch (Exception e) {
-                  return null;
-                }
-              })
-              .filter(x -> x != null)
-              .collect(Collectors.toList());
+                  .map(line -> {
+                    try {
+                      return parseStockPrice(line);
+                    } catch (Exception e) {
+                      return null;
+                    }
+                  })
+                  .filter(x -> x != null)
+                  .collect(Collectors.toList());
 
           reader.close();
           return prices.stream();
