@@ -7,4 +7,5 @@ git clean -f
 git fetch --all
 git reset --hard origin/master
 mvn test
+mvn clean compile install
 sudo service qwde-webserver restart

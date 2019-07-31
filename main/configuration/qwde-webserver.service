@@ -6,8 +6,7 @@ After=network.target
 Type=simple
 User=dev
 WorkingDirectory=/home/dev/qwde/main/
-ExecStartPre=/usr/bin/mvn clean install
-ExecStart=/usr/bin/java -jar /usr/local/bin/jetty-runner-9.0.0.M4.jar ./target/qwde_web.war
+ExecStart=/usr/bin/mvn exec:java
 Restart=on-failure
 # Other restart options: always, on-abort, etc
 

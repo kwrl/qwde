@@ -15,10 +15,6 @@ public class SharkToothServlet {
 
     Double[] testdataY = pyReader.read().stream().map(val -> val.getPrice().doubleValue()).toArray(Double[]::new);
     return LinePlotRenderer.renderFrom1d(testdataY);
-
-    //response.setContentType("text/html");
-    //response.setStatus(HttpServletResponse.SC_OK);
-    //response.getWriter().println("<h1>You can write HTML like this :)</h1>");
   }
 }
 

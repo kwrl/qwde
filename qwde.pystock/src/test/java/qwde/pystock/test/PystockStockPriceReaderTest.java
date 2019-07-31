@@ -19,7 +19,7 @@ public class PystockStockPriceReaderTest {
     PystockStockPriceReader pyReader = new PystockStockPriceReader(pyStockFile);
 
     Truth.assertThat(pyReader.read().isEmpty()).isFalse();
-    Truth.assertThat(pyReader.read().get(0).getPrice()).isEqualTo(4.655);
+    Truth.assertThat(pyReader.read().get(0).getPrice()).isEqualToIgnoringScale("4.655");
     Truth.assertThat(pyReader.read().get(0).getCompany()).isEqualTo("FAX");
     Truth.assertThat(pyReader.read().get(0).getTimestamp()).isEqualTo(LocalDateTime.of(2016, 12, 30, 0, 0));
   }
