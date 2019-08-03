@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Collector;
 import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
@@ -31,6 +34,18 @@ public class PystockStockPriceReaderTest {
     BigDecimal twitterPrice = pystockStockPriceReader.read().stream().filter(x -> x.getCompany().equals("TWTR")).map(x -> x.getPrice()).findFirst().get();
     
     Truth.assertThat(twitterPrice).isEqualToIgnoringScale("16.3949995");
+  }
+
+  @Test
+  public void readSpecificTickerInfo_Range() throws IOException {
+    PystockStockPriceReader pystockStockPriceReader = new PystockStockPriceReader(LocalDate.of(2017, 1, 2), LocalDate.of(2017, 1, 20));
+
+    List<BigDecimal> twitterPrice = pystockStockPriceReader.read().stream().filter(x -> x.getCompany().equals("TWTR")).map(x -> x.getPrice()).collect(Collectors.toList());
+
+    // Interval is 20 - 2 days, and since its an inclusive range, we add 1
+    // Minus number of weekends..
+    // 16th of January is a holiday, so that file does not exist.
+    Truth.assertThat(twitterPrice.size()).isEqualTo((20-2+1)-(2*2) - 1);
   }
 
   @Test

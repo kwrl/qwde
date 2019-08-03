@@ -17,13 +17,17 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FilenameUtils;
 
@@ -32,6 +36,8 @@ import qwde.pystock.PystockStockPrice;
 import qwde.util.StockPriceReader;
 
 public class PystockStockPriceReader implements StockPriceReader {
+  private static Logger logger = LoggerFactory.getLogger(PystockStockPriceReader.class);
+
   private final List<StockPrice> stockPrices;
   public final static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
@@ -50,6 +56,7 @@ public class PystockStockPriceReader implements StockPriceReader {
     return reader.readLine();
   }
 
+  // TODO: holidays are skipped since they are not found, but we inform the logger about it
   private static Set<LocalDate> getDateRange(LocalDate startDate, LocalDate endDate) {
     return startDate.datesUntil(endDate).filter(d -> !(d.getDayOfWeek() == DayOfWeek.SATURDAY || d.getDayOfWeek() == DayOfWeek.SUNDAY)).collect(Collectors.toSet());
   }
@@ -93,17 +100,8 @@ public class PystockStockPriceReader implements StockPriceReader {
   }
 
   public static PystockStockPriceReader FromDate(LocalDate date) throws IOException {
-    DateTimeFormatter yearFormatter = DateTimeFormatter.ofPattern("yyyy");
-
-    ClassLoader classLoader = PystockStockPriceReader.class.getClassLoader();
-    InputStream resourceStream = classLoader.getResourceAsStream(String.format("pystock-data/%s/%s.tar.gz",
-          date.format(yearFormatter),
-          date.format(PystockStockPriceReader.dateTimeFormatter)));
-    if (resourceStream == null) {
-      throw new FileNotFoundException(String.format("Could not find file '%s'", date));
-    }
-
-    return new PystockStockPriceReader(resourceStream);  }
+    return new PystockStockPriceReader(date, date);
+  }
 
   public static Stream<StockPrice> getPricesFromCompressedArchive(InputStream compressedArchive) {
     try {
@@ -122,9 +120,17 @@ public class PystockStockPriceReader implements StockPriceReader {
             })
           .filter(x -> x != null)
             .collect(Collectors.toList());
+          // there are redundant entries in some files, with another date. I don't know why.
+          Set<StockPrice> filteredPrices = new TreeSet<>(new Comparator<StockPrice>() {
+            @Override
+            public int compare(StockPrice left, StockPrice right) {
+              return left.getCompany().equals(right.getCompany()) ? 0 : 1;
+            }});
+
+          filteredPrices.addAll(prices);
 
           reader.close();
-          return prices.stream();
+          return filteredPrices.stream();
         }
       }
       stream.close();
@@ -149,6 +155,7 @@ public class PystockStockPriceReader implements StockPriceReader {
 
   @Override
   public List<StockPrice> read() {
+    logger.info("I have " + this.stockPrices.size() + " entries");
     return this.stockPrices;
   }
 }

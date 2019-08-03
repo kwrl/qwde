@@ -3,17 +3,11 @@ package qwde.plotly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.tablesaw.api.DoubleColumn;
-import tech.tablesaw.api.NumberColumn;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.plotly.components.Figure;
-import tech.tablesaw.plotly.components.Layout;
 import tech.tablesaw.plotly.components.Page;
 import tech.tablesaw.plotly.traces.ScatterTrace;
 
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.util.stream.IntStream;
 
 public class LinePlotRenderer {
@@ -22,16 +16,11 @@ public class LinePlotRenderer {
     public static String renderFrom1d(Double[] data) {
         double[] testdataX = IntStream.range(0, data.length).asDoubleStream().toArray();
         DoubleColumn testcolumnX = DoubleColumn.create("xcol", testdataX);
-        DoubleColumn testcolumnY = DoubleColumn.create("ycol", testdataX);
+        DoubleColumn testcolumnY = DoubleColumn.create("ycol", data);
 
         Table testtable = Table.create("test table").addColumns(testcolumnX, testcolumnY);
-        NumberColumn x = testtable.nCol("xcol");
-        NumberColumn y = testtable.nCol("ycol");
 
-        Layout layout = Layout.builder()
-                .title("Monthly Boston Armed Robberies Jan. 1966 - Oct. 1975")
-                .build();
-        ScatterTrace trace = ScatterTrace.builder(x, y)
+        ScatterTrace trace = ScatterTrace.builder(testtable.nCol("xcol"), testtable.nCol("ycol"))
                 .mode(ScatterTrace.Mode.LINE)
                 .showLegend(true)
                 .build();

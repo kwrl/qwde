@@ -6,12 +6,22 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Map;
+import java.util.List;
+import java.util.Collections;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.stream.Collectors;
 import java.util.StringTokenizer;
+import java.util.AbstractMap.SimpleImmutableEntry;
+
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import qwde.servlets.IndexServlet;
 import qwde.servlets.SharkToothServlet;
+import smile.plot.Line;
 
 public class HttpServer implements Runnable {
   private static Logger logger = LoggerFactory.getLogger(HttpServer.class);
@@ -23,6 +33,24 @@ public class HttpServer implements Runnable {
   public HttpServer(Socket cl) {
     client = cl;
   }
+
+  public Map<String, List<String>> getQueries(String httpQuery) {
+    if (httpQuery.indexOf("?") < 0) {
+      return Collections.emptyMap();
+    }
+    ;
+    return Arrays.stream(httpQuery.substring(httpQuery.indexOf("?")+1).split("&"))
+      .map(this::splitQueryParameter)
+      .collect(Collectors.groupingBy(SimpleImmutableEntry::getKey, LinkedHashMap::new, Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
+  }
+
+  public SimpleImmutableEntry<String, String> splitQueryParameter(String it) {
+    final int idx = it.indexOf("=");
+    final String key = idx > 0 ? it.substring(0, idx) : it;
+    final String value = idx > 0 && it.length() > idx + 1 ? it.substring(idx + 1) : null;
+    return new SimpleImmutableEntry<>(key, value);
+  }
+
 
   @Override
   public void run() {
@@ -48,11 +76,13 @@ public class HttpServer implements Runnable {
         requestString = inClient.readLine();
       }
 
+      Map<String, List<String>> urlMapping = getQueries(httpQueryString);
+
       if (httpMethod.equals("GET")) {
         if (httpQueryString.equals("/")) {
-          sendResponse(200, IndexServlet.doGet());
+          sendResponse(200, IndexServlet.doGet(urlMapping));
         } else if (httpQueryString.startsWith("/sharktooth")) {
-          sendResponse(200, SharkToothServlet.doGet());
+          sendResponse(200, SharkToothServlet.doGet(urlMapping));
         } else {
           sendResponse(404, "<b>The Requested resource not found.</b>");
         }
