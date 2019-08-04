@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=simple
 User=dev
-WorkingDirectory=/home/dev/webappwithplotly/
+WorkingDirectory=/home/dev/qwde/
 ExecStart=/usr/bin/webhook -hooks /var/webhook/hooks.json
 Restart=on-failure
 # Other restart options: always, on-abort, etc
