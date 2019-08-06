@@ -1,4 +1,4 @@
-package qwde.pystock.test;
+package qwdepystock.pystock.test;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import com.google.common.truth.Truth;
 
-import qwde.pystock.PystockStockPriceReader;
+import qwdepystock.pystock.PystockStockPriceReader;
 
 public class PystockStockPriceReaderTest {
   private PystockStockPriceReader getPystockPriceReader(LocalDate date) throws IOException {
@@ -33,7 +33,7 @@ public class PystockStockPriceReaderTest {
 
     BigDecimal twitterPrice = pystockStockPriceReader.read().stream().filter(x -> x.getCompany().equals("TWTR")).map(x -> x.getPrice()).findFirst().get();
     
-    Truth.assertThat(twitterPrice).isEqualToIgnoringScale("16.3949995");
+    Truth.assertThat(twitterPrice).isEqualToIgnoringScale("16.299999");
   }
 
   @Test
@@ -53,7 +53,7 @@ public class PystockStockPriceReaderTest {
     PystockStockPriceReader pyReader = getPystockPriceReader(LocalDate.of(2017, 01, 02));
 
     Truth.assertThat(pyReader.read().isEmpty()).isFalse();
-    Truth.assertThat(pyReader.read().get(0).getPrice()).isEqualToIgnoringScale("4.655");
+    Truth.assertThat(pyReader.read().get(0).getPrice()).isEqualToIgnoringScale("4.63");
     Truth.assertThat(pyReader.read().get(0).getCompany()).isEqualTo("FAX");
     Truth.assertThat(pyReader.read().get(0).getTimestamp()).isEqualTo(LocalDateTime.of(2016, 12, 30, 0, 0));
   }

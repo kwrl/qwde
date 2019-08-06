@@ -1,4 +1,4 @@
-package qwde.pystock;
+package qwdepystock.pystock;
 
 import java.io.IOException;
 import java.time.LocalDate;

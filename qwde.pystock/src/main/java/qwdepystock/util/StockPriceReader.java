@@ -1,8 +1,8 @@
-package qwde.util;
+package qwdepystock.util;
 
 import java.util.Collection;
 
-import qwde.models.StockPrice;
+import qwdepystock.models.StockPrice;
 
 public interface StockPriceReader {
   Collection<StockPrice> read();

@@ -1,4 +1,4 @@
-package qwde.models;
+package qwdepystock.models;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
