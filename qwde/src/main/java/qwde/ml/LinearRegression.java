@@ -13,6 +13,7 @@ import weka.core.converters.ArffLoader;
  * Stolen from https://tech.io/playgrounds/3771/machine-learning-with-java---part-1-linear-regression
  */
 public final class LinearRegression {
+  
   /** File names are defined. */
   public static final String TRAINING_DATA_SET_FILENAME = "linear-train.arff";
   public static final String PREDICTION_DATA_SET_FILENAME = "linear-prediction.arff";
