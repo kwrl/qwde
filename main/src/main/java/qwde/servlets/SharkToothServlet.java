@@ -30,7 +30,7 @@ public class SharkToothServlet {
     LocalDate toDate = fromDate.plusDays(10);
 
     if (urlParams.containsKey("todate") && urlParams.get("todate").size() == 1) {
-      toDate = LocalDate.parse(urlParams.get("fromdate").get(0), dateTimeFormatter);
+      toDate = LocalDate.parse(urlParams.get("todate").get(0), dateTimeFormatter);
     }
 
     logger.debug("Doing render with {}, {}, {}", ticker, fromDate, toDate);
