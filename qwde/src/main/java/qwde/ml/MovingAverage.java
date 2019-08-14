@@ -1,5 +1,7 @@
 package qwde.ml;
 
+import java.util.Arrays;
+
 public final class MovingAverage {
 
     public static Double[] simpleMovingAverage(Double[] data, int time) {
@@ -13,13 +15,9 @@ public final class MovingAverage {
             if (i < time) {
                 window = i + 1;
             }
-            
-            double sum = 0;
-            for (int j = i; j >= (i - (window -1)); j--) {
-                sum += data[j];
-            }
 
-            sma[i] = sum / window;
+            Double[] windowData = Arrays.copyOfRange(sma, i - (window - 1), i);
+            sma[i] = Arrays.stream(windowData).reduce(0.0, (subtotal, element) -> subtotal + element) / window;
         }
 
         return sma;
