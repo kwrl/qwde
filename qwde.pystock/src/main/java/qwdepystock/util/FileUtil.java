@@ -2,13 +2,19 @@ package qwdepystock.util;
 
 import java.util.stream.Collectors;
 import java.io.BufferedReader;
+import java.nio.file.Path;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 
+import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.SystemUtils;
+
 public class FileUtil {
+  public static String APPNAME = "qwde";
+
   public static String getResourceFileAsString(String fileName) throws FileNotFoundException, IOException {
     InputStream is = FileUtil.class.getClassLoader().getResourceAsStream(fileName);
       if (is == null) {
@@ -29,6 +35,20 @@ public class FileUtil {
       return reader.readLine();
     } catch (IOException exception) {
       throw new UncheckedIOException(exception);
+    }
+  }
+  
+  public static String getApplicationDataDirectory() {
+    if (SystemUtils.IS_OS_WINDOWS) {
+      return Path.of(System.getenv("APPDATA"), APPNAME).toAbsolutePath().toString();
+    } else if (SystemUtils.IS_OS_UNIX) {
+      String xdgDataHome = System.getenv("XDG_DATA_HOME");
+      if (xdgDataHome.isEmpty()) {
+        xdgDataHome = Path.of(System.getenv("HOME"), ".cache", APPNAME).toAbsolutePath().toString();
+      } 
+      return Path.of(xdgDataHome, APPNAME).toAbsolutePath().toString();
+    } else {
+      throw new NotImplementedException("Only defined data dirs for windows and unix-like (XDG) OS, so far");
     }
   }
 }
