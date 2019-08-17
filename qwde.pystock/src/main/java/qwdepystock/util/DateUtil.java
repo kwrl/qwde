@@ -14,8 +14,8 @@ public class DateUtil {
     return Date.from(localDateTime.atStartOfDay(ZoneId.systemDefault()).toInstant());
   }
 
-  public static boolean compareDdMmYyyy(LocalDateTime left, LocalDateTime right) {
-    return left.getDayOfYear() == right.getDayOfYear() && left.getMonth() == right.getMonth() && left.getYear() == right.getYear();
+  public static int compareDdMmYyyy(LocalDateTime left, LocalDateTime right) {
+    return LocalDate.of(left.getYear(), left.getMonth(), left.getDayOfMonth()).compareTo(LocalDate.of(right.getYear(), right.getMonth(), right.getDayOfMonth()));
   }
 }
 

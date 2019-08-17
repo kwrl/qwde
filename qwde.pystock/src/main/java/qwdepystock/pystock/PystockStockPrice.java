@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import qwdepystock.models.StockPrice;
+import qwdepystock.util.DateUtil;
 
 public class PystockStockPrice implements StockPrice {
   private final BigDecimal highPrice;
@@ -13,7 +14,6 @@ public class PystockStockPrice implements StockPrice {
   private final LocalDateTime timestamp;
 
   public PystockStockPrice(BigDecimal highPrice, BigDecimal lowPrice, BigDecimal closePrice, String company, LocalDateTime timestamp) {
-    super();
     this.highPrice = highPrice;
     this.lowPrice = lowPrice;
     this.company = company;
@@ -49,4 +49,21 @@ public class PystockStockPrice implements StockPrice {
     return company + " [" + timestamp.toString() + "]: " + getPrice();
   }
 
+  @Override
+  public int compareTo(StockPrice other) {
+    if (this.company.equals(other.getCompany())) {
+      return DateUtil.compareDdMmYyyy(this.timestamp, other.getTimestamp());
+    } else {
+      return this.company.compareTo(other.getCompany());
+    }
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (other instanceof StockPrice) {
+      return this.compareTo((StockPrice) other) == 0;
+    } else {
+      return false;
+    }
+  }
 }
