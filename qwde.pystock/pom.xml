@@ -10,7 +10,7 @@
     <release>11</release>
     <activejdbc.version>2.3</activejdbc.version>
     <environments>development.test,development</environments>
-    <exec.mainClass>qwde.pystock.App</exec.mainClass>
+    <exec.mainClass>qwdepystock.pystock.App</exec.mainClass>
   </properties>
 
   <dependencies>

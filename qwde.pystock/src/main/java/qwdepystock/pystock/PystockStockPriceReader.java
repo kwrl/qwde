@@ -18,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -33,6 +34,7 @@ import org.apache.commons.io.FilenameUtils;
 import qwdepystock.models.StockPrice;
 import qwdepystock.pystock.PystockStockPrice;
 import qwdepystock.util.StockPriceReader;
+import qwdepystock.util.DateUtil;
 import qwdepystock.util.FileUtil;
 
 public class PystockStockPriceReader implements StockPriceReader {
@@ -55,6 +57,23 @@ public class PystockStockPriceReader implements StockPriceReader {
     return startDate.datesUntil(endDate).filter(d -> !(d.getDayOfWeek() == DayOfWeek.SATURDAY || d.getDayOfWeek() == DayOfWeek.SUNDAY)).collect(Collectors.toSet());
   }
 
+  public PystockStockPriceReader() throws IOException {
+    this.stockPrices = Files.walk(Path.of(FileUtil.getGitRootDirectory(), "pystock-data"))
+          .map(Path::toFile)
+          .filter(File::isFile)
+          .filter(file -> file.getName().endsWith(".tar.gz"))
+          .map(file -> {
+            try {
+              return new FileInputStream(file);
+            } catch (FileNotFoundException exception) {
+              throw new UncheckedIOException(exception);
+            }
+          })
+      .parallel()
+      .flatMap(PystockStockPriceReader::getPricesFromCompressedArchive)
+      .collect(Collectors.toList());
+  }
+
   public PystockStockPriceReader(LocalDate startDate, LocalDate endDate) throws IOException {
     Set<LocalDate> desirableDates = getDateRange(startDate, endDate.plusDays(1));
     Set<Integer> years = desirableDates.stream().map(date -> date.getYear()).collect(Collectors.toSet());
@@ -63,7 +82,7 @@ public class PystockStockPriceReader implements StockPriceReader {
         Path yearPath = Path.of(FileUtil.getGitRootDirectory(), "pystock-data",  year.toString());
         return yearPath;
       });
-    this.stockPrices = yearPaths.flatMap(yearPath -> {
+    List<StockPrice> stockPrices = yearPaths.flatMap(yearPath -> {
       try {
         return Files.walk(yearPath)
           .map(path -> path.toFile())
@@ -83,10 +102,16 @@ public class PystockStockPriceReader implements StockPriceReader {
     .parallel()
       .flatMap(PystockStockPriceReader::getPricesFromCompressedArchive)
       .collect(Collectors.toList());
-  }
 
-  public PystockStockPriceReader(InputStream stockPriceFile) throws IOException {
-    this.stockPrices = getPricesFromCompressedArchive(stockPriceFile).collect(Collectors.toList());
+    // there are redundant entries in some files, with another date. I don't know why.
+    Set<StockPrice> filteredPrices = new TreeSet<>(new Comparator<StockPrice>() {
+      @Override
+      public int compare(StockPrice left, StockPrice right) {
+        return left.getCompany().equals(right.getCompany()) && DateUtil.compareDdMmYyyy(left.getTimestamp(), right.getTimestamp()) ? 0 : 1;
+      }});
+
+    filteredPrices.addAll(stockPrices);
+    this.stockPrices = new ArrayList<>(filteredPrices);
   }
 
   public static PystockStockPriceReader FromDate(LocalDate date) throws IOException {
@@ -99,35 +124,21 @@ public class PystockStockPriceReader implements StockPriceReader {
       TarArchiveEntry entry;
       while ((entry = stream.getNextTarEntry()) != null) {
         if ("prices.csv".equals(entry.getName())) {
-          BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-          List<StockPrice> prices = reader.lines()
-            .map(line -> {
-              try {
-                return parseStockPrice(line);
-              } catch (Exception e) {
-                return null;
-              }
-            })
-          .filter(x -> x != null)
-            .collect(Collectors.toList());
-          // there are redundant entries in some files, with another date. I don't know why.
-          Set<StockPrice> filteredPrices = new TreeSet<>(new Comparator<StockPrice>() {
-            @Override
-            public int compare(StockPrice left, StockPrice right) {
-              return left.getCompany().equals(right.getCompany()) ? 0 : 1;
-            }});
-
-          filteredPrices.addAll(prices);
-
-          reader.close();
-          return filteredPrices.stream();
+          try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+            return reader.lines()
+              .map(line -> {
+                try {
+                  return parseStockPrice(line);
+                } catch (Exception e) {
+                  return null;
+                }
+              })
+            .filter(x -> x != null);
+          }
         }
       }
-      stream.close();
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
     } catch (IOException e) {
-      e.printStackTrace();
+      logger.debug("", e);
     }
 
     return Stream.empty();

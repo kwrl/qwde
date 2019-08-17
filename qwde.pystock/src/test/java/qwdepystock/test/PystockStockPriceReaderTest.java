@@ -17,16 +17,6 @@ import com.google.common.truth.Truth;
 import qwdepystock.pystock.PystockStockPriceReader;
 
 public class PystockStockPriceReaderTest {
-  private PystockStockPriceReader getPystockPriceReader(LocalDate date) throws IOException {
-    ClassLoader classLoader = PystockStockPriceReaderTest.class.getClassLoader();
-    InputStream resourceStream = classLoader.getResourceAsStream(date.format(PystockStockPriceReader.dateTimeFormatter) + ".tar.gz");
-    if (resourceStream == null) {
-      throw new FileNotFoundException(String.format("Could not find file '%s'", date));
-    }
-
-    return new PystockStockPriceReader(resourceStream);
-  }
-
   @Test
   public void readSpecificTickerInfo() throws IOException {
     PystockStockPriceReader pystockStockPriceReader = new PystockStockPriceReader(LocalDate.of(2017, 01, 02), LocalDate.of(2017, 01, 02));
@@ -50,7 +40,7 @@ public class PystockStockPriceReaderTest {
 
   @Test
   public void testRead() throws IOException {
-    PystockStockPriceReader pyReader = getPystockPriceReader(LocalDate.of(2017, 01, 02));
+    PystockStockPriceReader pyReader = new PystockStockPriceReader(LocalDate.of(2017, 01, 02), LocalDate.of(2017, 01, 02));
 
     Truth.assertThat(pyReader.read().isEmpty()).isFalse();
     Truth.assertThat(pyReader.read().get(0).getPrice()).isEqualToIgnoringScale("4.63");
