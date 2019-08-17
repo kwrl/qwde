@@ -8,7 +8,6 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <exec.mainClass>qwde.App</exec.mainClass>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.target.source>1.8</maven.target.source>
   </properties>
@@ -142,6 +141,26 @@
           </descriptorRefs>
         </configuration>
       </plugin>      
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.6.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <executable>maven</executable>
+          <mainClass>qwde.App</mainClass>
+          <cleanupDaemonThreads>false</cleanupDaemonThreads>
+          <arguments>
+          </arguments>
+        </configuration>
+      </plugin>
 
     </plugins>
   </build>

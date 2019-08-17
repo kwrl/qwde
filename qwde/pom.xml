@@ -36,10 +36,7 @@
         <artifactId>maven-site-plugin</artifactId>
         <version>3.7.1</version>
       </plugin>
-
     </plugins>
-
-
 
   </build>
 
@@ -49,11 +46,13 @@
       <artifactId>guava</artifactId>
       <version>23.0</version>
     </dependency>
+
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>2.6</version>
     </dependency>
+
     <dependency>
       <groupId>nz.ac.waikato.cms.weka</groupId>
       <artifactId>weka-dev</artifactId>
@@ -95,6 +94,13 @@
       <version>0.39</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>qwde</groupId>
+      <artifactId>qwde.pystock</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+
 
   </dependencies>
 </project>

@@ -1,4 +1,4 @@
-package qwde.pystock.test;
+package qwdepystock.pystock.test;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,26 +14,16 @@ import org.junit.jupiter.api.Test;
 
 import com.google.common.truth.Truth;
 
-import qwde.pystock.PystockStockPriceReader;
+import qwdepystock.pystock.PystockStockPriceReader;
 
 public class PystockStockPriceReaderTest {
-  private PystockStockPriceReader getPystockPriceReader(LocalDate date) throws IOException {
-    ClassLoader classLoader = PystockStockPriceReaderTest.class.getClassLoader();
-    InputStream resourceStream = classLoader.getResourceAsStream(date.format(PystockStockPriceReader.dateTimeFormatter) + ".tar.gz");
-    if (resourceStream == null) {
-      throw new FileNotFoundException(String.format("Could not find file '%s'", date));
-    }
-
-    return new PystockStockPriceReader(resourceStream);
-  }
-
   @Test
   public void readSpecificTickerInfo() throws IOException {
     PystockStockPriceReader pystockStockPriceReader = new PystockStockPriceReader(LocalDate.of(2017, 01, 02), LocalDate.of(2017, 01, 02));
 
     BigDecimal twitterPrice = pystockStockPriceReader.read().stream().filter(x -> x.getCompany().equals("TWTR")).map(x -> x.getPrice()).findFirst().get();
     
-    Truth.assertThat(twitterPrice).isEqualToIgnoringScale("16.3949995");
+    Truth.assertThat(twitterPrice).isEqualToIgnoringScale("16.299999");
   }
 
   @Test
@@ -50,10 +40,10 @@ public class PystockStockPriceReaderTest {
 
   @Test
   public void testRead() throws IOException {
-    PystockStockPriceReader pyReader = getPystockPriceReader(LocalDate.of(2017, 01, 02));
+    PystockStockPriceReader pyReader = new PystockStockPriceReader(LocalDate.of(2017, 01, 02), LocalDate.of(2017, 01, 02));
 
     Truth.assertThat(pyReader.read().isEmpty()).isFalse();
-    Truth.assertThat(pyReader.read().get(0).getPrice()).isEqualToIgnoringScale("4.655");
+    Truth.assertThat(pyReader.read().get(0).getPrice()).isEqualToIgnoringScale("4.63");
     Truth.assertThat(pyReader.read().get(0).getCompany()).isEqualTo("FAX");
     Truth.assertThat(pyReader.read().get(0).getTimestamp()).isEqualTo(LocalDateTime.of(2016, 12, 30, 0, 0));
   }

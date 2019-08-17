@@ -1,5 +1,8 @@
 package qwde.plotly;
 
+import java.util.List;
+import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.tablesaw.api.DoubleColumn;
@@ -8,12 +11,10 @@ import tech.tablesaw.plotly.components.Axis;
 import tech.tablesaw.plotly.components.Figure;
 import tech.tablesaw.plotly.components.Layout;
 import tech.tablesaw.plotly.components.Page;
-import tech.tablesaw.plotly.traces.BarTrace;
 import tech.tablesaw.plotly.traces.ScatterTrace;
 
 import java.util.stream.IntStream;
 import java.util.ArrayList;
-import java.util.List;
 
 import qwde.ml.MovingAverage;
 
@@ -21,17 +22,19 @@ public class LinePlotRenderer {
 
     private static Logger logger = LoggerFactory.getLogger(LinePlotRenderer.class);
 
-    public static String renderFrom1d(Double[] data) {
-
-        double[] xData = IntStream.range(0, data.length).asDoubleStream().toArray();
+    public static String renderFrom1d(List<Double> data) {
+        double[] testdataX = IntStream.range(0, data.size()).asDoubleStream().toArray();
+        Arrays.setAll(testdataX, i -> i + 1);
+        Double[] dataAsArray = new Double[data.size()];
+        dataAsArray = data.toArray(dataAsArray);
         
-        DoubleColumn xColumn = DoubleColumn.create("xcol", xData);
-        DoubleColumn yColumn = DoubleColumn.create("ycol", data);
+        DoubleColumn xColumn = DoubleColumn.create("xcol", testdataX);
+        DoubleColumn yColumn = DoubleColumn.create("ycol", dataAsArray);
 
         List<ScatterTrace> smaPlots = new ArrayList<>();
 
         for (int window = 10; window <= 100; window += 10) {
-            Double[] sma = MovingAverage.simpleMovingAverage(data, window);
+            Double[] sma = MovingAverage.simpleMovingAverage(dataAsArray, window);
             DoubleColumn smaColumn = DoubleColumn.create("sma", sma);
 
             Table smaTable = Table.create("smaTable").addColumns(xColumn, smaColumn);

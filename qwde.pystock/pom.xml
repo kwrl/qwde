@@ -8,8 +8,9 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <release>11</release>
-    <!-- <maven.compiler.source>1.8</maven.compiler.source> -->
-    <!-- <maven.target.source>1.8</maven.target.source>     -->
+    <activejdbc.version>2.3</activejdbc.version>
+    <environments>development.test,development</environments>
+    <exec.mainClass>qwdepystock.pystock.App</exec.mainClass>
   </properties>
 
   <dependencies>
@@ -20,11 +21,10 @@
     </dependency>
 
     <dependency>
-      <groupId>qwde</groupId>
-      <artifactId>qwde</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+      <version>5.2.4</version>
     </dependency>
-
 
     <dependency>
       <groupId>com.flextrade.jfixture</groupId>
@@ -32,7 +32,6 @@
       <version>2.7.2</version>
       <scope>test</scope>
     </dependency>
-
 
     <dependency>
       <groupId>ch.qos.logback</groupId>
@@ -54,6 +53,31 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>info.picocli</groupId>
+      <artifactId>picocli</artifactId>
+      <version>3.9.5</version>
+    </dependency> 
+
+    <dependency>
+      <groupId>org.xerial</groupId>
+      <artifactId>sqlite-jdbc</artifactId>
+      <version>3.28.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+      <version>2.7.8</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.6</version>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -64,8 +88,6 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <release>11</release>
-          <!-- <source>1.8</source> -->
-          <!-- <target>1.8</target> -->
         </configuration>
         <version>3.8.0</version>
       </plugin>
@@ -90,6 +112,7 @@
         <artifactId>maven-site-plugin</artifactId>
         <version>3.7.1</version>
       </plugin>
+
     </plugins>
   </build>
 </project>

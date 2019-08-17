@@ -1,21 +1,23 @@
 package qwde;
 
+import io.prometheus.client.exporter.HTTPServer;
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.InetAddress;
-
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.prometheus.client.exporter.HTTPServer;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+import picocli.CommandLine;
 
+import qwde.db.StockDB;
 import qwde.web.HttpServer;
+import qwdepystock.db.DatabaseManager;
 
 @Command(name = "qwde stuff", mixinStandardHelpOptions = true, version = "0.1")
-public class App implements Runnable {
+public class App implements Callable<Integer> {
   private static Logger logger = LoggerFactory.getLogger(App.class);
 
   @Option(names = { "-p" },
@@ -31,7 +33,7 @@ public class App implements Runnable {
     private String serverPort;
 
   @Override
-  public void run() {
+  public Integer call() {
     logger.trace("Got argument \"{}\"", this.port);
 
     @SuppressWarnings("unused")
@@ -40,40 +42,53 @@ public class App implements Runnable {
       prometheusSever = new HTTPServer(Integer.valueOf(this.port));
     } catch (IOException exception) {
       logger.error("Could not start prometheus server at 9456", exception);
-      System.exit(1);
+      return 1;
     }
-
+    
     ServerSocket server = null;
     try {
       server = new ServerSocket(Integer.valueOf(serverPort), 10);
     } catch (IOException exception) {
       logger.error("", exception);
-      System.exit(1);
+      return 1;
     } 
-
+    
     logger.info("Started server {}", server);
+    
+    
+    try {
+      DatabaseManager.initialize();
+    } catch (ClassNotFoundException | IOException | SQLException   exception) {
+      logger.error("", exception);
+      return 1;
+    }
 
-    while (true) {
+    try {
+      System.out.println(StockDB.getCompanyData("TWTR", LocalDate.of(2017, 01, 01), LocalDate.of(2017, 01, 30)));
+    } catch (SQLException exception) {
+    }
+
+    while (Thread.currentThread().isAlive()) {
       try {
         Thread t = new Thread(new HttpServer(server.accept()));
         t.start();
       } catch (Exception exception) {
-        logger.error("{}", exception);
-        interruptableSleep(1000);
+        logger.error("", exception);
+        return 1;
       }
     }
-  }
-
-  private static void interruptableSleep(int ms) {
-    try {
-      Thread.sleep(100);
-    } catch (InterruptedException interruptedException) {
-    }
+    
+    return 0;
   }
 
   public static void main(String[] args) {
-    System.out.println("Hello, stockerface!");
     logger.info("Starting");
-    CommandLine.run(new App(), args);
+
+    try {
+      System.exit(CommandLine.call(new App(), args));
+    } catch (Exception exception) {
+      logger.error("Unexpected error happened", exception);
+      System.exit(1);
+    }
   }
 }
