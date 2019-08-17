@@ -3,6 +3,7 @@ package qwdepystock.util;
 import java.util.stream.Collectors;
 import java.io.BufferedReader;
 import java.nio.file.Path;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,13 +38,22 @@ public class FileUtil {
       throw new UncheckedIOException(exception);
     }
   }
+
+  public static String createIfNotExists(String path) {
+    File pathAsFile = new File(path);
+    if (!pathAsFile.exists()) {
+      pathAsFile.mkdirs();
+    }
+
+    return path;
+  }
   
   public static String getApplicationDataDirectory() {
     if (SystemUtils.IS_OS_WINDOWS) {
       return Path.of(System.getenv("APPDATA"), APPNAME).toAbsolutePath().toString();
     } else if (SystemUtils.IS_OS_UNIX) {
-      String xdgDataHome = System.getenv("XDG_DATA_HOME");
-      if (xdgDataHome.isEmpty()) {
+      String xdgDataHome = System.getenv("XDG_CACHE_HOME");
+      if (xdgDataHome == null || xdgDataHome.isEmpty()) {
         xdgDataHome = Path.of(System.getenv("HOME"), ".cache", APPNAME).toAbsolutePath().toString();
       } 
       return Path.of(xdgDataHome, APPNAME).toAbsolutePath().toString();

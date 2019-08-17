@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.nio.file.Path;
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -14,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import qwdepystock.pystock.PystockToDB;
+import qwdepystock.util.FileUtil;
 
 import org.flywaydb.core.Flyway;
 
@@ -49,6 +54,11 @@ public class DatabaseManager {
       Class.forName(properties.getProperty("development.disk.driver"));
 
       String jdbcUrl = properties.getProperty("development.disk.url");
+      Pattern regex = Pattern.compile("[a-zA-Z]+\\.db");
+      Matcher m = regex.matcher(jdbcUrl);
+      if (m.find()) {
+        jdbcUrl = jdbcUrl.replaceFirst("[a-zA-Z]+\\.db", Path.of(FileUtil.createIfNotExists(FileUtil.getApplicationDataDirectory()), m.group()).toAbsolutePath().toString());
+      }
       logger.info("Connecting to db {}", jdbcUrl);
       databaseManager = new DatabaseManager(jdbcUrl);
 
