@@ -16,17 +16,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Comparator;
 import java.util.List;
-import java.util.HashSet;
-import java.util.ArrayList;
 import java.util.Set;
 import java.util.Optional;
-import java.util.TreeSet;
 import java.util.Collections;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -38,7 +33,6 @@ import org.apache.commons.io.FilenameUtils;
 import qwdepystock.models.StockPrice;
 import qwdepystock.pystock.PystockStockPrice;
 import qwdepystock.util.StockPriceReader;
-import qwdepystock.util.DateUtil;
 import qwdepystock.util.FileUtil;
 
 public class PystockStockPriceReader implements StockPriceReader {
@@ -61,8 +55,13 @@ public class PystockStockPriceReader implements StockPriceReader {
   }
 
   public PystockStockPriceReader(Predicate<String> fileNameFilter) throws IOException {
+    Optional<Path> pystockDataPath = FileUtil.findFolderInDatapath("pystock-data");
+    if (pystockDataPath.isEmpty()) {
+      throw new FileNotFoundException("Unable to find pystock-data files. See README.md for more documentation.");
+    }
     try {
-      this.stockPrices = Files.walk(Path.of(FileUtil.getGitRootDirectory(), "pystock-data"))
+      logger.info("Reading pystock-data...");
+      this.stockPrices = Files.walk(pystockDataPath.get())
         .map(Path::toFile)
         .filter(File::isFile)
         .filter(file -> file.getName().endsWith(".tar.gz"))

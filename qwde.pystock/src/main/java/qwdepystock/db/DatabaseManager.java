@@ -54,10 +54,11 @@ public class DatabaseManager {
       Class.forName(properties.getProperty("development.disk.driver"));
 
       String jdbcUrl = properties.getProperty("development.disk.url");
-      Pattern regex = Pattern.compile("[a-zA-Z]+\\.db");
+      String stringRegex = "\\|XDGCACHEDIR\\|([a-zA-Z]+\\.db)";
+      Pattern regex = Pattern.compile(stringRegex);
       Matcher m = regex.matcher(jdbcUrl);
       if (m.find()) {
-        jdbcUrl = jdbcUrl.replaceFirst("[a-zA-Z]+\\.db", Path.of(FileUtil.createIfNotExists(FileUtil.getApplicationDataDirectory()), m.group()).toAbsolutePath().toString());
+        jdbcUrl = jdbcUrl.replaceFirst(stringRegex, Path.of(FileUtil.createIfNotExists(FileUtil.getCacheDirectory()), m.group(1)).toAbsolutePath().toString());
       }
       logger.info("Connecting to db {}", jdbcUrl);
       databaseManager = new DatabaseManager(jdbcUrl);

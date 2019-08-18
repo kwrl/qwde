@@ -5,18 +5,16 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
 
 import com.google.common.truth.Truth;
 
-import qwdepystock.pystock.PystockStockPrice;
 import qwdepystock.pystock.PystockStockPriceReader;
 
 public class PystockStockPriceReaderTest {
-  // @Test
+  @Test
   public void readSpecificTickerInfo() throws IOException {
     PystockStockPriceReader pystockStockPriceReader = PystockStockPriceReader.getPystockStockPriceReader(LocalDate.of(2017, 01, 02), LocalDate.of(2017, 01, 02));
 
@@ -37,7 +35,7 @@ public class PystockStockPriceReaderTest {
     Truth.assertThat(twitterPrice.size()).isEqualTo((20-2+1)-(2*2) - 1);
   }
 
-  // @Test
+  @Test
   public void testRead() throws IOException {
     PystockStockPriceReader pyReader = PystockStockPriceReader.getPystockStockPriceReader(LocalDate.of(2017, 01, 02), LocalDate.of(2017, 01, 02));
 
