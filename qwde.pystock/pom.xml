@@ -87,6 +87,11 @@
   </dependencies>
 
   <build>
+    <resources>
+      <resource>
+        <directory>tools/</directory>
+      </resource>
+    </resources>
     <plugins>
 
       <plugin>

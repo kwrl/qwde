@@ -6,7 +6,7 @@
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
+            <level>DEBUG</level>
         </filter>
         <encoder>
             <pattern>%d{yyyyMMdd-HHmmss.SSS};%-5level;${HOSTNAME};${APPNAME:-app};[%thread];%logger{35};%msg %n
@@ -15,8 +15,9 @@
     </appender>
 
     <logger name="com.zaxxer.hikari.pool" level="info"/>
+    <logger name="com.zaxxer.hikari.HikariConfig" level="info"/>
 
-    <root level="DEBUG">
+    <root level="TRACE">
         <appender-ref ref="STDOUT"/>
         <!-- <appender-ref ref="FILE"/> -->
         <!-- <appender-ref ref="syslog"/> -->
