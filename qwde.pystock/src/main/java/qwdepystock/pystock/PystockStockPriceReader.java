@@ -31,7 +31,6 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FilenameUtils;
 
 import qwdepystock.models.StockPrice;
-import qwdepystock.pystock.PystockStockPrice;
 import qwdepystock.util.StockPriceReader;
 import qwdepystock.util.FileUtil;
 
@@ -57,8 +56,17 @@ public class PystockStockPriceReader implements StockPriceReader {
   public PystockStockPriceReader(Predicate<String> fileNameFilter) throws IOException {
     Optional<Path> pystockDataPath = FileUtil.findFolderInDatapath("pystock-data");
     if (pystockDataPath.isEmpty()) {
-      throw new FileNotFoundException("Unable to find pystock-data files. See README.md for more documentation.");
+      // Not pretty, but it covers most use-cases by other devs.
+      // I.e., we search in XDG_DATA_HOME, XDG_DATA_DIRS, and the current working directory, and the directory above
+      pystockDataPath = FileUtil.findInPath("pystock-data", ".");
+      if (pystockDataPath.isEmpty()) {
+        pystockDataPath = FileUtil.findInPath("pystock-data", "..");
+        if (pystockDataPath.isEmpty()) {
+          throw new FileNotFoundException("Unable to find pystock-data files. See README.md for more documentation.");
+        }
+      }
     }
+    logger.trace("Located pystock-data in {}", pystockDataPath.get());
     try {
       logger.info("Reading pystock-data...");
       this.stockPrices = Files.walk(pystockDataPath.get())

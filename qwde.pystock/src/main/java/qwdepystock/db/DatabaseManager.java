@@ -36,6 +36,7 @@ public class DatabaseManager {
     this.config.addDataSourceProperty("prepStmtCacheSize", "250");
     this.config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
     this.config.setAutoCommit(false);
+    this.config.setMaximumPoolSize(2);
     this.ds = new HikariDataSource(config);
   }
 
@@ -58,7 +59,7 @@ public class DatabaseManager {
       Pattern regex = Pattern.compile(stringRegex);
       Matcher m = regex.matcher(jdbcUrl);
       if (m.find()) {
-        jdbcUrl = jdbcUrl.replaceFirst(stringRegex, Path.of(FileUtil.createIfNotExists(FileUtil.getCacheDirectory()), m.group(1)).toAbsolutePath().toString());
+        jdbcUrl = jdbcUrl.replaceFirst(stringRegex, Path.of(FileUtil.createIfNotExists(FileUtil.getCacheDirectory()), m.group(1)).toAbsolutePath().toString().replace("\\", "/"));
       }
       logger.info("Connecting to db {}", jdbcUrl);
       databaseManager = new DatabaseManager(jdbcUrl);
@@ -67,9 +68,9 @@ public class DatabaseManager {
       flyway.migrate();
 
       if (PystockToDB.databaseHasData()) {
-        logger.info("Found data in DB : database ready.");
+        logger.info("Found data in DB ({}) : database ready.", jdbcUrl);
       } else {
-        logger.info("No data in DB : populating");
+        logger.info("No data in DB ({}): populating", jdbcUrl);
         PystockToDB.createInitialDB();
       }
     }
