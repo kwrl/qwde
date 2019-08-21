@@ -14,6 +14,7 @@ import com.google.common.truth.Truth;
 import qwdepystock.pystock.PystockStockPriceReader;
 
 public class PystockStockPriceReaderTest {
+
   @Test
   public void readSpecificTickerInfo() throws IOException {
     PystockStockPriceReader pystockStockPriceReader = PystockStockPriceReader.getPystockStockPriceReader(LocalDate.of(2017, 01, 02), LocalDate.of(2017, 01, 02));

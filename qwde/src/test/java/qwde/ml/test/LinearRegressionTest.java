@@ -2,9 +2,8 @@ package qwde.ml.test;
 
 import java.io.File;
 
-import org.junit.Test;
-
 import com.google.common.truth.Truth;
+import org.junit.jupiter.api.Test;
 
 import qwde.ml.LinearRegression;
 
