@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/andsild/qwde.svg?branch=master)](https://travis-ci.org/andsild/qwde)
 # Stockerface
 Getting around with stock data.
 
