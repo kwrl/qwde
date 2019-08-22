@@ -10,7 +10,7 @@ git:
   submodules: true
 
 script:
-  - ./gradlew build
+  - ./gradlew build test
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
