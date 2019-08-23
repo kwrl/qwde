@@ -9,7 +9,7 @@ application {
   mainClassName = "qwde.web.App"
 }
 
-version = "0.0.1-SNAPSHOT"
+version = "0.0.1"
 
 dependencies {
   implementation("commons-io:commons-io:2.6")
