@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.nio.file.Path;
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -14,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import qwdepystock.pystock.PystockToDB;
+import qwdepystock.util.FileUtil;
 
 import org.flywaydb.core.Flyway;
 
@@ -31,6 +36,7 @@ public class DatabaseManager {
     this.config.addDataSourceProperty("prepStmtCacheSize", "250");
     this.config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
     this.config.setAutoCommit(false);
+    this.config.setMaximumPoolSize(2);
     this.ds = new HikariDataSource(config);
   }
 
@@ -49,6 +55,12 @@ public class DatabaseManager {
       Class.forName(properties.getProperty("development.disk.driver"));
 
       String jdbcUrl = properties.getProperty("development.disk.url");
+      String stringRegex = "\\|XDGCACHEDIR\\|([a-zA-Z]+\\.db)";
+      Pattern regex = Pattern.compile(stringRegex);
+      Matcher m = regex.matcher(jdbcUrl);
+      if (m.find()) {
+        jdbcUrl = jdbcUrl.replaceFirst(stringRegex, Path.of(FileUtil.createIfNotExists(FileUtil.getCacheDirectory()), m.group(1)).toAbsolutePath().toString().replace("\\", "/"));
+      }
       logger.info("Connecting to db {}", jdbcUrl);
       databaseManager = new DatabaseManager(jdbcUrl);
 
@@ -56,9 +68,9 @@ public class DatabaseManager {
       flyway.migrate();
 
       if (PystockToDB.databaseHasData()) {
-        logger.info("Found data in DB : database ready.");
+        logger.info("Found data in DB ({}) : database ready.", jdbcUrl);
       } else {
-        logger.info("No data in DB : populating");
+        logger.info("No data in DB ({}): populating", jdbcUrl);
         PystockToDB.createInitialDB();
       }
     }

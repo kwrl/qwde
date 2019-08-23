@@ -31,7 +31,7 @@ public class PystockToDB {
 
   public static void createInitialDB() {
     try (Connection connection = DatabaseManager.getConnection(); PreparedStatement ps = connection.prepareStatement("INSERT INTO StockTicker (symbol, price, timestamp) VALUES(?, ?, ?)")) {
-      for (StockTicker ticker : getStockTickers2()) {
+      for (StockTicker ticker : getStockTickers()) {
         ps.setString(1, ticker.symbol);
         ps.setBigDecimal(2, ticker.price);
         ps.setTimestamp(3, Timestamp.valueOf(ticker.timestamp));
@@ -45,26 +45,8 @@ public class PystockToDB {
     }
   }
 
-  private static List<StockTicker> getStockTickers2() throws IOException {
-    PystockStockPriceReader pyReader = new PystockStockPriceReader();
-
-    Map<String, List<StockPrice>> pricesMappedByCompany = pyReader.read().stream().collect(
-        Collectors.groupingBy(p -> p.getCompany(), Collectors.toList())
-        );
-    List<StockTicker> ret = new ArrayList<>();
-    for (Entry<String, List<StockPrice>> entry : pricesMappedByCompany.entrySet()) {
-      for(StockPrice stockPrice : entry.getValue()) {
-        ret.add(new StockTicker(entry.getKey(), stockPrice.getPrice(), stockPrice.getTimestamp()));
-      }
-    }
-    return ret;
-  }
-
   private static List<StockTicker> getStockTickers() throws IOException {
-    LocalDate fromDate = LocalDate.of(2015, 03, 23);
-    LocalDate toDate = LocalDate.of(2017, 03, 31);
-
-    PystockStockPriceReader pyReader = new PystockStockPriceReader(fromDate, toDate);
+    PystockStockPriceReader pyReader = new PystockStockPriceReader(x -> true);
 
     Map<String, List<StockPrice>> pricesMappedByCompany = pyReader.read().stream().collect(
         Collectors.groupingBy(p -> p.getCompany(), Collectors.toList())
@@ -77,5 +59,4 @@ public class PystockToDB {
     }
     return ret;
   }
-
 }

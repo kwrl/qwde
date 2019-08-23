@@ -3,8 +3,6 @@ package qwde.web;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
 import java.util.List;
@@ -15,13 +13,11 @@ import java.util.stream.Collectors;
 import java.util.StringTokenizer;
 import java.util.AbstractMap.SimpleImmutableEntry;
 
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import qwde.servlets.IndexServlet;
 import qwde.servlets.SharkToothServlet;
-import smile.plot.Line;
 
 public class HttpServer implements Runnable {
   private static Logger logger = LoggerFactory.getLogger(HttpServer.class);
