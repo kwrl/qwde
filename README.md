@@ -9,7 +9,11 @@ The general idea is to analyze stock data. One day in some future we hope to mak
 
 The project reads closing-prices and info from the project [pystock-data](https://github.com/eliangcs/pystock-data), which is inserted into a database (sqlite). From there, we do simple analysis and present it using a websocket implementation combined with the all-powerful [plotly](https://plot.ly/) and [tablesaw](https://jtablesaw.github.io/tablesaw/). 
 
-#k Setup
+* `analytics` folder contains code for ML, analysis, etc.
+* `dataprovider` folder contains code for getting stock-data and making it available for other projects
+* `web` folder contains code for presenting views and running web server
+
+# Setup
 `git clone --recursive https://github.com/kwrl/qwde`  
 if you forgot recursive:  
 `git submodule update --init`
