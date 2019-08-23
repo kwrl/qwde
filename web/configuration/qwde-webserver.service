@@ -5,8 +5,8 @@ After=network.target
 [Service]
 Type=simple
 User=dev
-WorkingDirectory=/home/dev/qwde/main/
-ExecStart=/usr/bin/java -Xmx2048M -jar ./build/libs/shadow-0.0.1-SNAPSHOT-all.jar
+WorkingDirectory=/home/dev/qwde/
+ExecStart=/usr/bin/java -Xmx2048M -jar ./web/build/libs/shadow-0.0.1-SNAPSHOT-all.jar
 Restart=on-failure
 # Other restart options: always, on-abort, etc
 

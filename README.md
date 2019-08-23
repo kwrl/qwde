@@ -13,7 +13,7 @@ if you forgot recursive:
 We use `gradle` to build a java-application. Beware that e.g. Ubuntu's repo has an old version of gradle in their repos. To get a more recent version, please install with instructions [from the gradle main site](https://gradle.org/install/).  
 We try to stay up to date on java, java 11+ should be supported. `sudo apt install openjdk` or similar should do the trick.
 
-## Windows-like
+## Windows
 Search-engine -> java gradle install :smile:
 
 # Debug software
