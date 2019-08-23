@@ -12,7 +12,7 @@ repositories {
 dependencies {
   implementation("commons-io:commons-io:2.6")
   implementation("nz.ac.waikato.cms.weka:weka-dev:3.9.2")
-  compile(project(":qwde.pystock"))
+  compile(project(":dataprovider"))
 }
 
 sourceSets {

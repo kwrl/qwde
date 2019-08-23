@@ -22,7 +22,7 @@ dependencies {
     implementation("tech.tablesaw:tablesaw-html:0.34.1")
     implementation("tech.tablesaw:tablesaw-jsplot:0.34.1")
     implementation("tech.tablesaw:tablesaw-plot:0.24.4")
-    compile(project(":qwde.pystock"))
+    compile(project(":dataprovider"))
     compile(project(":qwde"))
 }
 

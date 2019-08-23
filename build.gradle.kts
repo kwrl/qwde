@@ -10,7 +10,7 @@ allprojects {
   }
 }
 
-configure(subprojects.filter { it.name == "qwde"  || it.name == "qwde.pystock" || it.name == "main" } ) {
+configure(subprojects.filter { it.name == "qwde"  || it.name == "dataprovider" || it.name == "main" } ) {
   apply(plugin = "java")
 
   dependencies {
