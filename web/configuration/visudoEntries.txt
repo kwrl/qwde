@@ -1,0 +1,2 @@
+Cmnd_Alias QWDE_CMDS = /usr/sbin/service qwde-webserver start, /usr/sbin/service qwde-webserver stop, /usr/sbin/service qwde-webserver restart, /bin/systemctl start qwde-webserver.service, /bin/systemctl stop qwde-webserver.service, /bin/systemctl restart qwde-webserver.service, /home/dev/qwde/main/configuration/distributeConfigurationFiles.sh
+dev ALL=(ALL) NOPASSWD: QWDE_CMDS

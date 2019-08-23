@@ -48,6 +48,7 @@ public class PystockToDB {
   private static List<StockTicker> getStockTickers() throws IOException {
     PystockStockPriceReader pyReader = new PystockStockPriceReader(x -> true);
 
+    logger.info("Sorting and organizing entries before inserting them to DB...");
     Map<String, List<StockPrice>> pricesMappedByCompany = pyReader.read().stream().collect(
         Collectors.groupingBy(p -> p.getCompany(), Collectors.toList())
         );

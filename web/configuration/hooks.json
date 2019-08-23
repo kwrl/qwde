@@ -2,7 +2,7 @@
 	{
 		"id": "redeploy-qwde-webhook",
 		"execute-command": "./reloadQwde.sh",
-		"command-working-directory": "/home/dev/qwde/main/configuration",
+		"command-working-directory": "/home/dev/qwde/web/configuration",
 		"trigger-rule":
 		{
 			"and":
