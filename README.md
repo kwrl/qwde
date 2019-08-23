@@ -1,10 +1,15 @@
-[![Build Status](https://travis-ci.org/andsild/qwde.svg?branch=master)](https://travis-ci.org/andsild/qwde)  ![license](https://img.shields.io/github/license/kwrl/qwde)  
+[![Build Status](https://travis-ci.org/andsild/qwde.svg?branch=master)](https://travis-ci.org/andsild/qwde) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![HitCount](http://hits.dwyl.io/kwrl/qwde.svg)](http://hits.dwyl.io/kwrl/qwde) 
 # Stockerface
 Getting around with stock data.
 
 Live preview: http://95.216.220.118:8080/
 
-# Setup
+# Project Overview
+The general idea is to analyze stock data. One day in some future we hope to make this into a trading robot. For now, to get code done, its mostly important to have fun and build something interesting.  
+
+The project reads closing-prices and info from the project [pystock-data](https://github.com/eliangcs/pystock-data), which is inserted into a database (sqlite). From there, we do simple analysis and present it using a websocket implementation combined with the all-powerful [plotly](https://plot.ly/) and [tablesaw](https://jtablesaw.github.io/tablesaw/). 
+
+#k Setup
 `git clone --recursive https://github.com/kwrl/qwde`  
 if you forgot recursive:  
 `git submodule update --init`
@@ -22,18 +27,13 @@ We ship with a java dependency that takes care of all database and network. If y
 # Executables
 `./gradlew :web:run`  
 or  
-`./gradlew build` to produce a runnable webserver at `./web/build/libs/shadow-<VERSION>-all.jar`. You can run this with `java -jar`.  Our [configuration directory](./main/configuration) contains the setup we use at Hetzner-server.
+`./gradlew build` to produce a runnable webserver at `./web/build/libs/shadow-<VERSION>-all.jar`. You can run this with `java -jar`.  Our [configuration directory](./web/configuration) contains the setup we use at Hetzner-server.
 
 By default a sqlite database copy of pystock-data is written to   
 * Unix: `$XDG_CACHE_HOME` (default ~/.cache/qwde)  
-* Windows: %APPDATA%/qwde/cache  
+* Windows: `%APPDATA%/qwde/cache`  
 
 Upon running the application, it is checked whether or not the database exists and has data. If not, it is generated. To re-generate the data, you can point `$XDG_CACHE_HOME` elsewhere, or delete the database.db file.
-
-# Project Overview
-The general idea is to analyze stock data. One day in some future we hope to make this into a trading robot. For now, to get code done, its mostly important to have fun and build something interesting.  
-
-The project reads closing-prices and info from the project [pystock-data](https://github.com/eliangcs/pystock-data), which is inserted into a database (sqlite). From there, we do simple analysis and present it using a websocket implementation combined with the all-powerful [plotly](https://plot.ly/) and [tablesaw](https://jtablesaw.github.io/tablesaw/). 
 
 # Contributing
 Pull- and feature-requests welcome! :smile:
