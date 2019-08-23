@@ -95,14 +95,16 @@ public class FileUtil {
       if (xdgDataHome == null || xdgDataHome.isEmpty()) {
         xdgDataHome = "/usr/local/share:/usr/share";
       }
-
       String xdgDataDirs = System.getenv("XDG_DATA_DIRS");
       if (xdgDataHome == null || xdgDataHome.isEmpty()) {
         xdgDataDirs = "";
       }
 
+      logger.debug("XDG_DATA_HOME: {}", xdgDataHome);
+      logger.debug("XDG_DATA_DIRS: {}", xdgDataDirs);
+
       String xdgPaths = String.format("%s:%s", xdgDataHome, xdgDataDirs);
-      return Stream.of(xdgPaths.split(":")).map(s -> findInPath(s, folder)).filter(Optional::isPresent).map(Optional::get).findFirst();
+      return Stream.of(xdgPaths.split(":")).map(s -> findInPath(folder, s)).filter(Optional::isPresent).map(Optional::get).findFirst();
     } else
       throw new NotImplementedException("Only defined data dirs for windows and unix-like (XDG) OS, so far");
   }
