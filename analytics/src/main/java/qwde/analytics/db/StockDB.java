@@ -1,4 +1,4 @@
-package qwde.db;
+package qwde.analytics.db;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,9 +20,9 @@ import java.sql.ResultSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import qwdepystock.models.CompanyStockData;
-import qwdepystock.util.DateUtil;
-import qwdepystock.db.DatabaseManager;
+import qwde.dataprovider.models.CompanyStockData;
+import qwde.dataprovider.util.DateUtil;
+import qwde.dataprovider.db.DatabaseManager;
 
 public class StockDB {
 private static Logger logger = LoggerFactory.getLogger(StockDB.class);

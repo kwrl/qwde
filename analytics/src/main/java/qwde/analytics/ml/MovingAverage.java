@@ -1,4 +1,4 @@
-package qwde.ml;
+package qwde.analytics.ml;
 
 import java.util.Arrays;
 

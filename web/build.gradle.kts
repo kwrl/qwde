@@ -6,7 +6,7 @@ plugins {
 }
 
 application {
-  mainClassName = "qwde.App"
+  mainClassName = "qwde.web.App"
 }
 
 version = "0.0.1-SNAPSHOT"
@@ -23,7 +23,7 @@ dependencies {
     implementation("tech.tablesaw:tablesaw-jsplot:0.34.1")
     implementation("tech.tablesaw:tablesaw-plot:0.24.4")
     compile(project(":dataprovider"))
-    compile(project(":qwde"))
+    compile(project(":analytics"))
 }
 
 sourceSets {
@@ -40,7 +40,7 @@ tasks {
     archiveBaseName.set("shadow")
       mergeServiceFiles()
       manifest {
-        attributes(mapOf("Main-Class" to "qwde.App"))
+        attributes(mapOf("Main-Class" to "qwde.web.App"))
       }
   }
 }

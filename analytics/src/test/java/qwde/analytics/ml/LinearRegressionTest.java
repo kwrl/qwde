@@ -1,11 +1,11 @@
-package qwde.ml.test;
+package qwde.analytics.ml;
 
 import java.io.File;
 
 import com.google.common.truth.Truth;
 import org.junit.jupiter.api.Test;
 
-import qwde.ml.LinearRegression;
+import qwde.analytics.ml.LinearRegression;
 
 public class LinearRegressionTest {
 

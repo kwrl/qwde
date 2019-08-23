@@ -1,4 +1,4 @@
-package qwde.web;
+package qwde.web.http;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -16,8 +16,8 @@ import java.util.AbstractMap.SimpleImmutableEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import qwde.servlets.IndexServlet;
-import qwde.servlets.SharkToothServlet;
+import qwde.web.servlets.IndexServlet;
+import qwde.web.servlets.SharkToothServlet;
 
 public class HttpServer implements Runnable {
   private static Logger logger = LoggerFactory.getLogger(HttpServer.class);

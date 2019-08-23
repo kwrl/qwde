@@ -1,4 +1,4 @@
-package qwde.plotly;
+package qwde.web.plotly;
 
 import java.util.List;
 import java.util.Arrays;
@@ -16,7 +16,7 @@ import tech.tablesaw.plotly.traces.ScatterTrace;
 import java.util.stream.IntStream;
 import java.util.ArrayList;
 
-import qwde.ml.MovingAverage;
+import qwde.analytics.ml.MovingAverage;
 
 public class LinePlotRenderer {
 

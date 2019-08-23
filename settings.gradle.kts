@@ -1,5 +1,5 @@
 rootProject.name = "stockerface"
 
-include("qwde")
+include("analytics")
 include("dataprovider")
-include("main")
+include("web")

@@ -1,4 +1,4 @@
-package qwde.servlets;
+package qwde.web.servlets;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -12,10 +12,10 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import qwde.db.StockDB;
-import qwde.plotly.LinePlotRenderer;
-import qwdepystock.models.CompanyStockData;
-import qwdepystock.pystock.PystockStockPriceReader;
+import qwde.analytics.db.StockDB;
+import qwde.dataprovider.models.CompanyStockData;
+import qwde.dataprovider.pystock.PystockStockPriceReader;
+import qwde.web.plotly.LinePlotRenderer;
 
 public class SharkToothServlet {
   private static Logger logger = LoggerFactory.getLogger(SharkToothServlet.class);

@@ -1,4 +1,4 @@
-package qwde;
+package qwde.web;
 
 import io.prometheus.client.exporter.HTTPServer;
 import java.io.IOException;
@@ -12,9 +12,9 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine;
 
-import qwde.db.StockDB;
-import qwde.web.HttpServer;
-import qwdepystock.db.DatabaseManager;
+import qwde.analytics.db.StockDB;
+import qwde.dataprovider.db.DatabaseManager;
+import qwde.web.http.HttpServer;
 
 @Command(name = "qwde stuff", mixinStandardHelpOptions = true, version = "0.1")
 public class App implements Callable<Integer> {
