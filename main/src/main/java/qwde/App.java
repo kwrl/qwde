@@ -53,9 +53,6 @@ public class App implements Callable<Integer> {
       return 1;
     } 
     
-    logger.info("Started server {}", server);
-    
-    
     try {
       DatabaseManager.initialize();
     } catch (ClassNotFoundException | IOException | SQLException   exception) {
@@ -63,11 +60,8 @@ public class App implements Callable<Integer> {
       return 1;
     }
 
-    try {
-      System.out.println(StockDB.getCompanyData("TWTR", LocalDate.of(2017, 01, 01), LocalDate.of(2017, 01, 30)));
-    } catch (SQLException exception) {
-    }
-
+    logger.info("Started server {}", server);
+    
     while (Thread.currentThread().isAlive()) {
       try {
         Thread t = new Thread(new HttpServer(server.accept()));

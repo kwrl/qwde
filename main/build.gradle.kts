@@ -1,5 +1,8 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
   `application`
+    id("com.github.johnrengelman.shadow") version "5.1.0"
 }
 
 application {
@@ -29,6 +32,22 @@ sourceSets {
   }
   test {
     java.srcDir("src/test/java")
+  }
+}
+
+tasks {
+  named<ShadowJar>("shadowJar") {
+    archiveBaseName.set("shadow")
+      mergeServiceFiles()
+      manifest {
+        attributes(mapOf("Main-Class" to "qwde.App"))
+      }
+  }
+}
+
+tasks {
+  build {
+    dependsOn(shadowJar)
   }
 }
 
