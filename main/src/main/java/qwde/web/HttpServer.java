@@ -51,7 +51,7 @@ public class HttpServer implements Runnable {
   @Override
   public void run() {
     try {
-      logger.debug("The Client " + client.getInetAddress() + ":" + client.getPort() + " is connected");
+      logger.debug("The Client {}:{} is connected", client.getInetAddress(), client.getPort());
 
       inClient = new BufferedReader(new InputStreamReader(client.getInputStream()));
       outClient = new DataOutputStream(client.getOutputStream());
