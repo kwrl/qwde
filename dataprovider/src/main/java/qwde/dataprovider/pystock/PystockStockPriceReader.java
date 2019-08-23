@@ -62,7 +62,10 @@ public class PystockStockPriceReader implements StockPriceReader {
       if (pystockDataPath.isEmpty()) {
         pystockDataPath = FileUtil.findInPath("pystock-data", "..");
         if (pystockDataPath.isEmpty()) {
-          throw new FileNotFoundException("Unable to find pystock-data files. See README.md for more documentation.");
+          pystockDataPath = FileUtil.findInPath("pystock-data", "../dataprovider");
+          if (pystockDataPath.isEmpty()) {
+            throw new FileNotFoundException("Unable to find pystock-data files. See README.md for more documentation.");
+          }
         }
       }
     }
