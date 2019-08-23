@@ -1,7 +1,0 @@
-*.csv
-*.csv.*
-*.log
-/.scrapy/
-scrapy.cfg
-nohup.out
-
