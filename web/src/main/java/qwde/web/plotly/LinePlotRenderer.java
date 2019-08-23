@@ -68,8 +68,8 @@ public class LinePlotRenderer {
                 .title("Stock Prices")
                 .xAxis(xAxis)
                 .yAxis(yAxis)
-                .width(1920)
-                .height(1080)
+                .width(9001)
+                .height(9002)
                 .build();
 
         smaPlots.add(dataPlot);
@@ -78,6 +78,7 @@ public class LinePlotRenderer {
     
         Page page = Page.pageBuilder(figure, "testdiv").build();
 
-        return page.asJavascript();
+        String js = page.asJavascript().replaceFirst("9001,", "screen.width,").replaceFirst("9002,", "screen.height,");
+        return js;
     }
 }

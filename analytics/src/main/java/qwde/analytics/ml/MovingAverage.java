@@ -9,7 +9,6 @@ public final class MovingAverage {
         Double[] sma = new Double[data.length];
 
         for (int i = 0; i < data.length; i++) {
-            
             int window = time;
 
             if (i < time) {
