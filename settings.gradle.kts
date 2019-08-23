@@ -1,5 +1,5 @@
 rootProject.name = "stockerface"
 
-include("qwde")
-include("qwde.pystock")
-include("main")
+include("analytics")
+include("dataprovider")
+include("web")
