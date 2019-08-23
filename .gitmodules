@@ -1,3 +1,0 @@
-[submodule "pystock-data"]
-	path = dataprovider/pystock-data
-	url = https://github.com/eliangcs/pystock-data.git
