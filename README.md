@@ -31,7 +31,7 @@ We ship with a java dependency that takes care of all database and network. If y
 # Executables
 `./gradlew :web:run`  
 or  
-`./gradlew build` to produce a runnable webserver at `./web/build/libs/shadow-<VERSION>-all.jar`. You can run this with `java -jar`.  Our [configuration directory](./web/configuration) contains the setup we use at Hetzner-server.
+`./gradlew build` to produce a runnable webserver at `./web/build/libs/shadow-<VERSION>-all.jar`. You can run this with `java -jar`. To make sure you find the data, make sure to either run (and copy) the jar file to the project root, or point `$XDG_DATA_HOME` to the folder containing pystock-data.  Our [configuration directory](./web/configuration) contains the setup we use at Hetzner-server.
 
 By default a sqlite database copy of pystock-data is written to   
 * Unix: `$XDG_CACHE_HOME` (default ~/.cache/qwde)  
