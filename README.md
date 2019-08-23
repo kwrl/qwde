@@ -39,6 +39,9 @@ By default a sqlite database copy of pystock-data is written to
 
 Upon running the application, it is checked whether or not the database exists and has data. If not, it is generated. To re-generate the data, you can point `$XDG_CACHE_HOME` elsewhere, or delete the database.db file.
 
+## Live server
+Code is continuously deployed to http://95.216.220.118. Its a droplet with 2CPU and 8 GB RAM. If you want access, send me an email or PM.
+
 # Contributing
 Pull- and feature-requests welcome! :smile:
 
