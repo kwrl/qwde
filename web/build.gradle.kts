@@ -18,6 +18,8 @@ dependencies {
     implementation("io.prometheus:simpleclient_servlet:0.0.11")
     implementation("nz.ac.waikato.cms.weka:weka-dev:3.9.2")
     implementation("org.apache.httpcomponents:httpclient:4.5.9")
+	implementation("org.freemarker:freemarker:2.3.29")
+    implementation("org.apache.commons:commons-lang3:3.9")
     implementation("tech.tablesaw:tablesaw-core:0.34.1")
     implementation("tech.tablesaw:tablesaw-html:0.34.1")
     implementation("tech.tablesaw:tablesaw-jsplot:0.34.1")

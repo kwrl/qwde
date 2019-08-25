@@ -12,6 +12,7 @@ import tech.tablesaw.plotly.components.Figure;
 import tech.tablesaw.plotly.components.Layout;
 import tech.tablesaw.plotly.components.Page;
 import tech.tablesaw.plotly.traces.ScatterTrace;
+import tech.tablesaw.plotly.traces.Trace;
 
 import java.util.stream.IntStream;
 import java.util.ArrayList;
@@ -21,6 +22,59 @@ import qwde.analytics.ml.MovingAverage;
 public class LinePlotRenderer {
 
     private static Logger logger = LoggerFactory.getLogger(LinePlotRenderer.class);
+
+    public static Figure scatterPlot(List<Double> data, String graphText, String xAxisText, String yAxisText) {
+		double[] testdataX = IntStream.range(0, data.size()).asDoubleStream().toArray();
+        Arrays.setAll(testdataX, i -> i + 1);
+        Double[] dataAsArray = new Double[data.size()];
+        dataAsArray = data.toArray(dataAsArray);
+		
+		DoubleColumn xColumn = DoubleColumn.create("xcol", testdataX);
+		DoubleColumn yColumn = DoubleColumn.create("ycol", dataAsArray);
+
+        Table table = Table.create("table").addColumns(xColumn, yColumn);
+			ScatterTrace dataPlot = ScatterTrace.builder(table.nCol("xcol"), table.nCol("ycol"))
+					.mode(ScatterTrace.Mode.LINE)
+					.opacity(0.5)
+					.name("Price")
+					.build();
+			
+			Axis xAxis = Axis.builder()
+					.title(xAxisText)
+					.autoRange(Axis.AutoRange.TRUE)
+					.build();
+
+			Axis yAxis = Axis.builder()
+					.title(yAxisText)
+					.autoRange(Axis.AutoRange.TRUE)
+					.build();
+
+			Layout layout = Layout.builder()
+					.title(graphText)
+					.xAxis(xAxis)
+					.yAxis(yAxis)
+					.width(800)
+					.height(600)
+					.build();
+
+		return new Figure(layout, dataPlot);
+    }
+    
+    public static Trace genScatterPlot(List<Double> data) {
+		double[] linearXDomain = IntStream.range(0, data.size()).asDoubleStream().toArray();
+        Arrays.setAll(linearXDomain, i -> i + 1);
+		
+		DoubleColumn xColumn = DoubleColumn.create("xcol", linearXDomain);
+		DoubleColumn yColumn = DoubleColumn.create("ycol", data.stream().toArray(Double[]::new));
+
+        Table table = Table.create("table").addColumns(xColumn, yColumn);
+		return ScatterTrace.builder(table.nCol("xcol"), table.nCol("ycol"))
+					.mode(ScatterTrace.Mode.LINE)
+					.opacity(0.5)
+					.name("scatterNAme")
+					.build();
+    }
+    
 
     public static String renderFrom1d(List<Double> data) {
         double[] testdataX = IntStream.range(0, data.size()).asDoubleStream().toArray();
