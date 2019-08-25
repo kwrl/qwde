@@ -36,6 +36,15 @@ public final class DatabaseManager {
   }
 
   public static Connection getConnection() throws SQLException {
+    if (databaseManager == null) {
+      try {
+        initialize();
+      } catch (ClassNotFoundException | IOException exception) {
+        // lazy...
+        throw new SQLException(exception);
+      }
+    }
+
     return databaseManager.ds.getConnection();
   }
 

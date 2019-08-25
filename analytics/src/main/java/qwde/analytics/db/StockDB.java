@@ -26,20 +26,21 @@ public final class StockDB {
       statement.setString(1, stockTicker);
       statement.setDate(2, java.sql.Date.valueOf(fromDate));
       statement.setDate(3, java.sql.Date.valueOf(toDate));
-      ResultSet rs = statement.executeQuery();
-      logger.trace("Executing query {}", String.format("SELECT price, timestamp FROM StockTicker WHERE symbol = %s AND timestamp BETWEEN %s AND %s", stockTicker, java.sql.Date.valueOf(fromDate), java.sql.Date.valueOf(toDate)));
-      List<Double> stockPrices = new ArrayList<>();
-      List<LocalDateTime> priceTimeStamps = new ArrayList<>();
+      try (ResultSet rs = statement.executeQuery()) {
+        logger.trace("Executing query {}", String.format("SELECT price, timestamp FROM StockTicker WHERE symbol = %s AND timestamp BETWEEN %s AND %s", stockTicker, java.sql.Date.valueOf(fromDate), java.sql.Date.valueOf(toDate)));
+        List<Double> stockPrices = new ArrayList<>();
+        List<LocalDateTime> priceTimeStamps = new ArrayList<>();
 
-      while (rs.next()) {
-        stockPrices.add(rs.getDouble("price"));
-        priceTimeStamps.add(rs.getTimestamp("timestamp").toLocalDateTime());
-      }
+        while (rs.next()) {
+          stockPrices.add(rs.getDouble("price"));
+          priceTimeStamps.add(rs.getTimestamp("timestamp").toLocalDateTime());
+        }
 
-      if (stockPrices.isEmpty()) {
-        logger.warn("Request data {}, from {} to {} - empty results", stockTicker, fromDate, toDate);
+        if (stockPrices.isEmpty()) {
+          logger.warn("Request data {}, from {} to {} - empty results", stockTicker, fromDate, toDate);
+        }
+        return new CompanyStockData(stockTicker, stockPrices, priceTimeStamps);
       }
-      return new CompanyStockData(stockTicker, stockPrices, priceTimeStamps);
     }
   }
 }

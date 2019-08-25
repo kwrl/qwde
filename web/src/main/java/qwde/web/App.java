@@ -35,10 +35,8 @@ public class App implements Callable<Integer> {
   public Integer call() {
     logger.trace("Got argument \"{}\"", this.port);
 
-    @SuppressWarnings("unused")
-    HTTPServer prometheusSever = null;
     try {
-      prometheusSever = new HTTPServer(Integer.valueOf(this.port));
+      new HTTPServer(Integer.valueOf(this.port));
     } catch (IOException exception) {
       logger.error("Could not start prometheus server at 9456", exception);
       return 1;
