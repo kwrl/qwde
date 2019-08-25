@@ -2,6 +2,7 @@ package qwde.web.http;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.Map;
@@ -17,7 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import qwde.web.servlets.IndexServlet;
-import qwde.web.servlets.SharkToothServlet;
+import qwde.web.servlets.SimpleMovingAverage;
+import qwde.web.util.FileUtil;
 
 public class HttpServer implements Runnable {
   private static Logger logger = LoggerFactory.getLogger(HttpServer.class);
@@ -77,8 +79,15 @@ public class HttpServer implements Runnable {
       if (httpMethod.equals("GET")) {
         if (httpQueryString.equals("/")) {
           sendResponse(200, IndexServlet.doGet(urlMapping));
-        } else if (httpQueryString.startsWith("/sharktooth")) {
-          sendResponse(200, SharkToothServlet.doGet(urlMapping));
+        } else if (httpQueryString.startsWith("/sma")) {
+          sendResponse(200, SimpleMovingAverage.doGet(urlMapping));
+        } else if (httpQueryString.startsWith("/plotly-latest.min.js")) {
+        	try {
+        	  sendResponse(200, FileUtil.getResourceFile("plotly-latest.min.js"));
+        	} catch (IOException exception) {
+        		logger.debug("wtf?", exception);
+				sendResponse(404, ":(");
+        	}
         } else {
           sendResponse(404, "<b>The Requested resource not found.</b>");
         }

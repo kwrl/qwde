@@ -5,6 +5,9 @@ import java.io.StringWriter;
 import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.sql.SQLException;
@@ -13,12 +16,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import qwde.analytics.db.StockDB;
+import qwde.analytics.ml.MovingAverage;
 import qwde.dataprovider.models.CompanyStockData;
 import qwde.dataprovider.pystock.PystockStockPriceReader;
+import qwde.web.plotly.FigureTemplate;
 import qwde.web.plotly.LinePlotRenderer;
+import qwde.web.plotly.PageRenderer;
+import tech.tablesaw.api.DoubleColumn;
+import tech.tablesaw.api.Table;
+import tech.tablesaw.plotly.traces.ScatterTrace;
 
-public class SharkToothServlet {
-  private static Logger logger = LoggerFactory.getLogger(SharkToothServlet.class);
+public class SimpleMovingAverage {
+  private static Logger logger = LoggerFactory.getLogger(SimpleMovingAverage.class);
   public final static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
   public static String doGet(Map<String, List<String>> urlParams) throws IOException {
@@ -50,11 +59,31 @@ public class SharkToothServlet {
       if (stockData.prices.isEmpty()) {
         return "No data found. Are you sure the ticker and date were correct?";
       }
+      
+      List<ScatterTrace> traces = new ArrayList<>();
+      traces.addAll(getAverages(stockData.prices));
+      traces.add(LinePlotRenderer.genScatterPlot(stockData.prices, "closing prices"));
 
-      return LinePlotRenderer.renderFrom1d(stockData.prices);
+	  return PageRenderer.renderFigure("Price averages", Arrays.asList(
+			new FigureTemplate(LinePlotRenderer.scatterPlot(traces, ScatterTrace.class, ticker, "day", "closing price"), "Stock closing prices and Simple Moving Averages (SMA)", 
+					"$$\n\\left\\{\n\\begin{aligned}\ny_{c,d} &= close(d)\\\\\ny_{sma} &= avg(y_{c, d-10x}\\dots{}y_{c, d})\n\\end{aligned}\n\\right.$$")
+			));
     } catch (Exception exception) {
         return justGiveTheUserAStackTrace_Man(exception);
     }
+  }
+  
+  private static List<ScatterTrace> getAverages(List<Double> data) {
+	Double[] dataAsArray = new Double[data.size()];
+	dataAsArray = data.toArray(dataAsArray);
+	int step = 10;
+	List<ScatterTrace> ret = new ArrayList<>();
+	for (Double[] d : MovingAverage.simpleMovingAverages(dataAsArray, 100, 10)) {
+		ret.add(LinePlotRenderer.genScatterPlot(Arrays.asList(d), String.format("%d", step)));
+		step += 10;
+	}
+	
+	return ret;
   }
   
   private static String justGiveTheUserAStackTrace_Man(Exception exception) {

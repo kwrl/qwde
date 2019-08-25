@@ -2,7 +2,10 @@
 # Stockerface
 Getting around with stock data.
 
-Live preview: http://95.216.220.118:8080/
+Live preview: 
+* http://95.216.220.118:8080/
+* http://95.216.220.118:8080/sma?ticker=twtr&fromdate=20170102&todate=20170301 (you can change dates and tickers in URL from around 20140101 to around 20170330)  
+[![sma](./doc/images/simplemovingaverages.png)](http://95.216.220.118:8080/sma?ticker=twtr&fromdate=20170102&todate=20170301)
 
 # Project Overview
 The general idea is to analyze stock data. One day in some future we hope to make this into a trading robot. For now, to get code done, its mostly important to have fun and build something interesting.  
