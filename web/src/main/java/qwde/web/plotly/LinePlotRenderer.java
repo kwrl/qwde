@@ -2,15 +2,20 @@ package qwde.web.plotly;
 
 import java.util.List;
 import java.util.Arrays;
+import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.FluentIterable;
+
 import tech.tablesaw.api.DoubleColumn;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.plotly.components.Axis;
 import tech.tablesaw.plotly.components.Figure;
 import tech.tablesaw.plotly.components.Layout;
 import tech.tablesaw.plotly.components.Page;
+import tech.tablesaw.plotly.traces.AbstractTrace;
 import tech.tablesaw.plotly.traces.ScatterTrace;
 import tech.tablesaw.plotly.traces.Trace;
 
@@ -23,44 +28,29 @@ public class LinePlotRenderer {
 
     private static Logger logger = LoggerFactory.getLogger(LinePlotRenderer.class);
 
-    public static Figure scatterPlot(List<Double> data, String graphText, String xAxisText, String yAxisText) {
-		double[] testdataX = IntStream.range(0, data.size()).asDoubleStream().toArray();
-        Arrays.setAll(testdataX, i -> i + 1);
-        Double[] dataAsArray = new Double[data.size()];
-        dataAsArray = data.toArray(dataAsArray);
-		
-		DoubleColumn xColumn = DoubleColumn.create("xcol", testdataX);
-		DoubleColumn yColumn = DoubleColumn.create("ycol", dataAsArray);
+    public static <T extends AbstractTrace> Figure scatterPlot(Collection<T> traces, Class<T> traceClass, String graphText, String xAxisText, String yAxisText) {
+		Axis xAxis = Axis.builder()
+				.title(xAxisText)
+				.autoRange(Axis.AutoRange.TRUE)
+				.build();
 
-        Table table = Table.create("table").addColumns(xColumn, yColumn);
-			ScatterTrace dataPlot = ScatterTrace.builder(table.nCol("xcol"), table.nCol("ycol"))
-					.mode(ScatterTrace.Mode.LINE)
-					.opacity(0.5)
-					.name("Price")
-					.build();
-			
-			Axis xAxis = Axis.builder()
-					.title(xAxisText)
-					.autoRange(Axis.AutoRange.TRUE)
-					.build();
+		Axis yAxis = Axis.builder()
+				.title(yAxisText)
+				.autoRange(Axis.AutoRange.TRUE)
+				.build();
 
-			Axis yAxis = Axis.builder()
-					.title(yAxisText)
-					.autoRange(Axis.AutoRange.TRUE)
-					.build();
+		Layout layout = Layout.builder()
+				.title(graphText)
+				.xAxis(xAxis)
+				.yAxis(yAxis)
+				.width(1280)
+				.height(720)
+				.build();
 
-			Layout layout = Layout.builder()
-					.title(graphText)
-					.xAxis(xAxis)
-					.yAxis(yAxis)
-					.width(800)
-					.height(600)
-					.build();
-
-		return new Figure(layout, dataPlot);
+		return new Figure(layout, FluentIterable.from(traces).toArray(traceClass));
     }
     
-    public static Trace genScatterPlot(List<Double> data) {
+    public static ScatterTrace genScatterPlot(List<Double> data, String name) {
 		double[] linearXDomain = IntStream.range(0, data.size()).asDoubleStream().toArray();
         Arrays.setAll(linearXDomain, i -> i + 1);
 		
@@ -71,7 +61,7 @@ public class LinePlotRenderer {
 		return ScatterTrace.builder(table.nCol("xcol"), table.nCol("ycol"))
 					.mode(ScatterTrace.Mode.LINE)
 					.opacity(0.5)
-					.name("scatterNAme")
+					.name(name)
 					.build();
     }
     

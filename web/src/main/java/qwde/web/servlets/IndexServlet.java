@@ -10,8 +10,11 @@ import qwde.web.plotly.FigureTemplate;
 import qwde.web.plotly.LinePlotRenderer;
 import qwde.web.plotly.PageRenderer;
 import tech.tablesaw.api.DoubleColumn;
+import tech.tablesaw.plotly.traces.ScatterTrace;
+import tech.tablesaw.plotly.traces.Trace;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class IndexServlet {
@@ -29,8 +32,8 @@ public class IndexServlet {
 		    .collect(Collectors.toList());
 
 	return PageRenderer.renderFigure("Random stock data", Arrays.asList(
-			new FigureTemplate(LinePlotRenderer.scatterPlot(data, "A 2d scatterplot chart", "x", "y"), "Randomized stock data", "$$x_{0..n} = rand()$$Refreshing the page refreshes the data, too."),
-			new FigureTemplate(LinePlotRenderer.scatterPlot(data2, "Another 2d scatterplot chart", "x", "y"), "Randomized stock data v2", "$$x_{0..n} = rand()$$Refreshing the page refreshes the data, too.")
+			new FigureTemplate(LinePlotRenderer.scatterPlot(Collections.singleton(LinePlotRenderer.genScatterPlot(data, "rand")), ScatterTrace.class, "A 2d scatterplot chart", "x", "y"), "Randomized stock data", "$$x_{0..n} = rand()$$Refreshing the page refreshes the data, too."),
+			new FigureTemplate(LinePlotRenderer.scatterPlot(Collections.singleton(LinePlotRenderer.genScatterPlot(data2, "rand")), ScatterTrace.class, "Another 2d scatterplot chart", "x", "y"), "Randomized stock data v2", "$$x_{0..n} = rand()$$Refreshing the page refreshes the data, too.")
 			));
   } 
 }

@@ -21,9 +21,6 @@ import tech.tablesaw.plotly.components.Page;
 
 public class PageRenderer {
 	private static Logger logger = LoggerFactory.getLogger(PageRenderer.class);
-	// public static Page renderFigures(List<Figure> figures, int graphsInWidth, int
-	// graphsInHeight) {
-	// }
 	private static Configuration cfg = new Configuration(Configuration.VERSION_2_3_29);
 
 	static {
