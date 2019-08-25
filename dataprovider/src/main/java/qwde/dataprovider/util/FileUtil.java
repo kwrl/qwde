@@ -1,28 +1,29 @@
-package qwde.dataprovider.util; 
+package qwde.dataprovider.util;
 
-import java.util.stream.Collectors;
 import java.io.BufferedReader;
-import java.nio.file.Path;
 import java.io.File;
-import java.nio.file.Files;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.SystemUtils;
-import java.util.Optional;
-import java.util.stream.Stream;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FileUtil {
+public final class FileUtil {
   private static Logger logger = LoggerFactory.getLogger(FileUtil.class);
-  public static String APPNAME = "qwde";
+  public static final String APPNAME = "qwde";
+
+  private FileUtil() {
+  }
 
   public static String getResourceFileAsString(String fileName) throws FileNotFoundException, IOException {
     InputStream is = FileUtil.class.getClassLoader().getResourceAsStream(fileName);
@@ -105,7 +106,8 @@ public class FileUtil {
 
       String xdgPaths = String.format("%s:%s", xdgDataHome, xdgDataDirs);
       return Stream.of(xdgPaths.split(":")).map(s -> findInPath(folder, s)).filter(Optional::isPresent).map(Optional::get).findFirst();
-    } else
+    } else {
       throw new NotImplementedException("Only defined data dirs for windows and unix-like (XDG) OS, so far");
+    }
   }
 }

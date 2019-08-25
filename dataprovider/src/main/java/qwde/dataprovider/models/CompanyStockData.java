@@ -1,7 +1,7 @@
 package qwde.dataprovider.models;
 
-import java.util.List;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class CompanyStockData {
   public final String companyName;

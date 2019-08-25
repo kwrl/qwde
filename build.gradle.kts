@@ -12,6 +12,9 @@ allprojects {
 
 configure(subprojects.filter { it.name == "analytics"  || it.name == "dataprovider" || it.name == "web" } ) {
   apply(plugin = "java")
+  apply(plugin = "checkstyle")
+
+
 
   dependencies {
     "implementation"("com.google.guava:guava:23.0")

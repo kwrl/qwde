@@ -5,14 +5,14 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import java.util.Map;
-import java.util.List;
-import java.util.Collections;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.stream.Collectors;
-import java.util.StringTokenizer;
 import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +36,8 @@ public class HttpServer implements Runnable {
     if (httpQuery.indexOf("?") < 0) {
       return Collections.emptyMap();
     }
-    ;
-    return Arrays.stream(httpQuery.substring(httpQuery.indexOf("?")+1).split("&"))
+
+    return Arrays.stream(httpQuery.substring(httpQuery.indexOf("?") + 1).split("&"))
       .map(this::splitQueryParameter)
       .collect(Collectors.groupingBy(SimpleImmutableEntry::getKey, LinkedHashMap::new, Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
   }
@@ -48,7 +48,6 @@ public class HttpServer implements Runnable {
     final String value = idx > 0 && it.length() > idx + 1 ? it.substring(idx + 1) : null;
     return new SimpleImmutableEntry<>(key, value);
   }
-
 
   @Override
   public void run() {
@@ -82,12 +81,12 @@ public class HttpServer implements Runnable {
         } else if (httpQueryString.startsWith("/sma")) {
           sendResponse(200, SimpleMovingAverage.doGet(urlMapping));
         } else if (httpQueryString.startsWith("/plotly-latest.min.js")) {
-        	try {
-        	  sendResponse(200, FileUtil.getResourceFile("plotly-latest.min.js"));
-        	} catch (IOException exception) {
-        		logger.debug("wtf?", exception);
-				sendResponse(404, ":(");
-        	}
+          try {
+            sendResponse(200, FileUtil.getResourceFile("plotly-latest.min.js"));
+          } catch (IOException exception) {
+            logger.debug("wtf?", exception);
+            sendResponse(404, ":(");
+          }
         } else {
           sendResponse(404, "<b>The Requested resource not found.</b>");
         }

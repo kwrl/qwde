@@ -1,32 +1,35 @@
 package qwde.dataprovider.pystock;
 
-import java.util.Map.Entry;
+import java.io.IOException;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.Statement;
-import org.slf4j.Logger;
-import java.util.Map;
-import java.util.List;
-import java.util.ArrayList;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.sql.Connection;
-import java.time.LocalDate;
-import java.io.IOException;
-import java.sql.Timestamp;
-import qwde.dataprovider.models.StockTicker;
+
 import qwde.dataprovider.db.DatabaseManager;
 import qwde.dataprovider.models.StockPrice;
+import qwde.dataprovider.models.StockTicker;
 
-public class PystockToDB {
+public final class PystockToDB {
   private static Logger logger = LoggerFactory.getLogger(PystockToDB.class);
+
+  private PystockToDB() {
+  }
 
   public static boolean databaseHasData() throws SQLException {
     try (Connection connection = DatabaseManager.getConnection(); Statement statement = connection.createStatement()) {
       return statement.executeQuery("SELECT symbol, price, timestamp FROM StockTicker LIMIT 1").next();
-    } 
+    }
   }
 
   public static void createInitialDB() {
@@ -40,7 +43,7 @@ public class PystockToDB {
       int[] results = ps.executeBatch();
       connection.commit();
       logger.info("Stored {} entries to DB", IntStream.of(results).sum());
-    }  catch (Exception exception) {
+    } catch (Exception exception) {
       logger.error("", exception);
     }
   }
@@ -54,7 +57,7 @@ public class PystockToDB {
         );
     List<StockTicker> ret = new ArrayList<>();
     for (Entry<String, List<StockPrice>> entry : pricesMappedByCompany.entrySet()) {
-      for(StockPrice stockPrice : entry.getValue()) {
+      for (StockPrice stockPrice : entry.getValue()) {
         ret.add(new StockTicker(entry.getKey(), stockPrice.getPrice(), stockPrice.getTimestamp()));
       }
     }

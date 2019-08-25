@@ -9,23 +9,20 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-
 import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
 import qwde.dataprovider.pystock.PystockToDB;
 import qwde.dataprovider.util.FileUtil;
 
-
-public class DatabaseManager {
+public final class DatabaseManager {
   private static Logger logger = LoggerFactory.getLogger(DatabaseManager.class);
   private final HikariConfig config = new HikariConfig();
   private final HikariDataSource ds;
-
-
   private static DatabaseManager databaseManager;
 
   private DatabaseManager(String jdbcUrl) {

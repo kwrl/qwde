@@ -16,33 +16,33 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.List;
-import java.util.Set;
-import java.util.Optional;
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import qwde.dataprovider.models.StockPrice;
-import qwde.dataprovider.util.StockPriceReader;
 import qwde.dataprovider.util.FileUtil;
+import qwde.dataprovider.util.StockPriceReader;
 
 public class PystockStockPriceReader implements StockPriceReader {
   private static Logger logger = LoggerFactory.getLogger(PystockStockPriceReader.class);
 
   private final List<StockPrice> stockPrices;
-  public final static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+  public static final DateTimeFormatter DATETIMEFORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
 
   private static boolean fileNameMatchesDate(String fileName, Set<LocalDate> dates) {
     try {
-      LocalDate fileNameAsDate = LocalDate.parse(fileName, dateTimeFormatter);
+      LocalDate fileNameAsDate = LocalDate.parse(fileName, DATETIMEFORMATTER);
       return dates.contains(fileNameAsDate);
     } catch (DateTimeParseException exception) {
       return false;
@@ -106,7 +106,7 @@ public class PystockStockPriceReader implements StockPriceReader {
     return new PystockStockPriceReader(f -> fileNameMatchesDate(f, desirableDates));
   }
 
-  public static PystockStockPriceReader FromDate(LocalDate date) throws IOException {
+  public static PystockStockPriceReader fromDate(LocalDate date) throws IOException {
     return getPystockStockPriceReader(date, date);
   }
 
@@ -120,7 +120,7 @@ public class PystockStockPriceReader implements StockPriceReader {
           return reader.lines().skip(1).map(PystockStockPriceReader::parseStockPrice).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
         }
       }
-    } 
+    }
 
     return Collections.emptyList();
   }
