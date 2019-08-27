@@ -1,11 +1,15 @@
-package qwde.dataprovider.util; 
+package qwde.dataprovider.util;
 
-import java.util.Date;
-import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Date;
 
-public class DateUtil {
+public final class DateUtil {
+
+  private DateUtil() {
+  }
+
   public static Date toDate(LocalDateTime localDateTime) {
     return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
   }

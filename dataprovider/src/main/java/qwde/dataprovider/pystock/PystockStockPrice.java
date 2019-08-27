@@ -61,9 +61,14 @@ public class PystockStockPrice implements StockPrice {
   @Override
   public boolean equals(Object other) {
     if (other instanceof StockPrice) {
-      return this.compareTo((StockPrice) other) == 0;
+      return compareTo((StockPrice) other) == 0;
     } else {
       return false;
     }
+  }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
   }
 }

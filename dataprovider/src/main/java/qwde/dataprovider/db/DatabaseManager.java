@@ -9,24 +9,21 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-
 import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
 import qwde.dataprovider.pystock.PystockToDB;
 import qwde.dataprovider.util.FileUtil;
 
-
-public class DatabaseManager {
+public final class DatabaseManager {
   private static Logger logger = LoggerFactory.getLogger(DatabaseManager.class);
   private final HikariConfig config = new HikariConfig();
   private final HikariDataSource ds;
-
-
-  private static DatabaseManager databaseManager;
+  private static DatabaseManager manager;
 
   private DatabaseManager(String jdbcUrl) {
     this.config.setJdbcUrl(jdbcUrl);
@@ -39,11 +36,20 @@ public class DatabaseManager {
   }
 
   public static Connection getConnection() throws SQLException {
-    return databaseManager.ds.getConnection();
+    if (manager == null) {
+      try {
+        initialize();
+      } catch (ClassNotFoundException | IOException exception) {
+        // lazy...
+        throw new SQLException(exception);
+      }
+    }
+
+    return manager.ds.getConnection();
   }
 
   public static void initialize() throws ClassNotFoundException, SQLException, IOException {
-    if (databaseManager != null) {
+    if (manager != null) {
       throw new IllegalStateException("Initialize already called");
     }
 
@@ -60,7 +66,7 @@ public class DatabaseManager {
         jdbcUrl = jdbcUrl.replaceFirst(stringRegex, Path.of(FileUtil.createIfNotExists(FileUtil.getCacheDirectory()), m.group(1)).toAbsolutePath().toString().replace("\\", "/"));
       }
       logger.info("Connecting to db {}", jdbcUrl);
-      databaseManager = new DatabaseManager(jdbcUrl);
+      manager = new DatabaseManager(jdbcUrl);
 
       Flyway flyway = Flyway.configure().dataSource(jdbcUrl, null, null).load();
       flyway.migrate();

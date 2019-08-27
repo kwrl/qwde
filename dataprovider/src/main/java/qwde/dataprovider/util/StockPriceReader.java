@@ -1,4 +1,4 @@
-package qwde.dataprovider.util; 
+package qwde.dataprovider.util;
 
 import java.util.Collection;
 

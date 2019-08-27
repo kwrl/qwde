@@ -2,13 +2,13 @@ package qwde.dataprovider.pystock;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.DayOfWeek;
@@ -16,33 +16,35 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.List;
-import java.util.Set;
-import java.util.Optional;
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import qwde.dataprovider.models.StockPrice;
-import qwde.dataprovider.util.StockPriceReader;
 import qwde.dataprovider.util.FileUtil;
+import qwde.dataprovider.util.StockPriceReader;
 
 public class PystockStockPriceReader implements StockPriceReader {
   private static Logger logger = LoggerFactory.getLogger(PystockStockPriceReader.class);
 
   private final List<StockPrice> stockPrices;
-  public final static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+  private static final String DATA_FOLDER = "pystock-data";
+  public static final DateTimeFormatter DATETIMEFORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
 
   private static boolean fileNameMatchesDate(String fileName, Set<LocalDate> dates) {
     try {
-      LocalDate fileNameAsDate = LocalDate.parse(fileName, dateTimeFormatter);
+      LocalDate fileNameAsDate = LocalDate.parse(fileName, DATETIMEFORMATTER);
       return dates.contains(fileNameAsDate);
     } catch (DateTimeParseException exception) {
       return false;
@@ -53,23 +55,15 @@ public class PystockStockPriceReader implements StockPriceReader {
     return startDate.datesUntil(endDate).filter(d -> !(d.getDayOfWeek() == DayOfWeek.SATURDAY || d.getDayOfWeek() == DayOfWeek.SUNDAY)).collect(Collectors.toSet());
   }
 
+  @SuppressWarnings("PMD.ExceptionAsFlowControl")
   public PystockStockPriceReader(Predicate<String> fileNameFilter) throws IOException {
-    Optional<Path> pystockDataPath = FileUtil.findFolderInDatapath("pystock-data");
-    if (pystockDataPath.isEmpty()) {
       // Not pretty, but it covers most use-cases by other devs.
       // I.e., we search in XDG_DATA_HOME, XDG_DATA_DIRS, and the current working directory, and the directory above
-      pystockDataPath = FileUtil.findInPath("pystock-data", ".");
-      if (pystockDataPath.isEmpty()) {
-        pystockDataPath = FileUtil.findInPath("pystock-data", "..");
-        if (pystockDataPath.isEmpty()) {
-          pystockDataPath = FileUtil.findInPath("pystock-data", "../dataprovider");
-          if (pystockDataPath.isEmpty()) {
-            throw new FileNotFoundException("Unable to find pystock-data files. See README.md for more documentation.");
-          }
-        }
-      }
+    Optional<Path> pystockDataPath = Stream.of(FileUtil.findFolderInDatapath(DATA_FOLDER), FileUtil.findInPath(DATA_FOLDER, "."), FileUtil.findInPath(DATA_FOLDER, ".."), FileUtil.findInPath(DATA_FOLDER, "../dataprovider")).filter(Optional::isPresent).map(Optional::get).findFirst();
+    if (pystockDataPath.isEmpty()) {
+      throw new FileNotFoundException("Unable to find pystock-data files. See README.md for more documentation.");
     }
-    logger.trace("Located pystock-data in {}", pystockDataPath.get());
+    logger.debug("Located pystock-data in {}", pystockDataPath.get());
     try {
       logger.info("Reading pystock-data...");
       this.stockPrices = Files.walk(pystockDataPath.get())
@@ -80,8 +74,8 @@ public class PystockStockPriceReader implements StockPriceReader {
         .map(file -> {
           try {
             logger.trace("Parsing {}", file);
-            return new FileInputStream(file);
-          } catch (FileNotFoundException exception) {
+            return Files.newInputStream(file.toPath());
+          } catch (IOException exception) {
             throw new UncheckedIOException(exception);
           }
         })
@@ -106,21 +100,23 @@ public class PystockStockPriceReader implements StockPriceReader {
     return new PystockStockPriceReader(f -> fileNameMatchesDate(f, desirableDates));
   }
 
-  public static PystockStockPriceReader FromDate(LocalDate date) throws IOException {
+  public static PystockStockPriceReader fromDate(LocalDate date) throws IOException {
     return getPystockStockPriceReader(date, date);
   }
 
+  @SuppressWarnings("PMD.AssignmentInOperand")
   private static List<StockPrice> getPricesFromCompressedArchive(InputStream compressedArchive) throws IOException {
     TarArchiveInputStream stream = new TarArchiveInputStream(new GzipCompressorInputStream(compressedArchive));
     TarArchiveEntry entry;
     while ((entry = stream.getNextTarEntry()) != null) {
+      entry = stream.getNextTarEntry();
       if ("prices.csv".equals(entry.getName())) {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, Charset.forName("UTF-8")))) {
           // Skip header
           return reader.lines().skip(1).map(PystockStockPriceReader::parseStockPrice).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
         }
       }
-    } 
+    }
 
     return Collections.emptyList();
   }

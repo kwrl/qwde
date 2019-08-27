@@ -249,20 +249,6 @@
         <property name="message" value="Don't put author tags in the file."/>
     </module>
 
-    <!-- Warn against use of Java calendar / date stuff since we use JodaTime -->
-    <module name="RegexpSingleline">
-        <property name="format" value="new DateTime\("/>
-        <property name="message" value="It is unlikely you want to do this as it creates a DateTime instance in the machine local timezone, not UTC as required by our standard. See TimeUtil for helper methods."/>
-    </module>
-    <module name="RegexpSingleline">
-        <property name="format" value="import.*java\.util.(Date|Calendar|GregorianCalendar)"/>
-        <property name="message" value="You should be using JodaTime per our standard (unless you are calling an external library)."/>
-    </module>
-    <module name="RegexpSingleline">
-        <property name="format" value="import.*java\.text\.SimpleDateFormat"/>
-        <property name="message" value="SimpleDateFormat is not threadsafe. Use JodaTime stuff instead."/>
-    </module>
-
     <!-- Warn against using log4j -->
     <module name="RegexpSingleline">
         <property name="format" value="log4j"/>

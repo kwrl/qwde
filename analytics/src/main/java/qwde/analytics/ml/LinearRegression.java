@@ -13,7 +13,7 @@ import weka.core.converters.ArffLoader;
  * Stolen from https://tech.io/playgrounds/3771/machine-learning-with-java---part-1-linear-regression
  */
 public final class LinearRegression {
-  
+
   /** File names are defined. */
   public static final String TRAINING_DATA_SET_FILENAME = "linear-train.arff";
   public static final String PREDICTION_DATA_SET_FILENAME = "linear-prediction.arff";
@@ -37,7 +37,7 @@ public final class LinearRegression {
     return dataSet;
   }
 
-  public static void process(File dataSetFile) throws Exception {
+  public static double process(File dataSetFile) throws Exception {
     ClassLoader classLoader = LinearRegression.class.getClassLoader();
     File trainingDataFile = new File(classLoader.getResource(TRAINING_DATA_SET_FILENAME).getFile());
     assert trainingDataFile.exists();
@@ -54,15 +54,13 @@ public final class LinearRegression {
     Evaluation eval = new Evaluation(trainingDataSet);
     eval.evaluateModel(classifier, dataSet);
     /** Print the algorithm summary */
-    System.out.println("** Linear Regression Evaluation with Datasets **");
-    System.out.println(eval.toSummaryString());
-    System.out.print(" the expression for the input data as per alogorithm is ");
-    System.out.println(classifier);
+    //System.out.println("** Linear Regression Evaluation with Datasets **");
+    //System.out.println(eval.toSummaryString());
+    //System.out.print(" the expression for the input data as per alogorithm is ");
+    //System.out.println(classifier);
 
     Instance predicationDataSet = getDataSet(new File(PREDICTION_DATA_SET_FILENAME)).lastInstance();
-    double value = classifier.classifyInstance(predicationDataSet);
-    /** Prediction Output */
-    System.out.println(value);
+    return classifier.classifyInstance(predicationDataSet);
   }
 
   private LinearRegression() {
