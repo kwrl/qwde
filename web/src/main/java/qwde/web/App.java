@@ -36,7 +36,14 @@ public class App implements Callable<Integer> {
     logger.trace("Got argument \"{}\"", this.port);
 
     try {
-      new HTTPServer(Integer.valueOf(this.port));
+      DatabaseManager.initialize();
+    } catch (ClassNotFoundException | IOException | SQLException exception) {
+      logger.error("", exception);
+      return 1;
+    }
+
+    try {
+      new HTTPServer(Integer.parseInt(this.port));
     } catch (IOException exception) {
       logger.error("Could not start prometheus server at 9456", exception);
       return 1;
@@ -44,15 +51,8 @@ public class App implements Callable<Integer> {
 
     ServerSocket server = null;
     try {
-      server = new ServerSocket(Integer.valueOf(serverPort), 10);
+      server = new ServerSocket(Integer.parseInt(serverPort), 10);
     } catch (IOException exception) {
-      logger.error("", exception);
-      return 1;
-    }
-
-    try {
-      DatabaseManager.initialize();
-    } catch (ClassNotFoundException | IOException | SQLException exception) {
       logger.error("", exception);
       return 1;
     }

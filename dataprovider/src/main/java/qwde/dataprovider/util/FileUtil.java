@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -30,14 +31,15 @@ public final class FileUtil {
     if (is == null) {
       throw new FileNotFoundException("Could not find " + fileName);
     }
-    BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-    return reader.lines().collect(Collectors.joining(System.lineSeparator()));
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")))) {
+      return reader.lines().collect(Collectors.joining(System.lineSeparator()));
+    }
   }
 
-  public static String createIfNotExists(String path) {
+  public static String createIfNotExists(String path) throws IOException {
     File pathAsFile = new File(path);
-    if (!pathAsFile.exists()) {
-      pathAsFile.mkdirs();
+    if (!pathAsFile.exists() && !pathAsFile.mkdirs()) {
+      throw new IOException("Failed to create dir " + path);
     }
 
     return path;
@@ -69,23 +71,23 @@ public final class FileUtil {
     }
 
     File[] files = dir.listFiles((d, name) -> name.equals(target));
-    if (files.length > 0) {
-      Path destPath = files[0].toPath();
-      if (Files.isSymbolicLink(destPath)) {
-        try {
-          Path p = Files.readSymbolicLink(destPath);
-          if (p.toFile().exists()) {
-            return Optional.of(p);
-          }
-        } catch (IOException exception) {
-          logger.warn("Tried to read {} as symbolic link, target not found", target);
-          return Optional.empty();
-        }
-      }
-      return Optional.of(destPath);
+    if (files == null || files.length == 0) {
+      return Optional.empty();
     }
 
-    return Optional.empty();
+    Path destPath = files[0].toPath();
+    if (Files.isSymbolicLink(destPath)) {
+      try {
+        Path p = Files.readSymbolicLink(destPath);
+        if (p.toFile().exists()) {
+          return Optional.of(p);
+        }
+      } catch (IOException exception) {
+        logger.warn("Tried to read {} as symbolic link, target not found", target);
+        return Optional.empty();
+      }
+    }
+    return Optional.of(destPath);
   }
 
   public static Optional<Path> findFolderInDatapath(String folder) {

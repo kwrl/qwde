@@ -34,7 +34,6 @@ public final class SimpleMovingAverage {
       if (!urlParams.containsKey("ticker") || urlParams.get("ticker").size() != 1) {
         return "Please include ?ticker=<tickername> in the URL";
       }
-      String ticker = urlParams.get("ticker").get(0).toUpperCase();
       if (!urlParams.containsKey("fromdate") || urlParams.get("fromdate").size() != 1) {
         return "Please include ?fromdate=<yyyyMMdd> in the URL. Dates have to be somewhere in the range";
       }
@@ -46,6 +45,7 @@ public final class SimpleMovingAverage {
         toDate = LocalDate.parse(urlParams.get("todate").get(0), DATETIMEFORMATTER);
       }
 
+      String ticker = urlParams.get("ticker").get(0).toUpperCase();
       logger.debug("Doing render with {}, {}, {}", ticker, fromDate, toDate);
 
       CompanyStockData stockData;

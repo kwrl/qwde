@@ -7,9 +7,10 @@ buildscript {
       url = uri("https://plugins.gradle.org/m2/")
     }
     jcenter()
+    gradlePluginPortal()
   }
   dependencies {
-    classpath("gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:2.0.0")
+    classpath("ru.vyarus:gradle-quality-plugin:3.4.0")
   }
 }
 
@@ -24,19 +25,20 @@ allprojects {
 
 configure(subprojects.filter { it.name == "analytics"  || it.name == "dataprovider" || it.name == "web" } ) {
   apply(plugin = "java")
-    apply(plugin = "checkstyle")
-    apply(plugin = "com.github.spotbugs")
+    //apply(plugin = "checkstyle")
+    //apply(plugin = "com.github.spotbugs")
+    apply(plugin = "ru.vyarus.quality")
 
-    configure<com.github.spotbugs.SpotBugsExtension> {
-        effort = "default"
-        reportLevel = "medium"
-        excludeFilter = file("$projectDir/../config/spotbugs/exclude.xml")
-    }
+    //configure<com.github.spotbugs.SpotBugsExtension> {
+    //    effort = "default"
+    //    reportLevel = "medium"
+    //    excludeFilter = file("$projectDir/../config/spotbugs/exclude.xml")
+    //}
 
-  tasks.getByName<com.github.spotbugs.SpotBugsTask>("spotbugsMain") {
-    reports.xml.isEnabled = false
-      reports.html.isEnabled = true
-  }
+  //tasks.getByName<com.github.spotbugs.SpotBugsTask>("spotbugsMain") {
+    //reports.xml.isEnabled = false
+      //reports.html.isEnabled = true
+  //}
 
 
   dependencies {

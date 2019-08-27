@@ -17,7 +17,7 @@ public class CompanyStockData {
   @Override
   public String toString() {
     String fromDate = timestamps.isEmpty() ? "empty" : timestamps.get(0).toString();
-    String toDate = timestamps.size() < 1 ? fromDate : timestamps.get(1).toString();
+    String toDate = timestamps.isEmpty() ? fromDate : timestamps.get(1).toString();
     return super.toString() + String.format("%s <%s:%s>", companyName, fromDate, toDate);
   }
 }

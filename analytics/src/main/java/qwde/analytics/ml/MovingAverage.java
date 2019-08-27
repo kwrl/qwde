@@ -32,4 +32,4 @@ public final class MovingAverage {
     }
     return windows;
   }
-};
+}

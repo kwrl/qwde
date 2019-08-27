@@ -23,7 +23,7 @@ public final class DatabaseManager {
   private static Logger logger = LoggerFactory.getLogger(DatabaseManager.class);
   private final HikariConfig config = new HikariConfig();
   private final HikariDataSource ds;
-  private static DatabaseManager databaseManager;
+  private static DatabaseManager manager;
 
   private DatabaseManager(String jdbcUrl) {
     this.config.setJdbcUrl(jdbcUrl);
@@ -36,7 +36,7 @@ public final class DatabaseManager {
   }
 
   public static Connection getConnection() throws SQLException {
-    if (databaseManager == null) {
+    if (manager == null) {
       try {
         initialize();
       } catch (ClassNotFoundException | IOException exception) {
@@ -45,11 +45,11 @@ public final class DatabaseManager {
       }
     }
 
-    return databaseManager.ds.getConnection();
+    return manager.ds.getConnection();
   }
 
   public static void initialize() throws ClassNotFoundException, SQLException, IOException {
-    if (databaseManager != null) {
+    if (manager != null) {
       throw new IllegalStateException("Initialize already called");
     }
 
@@ -66,7 +66,7 @@ public final class DatabaseManager {
         jdbcUrl = jdbcUrl.replaceFirst(stringRegex, Path.of(FileUtil.createIfNotExists(FileUtil.getCacheDirectory()), m.group(1)).toAbsolutePath().toString().replace("\\", "/"));
       }
       logger.info("Connecting to db {}", jdbcUrl);
-      databaseManager = new DatabaseManager(jdbcUrl);
+      manager = new DatabaseManager(jdbcUrl);
 
       Flyway flyway = Flyway.configure().dataSource(jdbcUrl, null, null).load();
       flyway.migrate();

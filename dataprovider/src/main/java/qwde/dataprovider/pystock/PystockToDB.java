@@ -3,6 +3,7 @@ package qwde.dataprovider.pystock;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
@@ -27,8 +28,8 @@ public final class PystockToDB {
   }
 
   public static boolean databaseHasData() throws SQLException {
-    try (Connection connection = DatabaseManager.getConnection(); Statement statement = connection.createStatement()) {
-      return statement.executeQuery("SELECT symbol, price, timestamp FROM StockTicker LIMIT 1").next();
+    try (Connection connection = DatabaseManager.getConnection(); Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT symbol, price, timestamp FROM StockTicker LIMIT 1")) {
+      return resultSet.next();
     }
   }
 
