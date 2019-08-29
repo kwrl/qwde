@@ -12,6 +12,10 @@ repositories {
 dependencies {
   implementation("commons-io:commons-io:2.6")
   implementation("nz.ac.waikato.cms.weka:weka-dev:3.9.2")
+  implementation("nz.ac.waikato.cms.weka:weka-dev:3.9.2")
+  implementation("tech.tablesaw:tablesaw-core:0.34.1")
+  implementation("tech.tablesaw:tablesaw-aggregate:0.34.2")
+
   compile(project(":dataprovider"))
 }
 
