@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import qwde.web.servlets.BollingerBrand;
 import qwde.web.servlets.IndexServlet;
 import qwde.web.servlets.SimpleMovingAverage;
 import qwde.web.util.FileUtil;
@@ -83,6 +84,8 @@ public class HttpServer implements Runnable {
           sendResponse(HTTP_200, IndexServlet.doGet(urlMapping));
         } else if (httpQueryString.startsWith("/sma")) {
           sendResponse(HTTP_200, SimpleMovingAverage.doGet(urlMapping));
+        } else if (httpQueryString.startsWith("/bb")) {
+          sendResponse(200, BollingerBrand.doGet(urlMapping));
         } else if (httpQueryString.startsWith("/plotly-latest.min.js")) {
           try {
             sendResponse(HTTP_200, FileUtil.getResourceFile("plotly-latest.min.js"));
