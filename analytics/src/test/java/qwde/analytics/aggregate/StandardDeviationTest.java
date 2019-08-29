@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 
@@ -18,6 +19,12 @@ class LinearRegressionTest {
 
     Truth.assertThat(standardDeviation).isEqualTo(Collections.singletonList(1.0));
   }
+
+  @Test
+  public void standardDeviation_LinearMonotoneInc_Mean() throws Exception {
+    List<Double> data = IntStream.rangeClosed(1, 5).asDoubleStream().boxed().collect(Collectors.toList());
+    List<Double> standardDeviation = StandardDeviation.standardDeviaton(data, 5);
+
+    Truth.assertThat(standardDeviation).isEqualTo(Collections.singletonList(1.0));
+  }
 }
-
-

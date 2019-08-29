@@ -1,6 +1,8 @@
 group = "qwde"
 version = "0.0.1"
 
+val tablesawVersion by extra("0.34.2")
+
 buildscript {
   repositories {
     maven {

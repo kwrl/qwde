@@ -25,9 +25,9 @@ import qwde.web.util.FileUtil;
 
 public class HttpServer implements Runnable {
   private static Logger logger = LoggerFactory.getLogger(HttpServer.class);
-  private static final String HTTP_200 = "HTTP/1.1 200 OK\r\n";
-  private static final String HTTP_404 = "HTTP/1.1 404 Not Found\r\n";
-  private static final String HTTP_500 = "HTTP/1.1 500 \r\n";
+  private static final String HTTP_200 = "HTTP/1.1 200 OK";
+  private static final String HTTP_404 = "HTTP/1.1 404 Not Found";
+  private static final String HTTP_500 = "HTTP/1.1 500";
 
   private final Socket client;
   private DataOutputStream outClient;
@@ -85,7 +85,7 @@ public class HttpServer implements Runnable {
         } else if (httpQueryString.startsWith("/sma")) {
           sendResponse(HTTP_200, SimpleMovingAverage.doGet(urlMapping));
         } else if (httpQueryString.startsWith("/bb")) {
-          sendResponse(200, BollingerBrand.doGet(urlMapping));
+          sendResponse(HTTP_200, BollingerBrand.doGet(urlMapping));
         } else if (httpQueryString.startsWith("/plotly-latest.min.js")) {
           try {
             sendResponse(HTTP_200, FileUtil.getResourceFile("plotly-latest.min.js"));
@@ -110,12 +110,12 @@ public class HttpServer implements Runnable {
   }
 
   public void sendResponse(String status, String responseString) throws Exception {
-    this.outClient.writeBytes(String.format("%s\r%n%s\r%n%s\r%n%s\r%n%s\r%n%s\r%n",
+    this.outClient.writeBytes(String.format("%s\r\n%s\r\n%s\r\n%s\r\n\r\n%s\r\n%s\r\n",
         status,
         "java.net.ServerSocket",
-        "Content-Type: text/html\r\n",
-        "Content-Length" + responseString.length() + "\r\n",
-        "<html><title>HTTP Server in Java</title><body>" + responseString + "</body></html>",
+        "Content-Type: text/html",
+        "Content-Length: " + responseString.length(),
+        responseString,
         "Connection: close\r\n"));
     this.outClient.close();
   }
