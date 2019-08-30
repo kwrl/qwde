@@ -14,12 +14,11 @@
         </encoder>
     </appender>
 
-    <logger name="com.zaxxer.hikari.pool" level="info"/>
+    <logger name="com.zaxxer.hikari.pool" level="INFO"/>
+    <logger name="com.mitchellbosecke.pebble.loader" level="INFO" />
 
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
-        <!-- <appender-ref ref="FILE"/> -->
-        <!-- <appender-ref ref="syslog"/> -->
     </root>
 
 </configuration>

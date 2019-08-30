@@ -110,13 +110,13 @@ public class HttpServer implements Runnable {
   }
 
   private void sendResponse(String status, String responseString) throws Exception {
-    this.outClient.writeBytes(String.format("%s\r%n%s\r%n%s\r%n%s\r%n%s\r%n%s\r%n",
+    this.outClient.writeBytes(String.format("%s\r%n%s\r%n%s\r%n%s\r%n\r%n\r\n%s\r%n%s\r%n\r%n",
         status,
         "java.net.ServerSocket",
         "Content-Type: text/html",
         "Content-Length: " + responseString.length(),
         responseString,
-        "Connection: close\r\n"));
+        "Connection: close"));
     this.outClient.close();
   }
 }

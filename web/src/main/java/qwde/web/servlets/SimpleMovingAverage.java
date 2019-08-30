@@ -61,7 +61,7 @@ public final class SimpleMovingAverage {
 
       List<ScatterTrace> traces = new ArrayList<>();
       traces.addAll(getAverages(stockData.prices));
-      traces.add(LinePlotRenderer.genScatterPlot(stockData.prices, "closing prices"));
+      traces.add(LinePlotRenderer.genScatterPlot(stockData.prices, "price"));
 
       return PageRenderer.renderFigure("Price averages", Collections.singletonList(
               new FigureTemplate(LinePlotRenderer.scatterPlot(traces, ScatterTrace.class, ticker, "day", "closing price"), "Stock closing prices and Simple Moving Averages (SMA)",

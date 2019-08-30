@@ -20,21 +20,19 @@ class App implements Callable<Integer> {
   private static final Logger LOG = LoggerFactory.getLogger(App.class);
 
   @Option(names = { "-p" },
-      description = "Port to run prometheus on",
-      defaultValue = "9458"
+        description = "Port to run prometheus on",
+        defaultValue = "8012"
   )
   private String port;
 
   @Option(names = { "-s" },
-      description = "Port to run HTTP server on",
-      defaultValue = "8080"
+        description = "Port to run HTTP server on",
+        defaultValue = "8080"
   )
   private String serverPort;
 
   @Override
   public Integer call() {
-    LOG.trace("Got argument \"{}\"", this.port);
-
     try {
       DatabaseManager.initialize();
     } catch (ClassNotFoundException | IOException | SQLException exception) {
@@ -49,37 +47,28 @@ class App implements Callable<Integer> {
       return 1;
     }
 
-    ServerSocket server;
-    try {
-      server = new ServerSocket(Integer.parseInt(serverPort), 10);
-    } catch (IOException exception) {
-      LOG.error("", exception);
-      return 1;
-    }
+    try (ServerSocket server = new ServerSocket(Integer.parseInt(this.serverPort), 10)) {
+      LOG.info("Started server {}", server);
 
-    LOG.info("Started server {}", server);
-
-    while (Thread.currentThread().isAlive()) {
-      try {
-        Thread t = new Thread(new HttpServer(server.accept()));
-        t.start();
-      } catch (Exception exception) {
-        LOG.error("", exception);
-        return 1;
+      while (Thread.currentThread().isAlive()) {
+        try {
+          Thread t = new Thread(new HttpServer(server.accept()));
+          t.start();
+        } catch (Exception exception) {
+          LOG.error("", exception);
+          return 1;
+        }
       }
+    } catch (IOException exception) {
+      LOG.error("Could not open server socket at {}", this.serverPort, exception);
+      return 1;
     }
 
     return 0;
   }
 
   public static void main(String[] args) {
-    LOG.info("Starting");
-
-    try {
-      System.exit(CommandLine.call(new App(), args));
-    } catch (Exception exception) {
-      LOG.error("Unexpected error happened", exception);
-      System.exit(1);
-    }
+    LOG.info("Started.");
+    System.exit(CommandLine.call(new App(), args));
   }
 }
