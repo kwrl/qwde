@@ -19,7 +19,7 @@ public final class MovingAverage {
       }
 
       Double[] windowData = Arrays.copyOfRange(data, i - (window - 1), i + 1);
-      sma[i] = Arrays.stream(windowData).reduce(0.0, (subtotal, element) -> subtotal + element) / window;
+      sma[i] = Arrays.stream(windowData).reduce(0.0, Double::sum) / window;
     }
 
     return sma;

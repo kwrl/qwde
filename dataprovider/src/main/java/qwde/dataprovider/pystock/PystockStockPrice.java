@@ -13,7 +13,7 @@ public class PystockStockPrice implements StockPrice {
   private final String company;
   private final LocalDateTime timestamp;
 
-  public PystockStockPrice(BigDecimal highPrice, BigDecimal lowPrice, BigDecimal closePrice, String company, LocalDateTime timestamp) {
+  PystockStockPrice(BigDecimal highPrice, BigDecimal lowPrice, BigDecimal closePrice, String company, LocalDateTime timestamp) {
     this.highPrice = highPrice;
     this.lowPrice = lowPrice;
     this.company = company;

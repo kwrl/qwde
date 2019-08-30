@@ -16,7 +16,7 @@ import qwde.dataprovider.db.DatabaseManager;
 import qwde.dataprovider.models.CompanyStockData;
 
 public final class StockDB {
-  private static Logger logger = LoggerFactory.getLogger(StockDB.class);
+  private static final Logger LOG = LoggerFactory.getLogger(StockDB.class);
 
   private StockDB() {
   }
@@ -27,7 +27,7 @@ public final class StockDB {
       statement.setDate(2, java.sql.Date.valueOf(fromDate));
       statement.setDate(3, java.sql.Date.valueOf(toDate));
       try (ResultSet rs = statement.executeQuery()) {
-        logger.trace("Executing query {}", String.format("SELECT price, timestamp FROM StockTicker WHERE symbol = %s AND timestamp BETWEEN %s AND %s", stockTicker, java.sql.Date.valueOf(fromDate), java.sql.Date.valueOf(toDate)));
+        LOG.trace("Executing query {}", String.format("SELECT price, timestamp FROM StockTicker WHERE symbol = %s AND timestamp BETWEEN %s AND %s", stockTicker, java.sql.Date.valueOf(fromDate), java.sql.Date.valueOf(toDate)));
         List<Double> stockPrices = new ArrayList<>();
         List<LocalDateTime> priceTimeStamps = new ArrayList<>();
 
@@ -37,7 +37,7 @@ public final class StockDB {
         }
 
         if (stockPrices.isEmpty()) {
-          logger.warn("Request data {}, from {} to {} - empty results", stockTicker, fromDate, toDate);
+          LOG.warn("Request data {}, from {} to {} - empty results", stockTicker, fromDate, toDate);
         }
         return new CompanyStockData(stockTicker, stockPrices, priceTimeStamps);
       }

@@ -5,29 +5,32 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
 import com.google.common.truth.Truth;
+import qwde.dataprovider.models.StockPrice;
 
-public class PystockStockPriceReaderTest {
+class PystockStockPriceReaderTest {
 
   @Test
-  public void readSpecificTickerInfo() throws IOException {
-    PystockStockPriceReader pystockStockPriceReader = PystockStockPriceReader.getPystockStockPriceReader(LocalDate.of(2017, 01, 02), LocalDate.of(2017, 01, 02));
+  void readSpecificTickerInfo() throws IOException {
+    PystockStockPriceReader pystockStockPriceReader = PystockStockPriceReader.getPystockStockPriceReader(LocalDate.of(2017, 1, 2), LocalDate.of(2017, 1, 2));
 
 
-    BigDecimal twitterPrice = pystockStockPriceReader.read().stream().filter(x -> x.getCompany().equals("TWTR")).map(x -> x.getPrice()).findFirst().get();
+    Optional<BigDecimal> twitterPrice = pystockStockPriceReader.read().stream().filter(x -> x.getCompany().equals("TWTR")).map(StockPrice::getPrice).findFirst();
 
-    Truth.assertThat(twitterPrice).isEqualToIgnoringScale("16.299999");
+    Truth.assertThat(twitterPrice.isPresent()).isTrue();
+    Truth.assertThat(twitterPrice.get()).isEqualToIgnoringScale("16.299999");
   }
 
   @Test
-  public void readSpecificTickerInfoRange() throws IOException {
+  void readSpecificTickerInfoRange() throws IOException {
     PystockStockPriceReader pystockStockPriceReader = PystockStockPriceReader.getPystockStockPriceReader(LocalDate.of(2017, 1, 2), LocalDate.of(2017, 1, 20));
   
-    List<BigDecimal> twitterPrice = pystockStockPriceReader.read().stream().filter(x -> x.getCompany().equals("TWTR")).map(x -> x.getPrice()).collect(Collectors.toList());
+    List<BigDecimal> twitterPrice = pystockStockPriceReader.read().stream().filter(x -> x.getCompany().equals("TWTR")).map(StockPrice::getPrice).collect(Collectors.toList());
   
     // Interval is 20 - 2 days, and since its an inclusive range, we add 1...
     // Minus number of weekends...
@@ -36,11 +39,11 @@ public class PystockStockPriceReaderTest {
   }
   
   @Test
-  public void testRead() throws IOException {
-    PystockStockPriceReader pyReader = PystockStockPriceReader.getPystockStockPriceReader(LocalDate.of(2017, 01, 02), LocalDate.of(2017, 01, 02));
+  void testRead() throws IOException {
+    PystockStockPriceReader pyReader = PystockStockPriceReader.getPystockStockPriceReader(LocalDate.of(2017, 1, 2), LocalDate.of(2017, 1, 2));
   
     Truth.assertThat(pyReader.read().isEmpty()).isFalse();
-    Truth.assertThat(pyReader.read().get(0).getPrice()).isEqualToIgnoringScale("45.560001");
+    Truth.assertThat(pyReader.read().get(0).getPrice()).isEqualToIgnoringScale("45.56001");
     Truth.assertThat(pyReader.read().get(0).getCompany()).isEqualTo("A");
     Truth.assertThat(pyReader.read().get(0).getTimestamp()).isEqualTo(LocalDateTime.of(2016, 12, 30, 0, 0));
   }

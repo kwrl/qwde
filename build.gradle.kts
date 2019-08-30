@@ -27,21 +27,7 @@ allprojects {
 
 configure(subprojects.filter { it.name == "analytics"  || it.name == "dataprovider" || it.name == "web" } ) {
   apply(plugin = "java")
-    //apply(plugin = "checkstyle")
-    //apply(plugin = "com.github.spotbugs")
     apply(plugin = "ru.vyarus.quality")
-
-    //configure<com.github.spotbugs.SpotBugsExtension> {
-    //    effort = "default"
-    //    reportLevel = "medium"
-    //    excludeFilter = file("$projectDir/../config/spotbugs/exclude.xml")
-    //}
-
-  //tasks.getByName<com.github.spotbugs.SpotBugsTask>("spotbugsMain") {
-    //reports.xml.isEnabled = false
-      //reports.html.isEnabled = true
-  //}
-
 
   dependencies {
     "implementation"("com.google.guava:guava:23.0")

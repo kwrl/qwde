@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.DayOfWeek;
@@ -36,7 +36,7 @@ import qwde.dataprovider.util.FileUtil;
 import qwde.dataprovider.util.StockPriceReader;
 
 public class PystockStockPriceReader implements StockPriceReader {
-  private static Logger logger = LoggerFactory.getLogger(PystockStockPriceReader.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PystockStockPriceReader.class);
 
   private final List<StockPrice> stockPrices;
   private static final String DATA_FOLDER = "pystock-data";
@@ -63,9 +63,9 @@ public class PystockStockPriceReader implements StockPriceReader {
     if (pystockDataPath.isEmpty()) {
       throw new FileNotFoundException("Unable to find pystock-data files. See README.md for more documentation.");
     }
-    logger.debug("Located pystock-data in {}", pystockDataPath.get());
+    LOG.debug("Located pystock-data in {}", pystockDataPath.get());
     try {
-      logger.info("Reading pystock-data...");
+      LOG.info("Reading pystock-data...");
       this.stockPrices = Files.walk(pystockDataPath.get())
         .map(Path::toFile)
         .filter(File::isFile)
@@ -73,7 +73,7 @@ public class PystockStockPriceReader implements StockPriceReader {
         .filter(f -> fileNameFilter.test(FilenameUtils.getBaseName(FilenameUtils.getBaseName(f.getName()))))
         .map(file -> {
           try {
-            logger.trace("Parsing {}", file);
+            LOG.trace("Parsing {}", file);
             return Files.newInputStream(file.toPath());
           } catch (IOException exception) {
             throw new UncheckedIOException(exception);
@@ -89,7 +89,7 @@ public class PystockStockPriceReader implements StockPriceReader {
       .sorted().distinct()
       .collect(Collectors.toList());
 
-      logger.info("{} entries loaded in memory from pystock-data", this.stockPrices.size());
+      LOG.info("{} entries loaded in memory from pystock-data", this.stockPrices.size());
     } catch (UncheckedIOException exception) {
       throw new IOException(exception);
     }
@@ -109,9 +109,8 @@ public class PystockStockPriceReader implements StockPriceReader {
     TarArchiveInputStream stream = new TarArchiveInputStream(new GzipCompressorInputStream(compressedArchive));
     TarArchiveEntry entry;
     while ((entry = stream.getNextTarEntry()) != null) {
-      entry = stream.getNextTarEntry();
       if ("prices.csv".equals(entry.getName())) {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, Charset.forName("UTF-8")))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
           // Skip header
           return reader.lines().skip(1).map(PystockStockPriceReader::parseStockPrice).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
         }

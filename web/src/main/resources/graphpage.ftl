@@ -1,6 +1,4 @@
-<html>
-<title>HTTP Server in Java</title>
-<body><!DOCTYPE html>
+<html lang="en">
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <title>${pageTitle}</title>

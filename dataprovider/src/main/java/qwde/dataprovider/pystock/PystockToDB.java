@@ -22,7 +22,7 @@ import qwde.dataprovider.models.StockPrice;
 import qwde.dataprovider.models.StockTicker;
 
 public final class PystockToDB {
-  private static Logger logger = LoggerFactory.getLogger(PystockToDB.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PystockToDB.class);
 
   private PystockToDB() {
   }
@@ -43,18 +43,18 @@ public final class PystockToDB {
       }
       int[] results = ps.executeBatch();
       connection.commit();
-      logger.info("Stored {} entries to DB", IntStream.of(results).sum());
+      LOG.info("Stored {} entries to DB", IntStream.of(results).sum());
     } catch (Exception exception) {
-      logger.error("", exception);
+      LOG.error("", exception);
     }
   }
 
   private static List<StockTicker> getStockTickers() throws IOException {
     PystockStockPriceReader pyReader = new PystockStockPriceReader(x -> true);
 
-    logger.info("Sorting and organizing entries before inserting them to DB...");
+    LOG.info("Sorting and organizing entries before inserting them to DB...");
     Map<String, List<StockPrice>> pricesMappedByCompany = pyReader.read().stream().collect(
-        Collectors.groupingBy(p -> p.getCompany(), Collectors.toList())
+        Collectors.groupingBy(StockPrice::getCompany, Collectors.toList())
         );
     List<StockTicker> ret = new ArrayList<>();
     for (Entry<String, List<StockPrice>> entry : pricesMappedByCompany.entrySet()) {

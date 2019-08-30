@@ -1,6 +1,5 @@
 package qwde.web.servlets;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.SQLException;
@@ -8,6 +7,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -23,13 +23,13 @@ import qwde.web.plotly.PageRenderer;
 import tech.tablesaw.plotly.traces.ScatterTrace;
 
 public final class SimpleMovingAverage {
-  private static Logger logger = LoggerFactory.getLogger(SimpleMovingAverage.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SimpleMovingAverage.class);
   public static final DateTimeFormatter DATETIMEFORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
 
   private SimpleMovingAverage() {
   }
 
-  public static String doGet(Map<String, List<String>> urlParams) throws IOException {
+  public static String doGet(Map<String, List<String>> urlParams) {
     try {
       if (!urlParams.containsKey("ticker") || urlParams.get("ticker").size() != 1) {
         return "Please include ?ticker=<tickername> in the URL";
@@ -46,7 +46,7 @@ public final class SimpleMovingAverage {
       }
 
       String ticker = urlParams.get("ticker").get(0).toUpperCase();
-      logger.debug("Doing render with {}, {}, {}", ticker, fromDate, toDate);
+      LOG.debug("Doing render with {}, {}, {}", ticker, fromDate, toDate);
 
       CompanyStockData stockData;
       try {
@@ -63,9 +63,9 @@ public final class SimpleMovingAverage {
       traces.addAll(getAverages(stockData.prices));
       traces.add(LinePlotRenderer.genScatterPlot(stockData.prices, "closing prices"));
 
-      return PageRenderer.renderFigure("Price averages", Arrays.asList(
-        new FigureTemplate(LinePlotRenderer.scatterPlot(traces, ScatterTrace.class, ticker, "day", "closing price"), "Stock closing prices and Simple Moving Averages (SMA)",
-          "$$\n\\left\\{\n\\begin{aligned}\ny_{c,d} &= close(d)\\\\\ny_{sma} &= avg(y_{c, d-10x}\\dots{}y_{c, d})\n\\end{aligned}\n\\right.$$")
+      return PageRenderer.renderFigure("Price averages", Collections.singletonList(
+              new FigureTemplate(LinePlotRenderer.scatterPlot(traces, ScatterTrace.class, ticker, "day", "closing price"), "Stock closing prices and Simple Moving Averages (SMA)",
+                      "$$\n\\left\\{\n\\begin{aligned}\ny_{c,d} &= close(d)\\\\\ny_{sma} &= avg(y_{c, d-10x}\\dots{}y_{c, d})\n\\end{aligned}\n\\right.$$")
       ));
     } catch (Exception exception) {
       return justGiveTheUserAStackTrace(exception);

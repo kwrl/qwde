@@ -16,8 +16,8 @@ import qwde.dataprovider.db.DatabaseManager;
 import qwde.web.http.HttpServer;
 
 @Command(name = "qwde stuff", mixinStandardHelpOptions = true, version = "0.1")
-public class App implements Callable<Integer> {
-  private static Logger logger = LoggerFactory.getLogger(App.class);
+class App implements Callable<Integer> {
+  private static final Logger LOG = LoggerFactory.getLogger(App.class);
 
   @Option(names = { "-p" },
       description = "Port to run prometheus on",
@@ -33,38 +33,38 @@ public class App implements Callable<Integer> {
 
   @Override
   public Integer call() {
-    logger.trace("Got argument \"{}\"", this.port);
+    LOG.trace("Got argument \"{}\"", this.port);
 
     try {
       DatabaseManager.initialize();
     } catch (ClassNotFoundException | IOException | SQLException exception) {
-      logger.error("", exception);
+      LOG.error("", exception);
       return 1;
     }
 
     try {
       new HTTPServer(Integer.parseInt(this.port));
     } catch (IOException exception) {
-      logger.error("Could not start prometheus server at 9456", exception);
+      LOG.error("Could not start prometheus server at {}", this.port, exception);
       return 1;
     }
 
-    ServerSocket server = null;
+    ServerSocket server;
     try {
       server = new ServerSocket(Integer.parseInt(serverPort), 10);
     } catch (IOException exception) {
-      logger.error("", exception);
+      LOG.error("", exception);
       return 1;
     }
 
-    logger.info("Started server {}", server);
+    LOG.info("Started server {}", server);
 
     while (Thread.currentThread().isAlive()) {
       try {
         Thread t = new Thread(new HttpServer(server.accept()));
         t.start();
       } catch (Exception exception) {
-        logger.error("", exception);
+        LOG.error("", exception);
         return 1;
       }
     }
@@ -73,12 +73,12 @@ public class App implements Callable<Integer> {
   }
 
   public static void main(String[] args) {
-    logger.info("Starting");
+    LOG.info("Starting");
 
     try {
       System.exit(CommandLine.call(new App(), args));
     } catch (Exception exception) {
-      logger.error("Unexpected error happened", exception);
+      LOG.error("Unexpected error happened", exception);
       System.exit(1);
     }
   }
