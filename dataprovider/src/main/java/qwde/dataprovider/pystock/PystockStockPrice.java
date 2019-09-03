@@ -10,23 +10,32 @@ public class PystockStockPrice implements StockPrice {
   private final BigDecimal highPrice;
   private final BigDecimal lowPrice;
   private final BigDecimal closePrice;
+  private final Long volume;
   private final String company;
   private final LocalDateTime timestamp;
 
-  PystockStockPrice(BigDecimal highPrice, BigDecimal lowPrice, BigDecimal closePrice, String company, LocalDateTime timestamp) {
+  PystockStockPrice(BigDecimal highPrice, BigDecimal lowPrice, BigDecimal closePrice, Long volume, String company, LocalDateTime timestamp) {
     this.highPrice = highPrice;
     this.lowPrice = lowPrice;
     this.company = company;
+    this.volume = volume;
     this.timestamp = timestamp;
     this.closePrice = closePrice;
   }
 
-  public BigDecimal getHighPrice() {
-    return highPrice;
+  @Override
+  public BigDecimal getHigh() {
+    return this.highPrice;
   }
 
-  public BigDecimal getLowPrice() {
-    return lowPrice;
+  @Override
+  public BigDecimal getLow() {
+    return this.lowPrice;
+  }
+
+  @Override
+  public Long getVolume() {
+    return this.volume;
   }
 
   @Override
@@ -36,17 +45,17 @@ public class PystockStockPrice implements StockPrice {
 
   @Override
   public String getCompany() {
-    return company;
+    return this.company;
   }
 
   @Override
   public LocalDateTime getTimestamp() {
-    return timestamp;
+    return this.timestamp;
   }
 
   @Override
   public String toString() {
-    return company + " [" + timestamp.toString() + "]: " + getPrice();
+    return this.company + " [" + this.timestamp.toString() + "]: " + getPrice();
   }
 
   @Override

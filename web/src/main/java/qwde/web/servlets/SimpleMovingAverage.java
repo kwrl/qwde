@@ -55,13 +55,13 @@ public final class SimpleMovingAverage {
         return justGiveTheUserAStackTrace(exception);
       }
 
-      if (stockData.prices.isEmpty()) {
+      if (stockData.closePrices.isEmpty()) {
         return "No data found. Are you sure the ticker and date were correct?";
       }
 
       List<ScatterTrace> traces = new ArrayList<>();
-      traces.addAll(getAverages(stockData.prices));
-      traces.add(LinePlotRenderer.genScatterPlot(stockData.prices, "price"));
+      traces.addAll(getAverages(stockData.closePrices));
+      traces.add(LinePlotRenderer.genScatterPlot(stockData.closePrices, "price"));
 
       return PageRenderer.renderFigure("Price averages", Collections.singletonList(
               new FigureTemplate(LinePlotRenderer.scatterPlot(traces, ScatterTrace.class, ticker, "day", "closing price"), "Stock closing prices and Simple Moving Averages (SMA)",

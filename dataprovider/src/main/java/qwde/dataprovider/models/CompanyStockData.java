@@ -5,12 +5,18 @@ import java.util.List;
 
 public class CompanyStockData {
   public final String companyName;
-  public final List<Double> prices;
+  public final List<Double> closePrices;
+  public final List<Double> highPrices;
+  public final List<Double> lowPrices;
+  public final List<Long> volume;
   public final List<LocalDateTime> timestamps;
 
-  public CompanyStockData(String companyName, List<Double> prices, List<LocalDateTime> timestamps) {
+  public CompanyStockData(String companyName, List<Double> closePrices, List<Double> highPrices, List<Double> lowPrices, List<Long> volume, List<LocalDateTime> timestamps) {
     this.companyName = companyName;
-    this.prices = prices;
+    this.closePrices = closePrices;
+    this.highPrices = highPrices;
+    this.lowPrices = lowPrices;
+    this.volume = volume;
     this.timestamps = timestamps;
   }
 

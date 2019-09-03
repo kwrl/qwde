@@ -125,7 +125,7 @@ public class PystockStockPriceReader implements StockPriceReader {
       return Optional.empty();
     }
     String[] tokens = line.split(",");
-    return Optional.of(new PystockStockPrice(new BigDecimal(tokens[3]), new BigDecimal(tokens[4]), new BigDecimal(tokens[5]), tokens[0], parseTimestamp(tokens[1])));
+    return Optional.of(new PystockStockPrice(new BigDecimal(tokens[3]), new BigDecimal(tokens[4]), new BigDecimal(tokens[5]), Long.parseLong(tokens[6]), tokens[0], parseTimestamp(tokens[1])));
   }
 
   private static LocalDateTime parseTimestamp(String line) {

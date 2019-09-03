@@ -28,17 +28,20 @@ public final class PystockToDB {
   }
 
   public static boolean databaseHasData() throws SQLException {
-    try (Connection connection = DatabaseManager.getConnection(); Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT symbol, price, timestamp FROM StockTicker LIMIT 1")) {
+    try (Connection connection = DatabaseManager.getConnection(); Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT symbol, close_price, high_price, low_price, volume, timestamp FROM StockTicker LIMIT 1")) {
       return resultSet.next();
     }
   }
 
   public static void createInitialDB() {
-    try (Connection connection = DatabaseManager.getConnection(); PreparedStatement ps = connection.prepareStatement("INSERT INTO StockTicker (symbol, price, timestamp) VALUES(?, ?, ?)")) {
+    try (Connection connection = DatabaseManager.getConnection(); PreparedStatement ps = connection.prepareStatement("INSERT INTO StockTicker (symbol, close_price, high_price, low_price, volume, timestamp) VALUES(?, ?, ?, ?, ?, ?)")) {
       for (StockTicker ticker : getStockTickers()) {
         ps.setString(1, ticker.symbol);
-        ps.setBigDecimal(2, ticker.price);
-        ps.setTimestamp(3, Timestamp.valueOf(ticker.timestamp));
+        ps.setBigDecimal(2, ticker.closePrice);
+        ps.setBigDecimal(3, ticker.highPrice);
+        ps.setBigDecimal(4, ticker.lowPrice);
+        ps.setLong(5, ticker.volume);
+        ps.setTimestamp(6, Timestamp.valueOf(ticker.timestamp));
         ps.addBatch();
       }
       int[] results = ps.executeBatch();
@@ -59,7 +62,7 @@ public final class PystockToDB {
     List<StockTicker> ret = new ArrayList<>();
     for (Entry<String, List<StockPrice>> entry : pricesMappedByCompany.entrySet()) {
       for (StockPrice stockPrice : entry.getValue()) {
-        ret.add(new StockTicker(entry.getKey(), stockPrice.getPrice(), stockPrice.getTimestamp()));
+        ret.add(new StockTicker(entry.getKey(), stockPrice.getPrice(), stockPrice.getHigh(), stockPrice.getLow(), stockPrice.getVolume(), stockPrice.getTimestamp()));
       }
     }
     return ret;

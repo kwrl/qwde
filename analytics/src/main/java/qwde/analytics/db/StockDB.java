@@ -22,24 +22,30 @@ public final class StockDB {
   }
 
   public static CompanyStockData getCompanyData(String stockTicker, LocalDate fromDate, LocalDate toDate) throws SQLException {
-    try (Connection connection = DatabaseManager.getConnection(); PreparedStatement statement = connection.prepareStatement("SELECT price, timestamp FROM StockTicker WHERE symbol = ? AND timestamp >= ? AND timestamp <= ?")) {
+    final String query = "SELECT close_price, low_price, high_price, volume, timestamp FROM StockTicker WHERE symbol = ? AND timestamp >= ? AND timestamp <= ?";
+    try (Connection connection = DatabaseManager.getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
       statement.setString(1, stockTicker);
       statement.setDate(2, java.sql.Date.valueOf(fromDate));
       statement.setDate(3, java.sql.Date.valueOf(toDate));
       try (ResultSet rs = statement.executeQuery()) {
-        LOG.trace("Executing query {}", String.format("SELECT price, timestamp FROM StockTicker WHERE symbol = %s AND timestamp BETWEEN %s AND %s", stockTicker, java.sql.Date.valueOf(fromDate), java.sql.Date.valueOf(toDate)));
         List<Double> stockPrices = new ArrayList<>();
+        List<Double> lowPrices = new ArrayList<>();
+        List<Double> highPrices = new ArrayList<>();
+        List<Long> volume = new ArrayList<>();
         List<LocalDateTime> priceTimeStamps = new ArrayList<>();
 
         while (rs.next()) {
-          stockPrices.add(rs.getDouble("price"));
+          stockPrices.add(rs.getDouble("close_price"));
+          lowPrices.add(rs.getDouble("low_price"));
+          highPrices.add(rs.getDouble("high_price"));
+          volume.add(rs.getLong("volume"));
           priceTimeStamps.add(rs.getTimestamp("timestamp").toLocalDateTime());
         }
 
         if (stockPrices.isEmpty()) {
           LOG.warn("Request data {}, from {} to {} - empty results", stockTicker, fromDate, toDate);
         }
-        return new CompanyStockData(stockTicker, stockPrices, priceTimeStamps);
+        return new CompanyStockData(stockTicker, stockPrices, highPrices, lowPrices, volume, priceTimeStamps);
       }
     }
   }
