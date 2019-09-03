@@ -3,9 +3,9 @@
 Getting around with stock data.
 
 Live preview: 
-* http://95.216.220.118:8080/
-* http://95.216.220.118:8080/bb?ticker=twtr&fromdate=20170102&todate=20170301
-* http://95.216.220.118:8080/sma?ticker=twtr&fromdate=20170102&todate=20170301 (you can change dates and tickers in URL from around 20140101 to around 20170330)  
+* http://95.216.220.118:8080/ - index page
+* http://95.216.220.118:8080/bb?ticker=twtr&fromdate=20170102&todate=20170301 - bollinger bands
+* http://95.216.220.118:8080/sma?ticker=twtr&fromdate=20170102&todate=20170301 - simple moving averages (you can change dates and tickers in URL from around 20140101 to around 20170330)  
 [![sma](./doc/images/simplemovingaverages.png)](http://95.216.220.118:8080/sma?ticker=twtr&fromdate=20170102&todate=20170301)
 
 # Project Overview

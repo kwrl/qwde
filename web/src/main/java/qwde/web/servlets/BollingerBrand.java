@@ -17,13 +17,17 @@ import java.io.StringWriter;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class BollingerBrand {
   private static Logger logger = LoggerFactory.getLogger(SimpleMovingAverage.class);
   public static final DateTimeFormatter DATETIMEFORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
-  private static final int smoothingPeriod = 20;
+  private static final int SMOOTHING_PERIOD = 20;
 
   private BollingerBrand() {
   }
@@ -59,8 +63,8 @@ public final class BollingerBrand {
       }
 
       List<ScatterTrace> traces = new ArrayList<>();
-      traces.add(LinePlotRenderer.genScatterPlot(stockData.closePrices.subList(smoothingPeriod, stockData.closePrices.size()), "price"));
-      traces.addAll(getBollingerBrand(stockData, smoothingPeriod));
+      traces.add(LinePlotRenderer.genScatterPlot(stockData.closePrices.subList(SMOOTHING_PERIOD, stockData.closePrices.size()), "price"));
+      traces.addAll(getBollingerBrand(stockData, SMOOTHING_PERIOD));
 
       return PageRenderer.renderFigure("Bollinger Brand", Collections.singletonList(
               new FigureTemplate(LinePlotRenderer.scatterPlot(traces, ScatterTrace.class, ticker, "day", "closing price"), "Stock closing prices and BollingerBrands, windows size = 20",
@@ -83,7 +87,7 @@ public final class BollingerBrand {
 
     Double[] dataAsArray = new Double[data.size()];
     dataAsArray = data.toArray(dataAsArray);
-    List<Double> mean = Arrays.asList(MovingAverage.simpleMovingAverage(dataAsArray, windowSize)).subList(smoothingPeriod, data.size());
+    List<Double> mean = Arrays.asList(MovingAverage.simpleMovingAverage(dataAsArray, windowSize)).subList(SMOOTHING_PERIOD, data.size());
     List<Double> stdDev = StandardDeviation.rollingStandardDeviation(data, windowSize)
             .stream()
             .skip(windowSize)

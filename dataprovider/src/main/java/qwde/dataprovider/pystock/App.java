@@ -1,15 +1,14 @@
 package qwde.dataprovider.pystock;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.concurrent.Callable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import qwde.dataprovider.db.DatabaseManager;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.concurrent.Callable;
 
 @Command(name = "qwde pystockdata stuff", mixinStandardHelpOptions = true, version = "0.1")
 class App implements Callable<Integer> {
