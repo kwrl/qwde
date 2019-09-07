@@ -1,5 +1,10 @@
 package qwde.analytics.db;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import qwde.dataprovider.db.DatabaseManager;
+import qwde.dataprovider.models.CompanyStockData;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,12 +13,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import qwde.dataprovider.db.DatabaseManager;
-import qwde.dataprovider.models.CompanyStockData;
 
 public final class StockDB {
   private static final Logger LOG = LoggerFactory.getLogger(StockDB.class);

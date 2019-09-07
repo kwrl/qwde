@@ -17,6 +17,7 @@ public class PystockStockPrice implements StockPrice {
   PystockStockPrice(BigDecimal highPrice, BigDecimal lowPrice, BigDecimal closePrice, Long volume, String company, LocalDateTime timestamp) {
     this.highPrice = highPrice;
     this.lowPrice = lowPrice;
+    this.volume = volume;
     this.company = company;
     this.volume = volume;
     this.timestamp = timestamp;
