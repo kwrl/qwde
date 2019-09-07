@@ -1,0 +1,5 @@
+micronaut:
+  application:
+    name: qwdetestweb
+  server:
+    port: 8080

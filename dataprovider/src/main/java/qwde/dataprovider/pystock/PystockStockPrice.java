@@ -19,7 +19,6 @@ public class PystockStockPrice implements StockPrice {
     this.lowPrice = lowPrice;
     this.volume = volume;
     this.company = company;
-    this.volume = volume;
     this.timestamp = timestamp;
     this.closePrice = closePrice;
   }

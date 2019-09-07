@@ -5,12 +5,14 @@ import java.io.StringWriter;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import io.micronaut.core.convert.format.Format;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.QueryValue;
+import io.reactivex.Single;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,14 +24,19 @@ import qwde.web.plotly.LinePlotRenderer;
 import qwde.web.plotly.PageRenderer;
 import tech.tablesaw.plotly.traces.ScatterTrace;
 
+@Controller(value = "/sma", produces = MediaType.TEXT_HTML)
 public final class SimpleMovingAverage {
   private static final Logger LOG = LoggerFactory.getLogger(SimpleMovingAverage.class);
   public static final DateTimeFormatter DATETIMEFORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
 
-  private SimpleMovingAverage() {
-  }
-
-  public static String doGet(Map<String, List<String>> urlParams) {
+  @Get("/")
+  public Single<String> doGet(@QueryValue("ticker") String ticker
+                              ) {
+                              //@QueryValue @Format("yyyyMMdd") LocalDate fromDate,
+                              //@QueryValue @Format("yyyyMMdd") Optional<LocalDate> toDate) {
+    //return Single.just("<h1>you did it!</h1><p>" + ticker + fromDate + toDate + "</p>");
+    return Single.just("<h1>you did it!</h1><p>" + ticker + "</p>");
+/*
     try {
       if (!urlParams.containsKey("ticker") || urlParams.get("ticker").size() != 1) {
         return "Please include ?ticker=<tickername> in the URL";
@@ -70,6 +77,7 @@ public final class SimpleMovingAverage {
     } catch (Exception exception) {
       return justGiveTheUserAStackTrace(exception);
     }
+*/
   }
 
   private static List<ScatterTrace> getAverages(List<Double> data) {

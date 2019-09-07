@@ -29,6 +29,7 @@ configure(subprojects.filter { it.name == "analytics"  || it.name == "dataprovid
   apply(plugin = "java")
     apply(plugin = "ru.vyarus.quality")
 
+
   dependencies {
     "implementation"("com.google.guava:guava:23.0")
       "implementation"("ch.qos.logback:logback-classic:1.3.0-alpha4")
