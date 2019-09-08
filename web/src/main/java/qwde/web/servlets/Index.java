@@ -1,23 +1,20 @@
 package qwde.web.servlets;
 
 import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.reactivex.Single;
 import qwde.web.plotly.FigureTemplate;
 import qwde.web.plotly.LinePlotRenderer;
 import qwde.web.plotly.PageRenderer;
 import tech.tablesaw.plotly.traces.ScatterTrace;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
-
-import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.Get;
-import io.reactivex.Single;
 
 @Controller(value = "/", produces = MediaType.TEXT_HTML)
 public final class Index {

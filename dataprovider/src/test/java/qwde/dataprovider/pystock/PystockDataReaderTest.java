@@ -1,18 +1,16 @@
 package qwde.dataprovider.pystock;
 
+import com.google.common.truth.Truth;
+import org.junit.jupiter.api.Test;
+import qwde.dataprovider.models.IStockTicker;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.junit.jupiter.api.Test;
-
-import com.google.common.truth.Truth;
-import qwde.dataprovider.models.IStockTicker;
 
 class PystockDataReaderTest {
 

@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.annotations.servers.ServerVariable;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -48,8 +47,8 @@ class App implements Callable<Integer> {
   private static final Logger LOG = LoggerFactory.getLogger(App.class);
 
   @Option(names = { "-p" },
-        description = "Port to run prometheus on",
-        defaultValue = "8012"
+          description = "Port to run prometheus on",
+          defaultValue = "8012"
   )
   private String port;
 
@@ -73,29 +72,13 @@ class App implements Callable<Integer> {
 
     while (Thread.currentThread().isAlive()) {
       try {
-        Thread.sleep(10000);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
+        Thread.sleep(100_000);
+      } catch (InterruptedException exception) {
+        LOG.error("", exception);
+        return 1;
       }
     }
-/*
-    try (ServerSocket server = new ServerSocket(Integer.parseInt(this.serverPort), 10)) {
-      LOG.info("Started server {}", server);
 
-      while (Thread.currentThread().isAlive()) {
-        try {
-          Thread t = new Thread(new HttpServer(server.accept()));
-          t.start();
-        } catch (Exception exception) {
-          LOG.error("", exception);
-          return 1;
-        }
-      }
-    } catch (IOException exception) {
-      LOG.error("Could not open server socket at {}", this.serverPort, exception);
-      return 1;
-    }
-*/
     return 0;
   }
 

@@ -35,7 +35,7 @@ import qwde.dataprovider.models.IStockTicker;
 import qwde.dataprovider.models.StockTicker;
 import qwde.dataprovider.util.FileUtil;
 
-public class PystockDataReader {
+public final class PystockDataReader {
   private static final Logger LOG = LoggerFactory.getLogger(PystockDataReader.class);
 
   private static final String DATA_FOLDER = "pystock-data";
