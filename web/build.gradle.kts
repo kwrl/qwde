@@ -27,8 +27,8 @@ configurations.all {
 dependencies {
     implementation("commons-io:commons-io:2.6")
     implementation("info.picocli:picocli:3.9.5")
-    //implementation("io.prometheus:simpleclient_httpserver:0.6.0")
-    //implementation("io.prometheus:simpleclient_servlet:0.0.11")
+    implementation("io.prometheus:simpleclient_httpserver:0.6.0")
+    implementation("io.prometheus:simpleclient_servlet:0.0.11")
     implementation("org.freemarker:freemarker:2.3.29")
     implementation("org.apache.commons:commons-lang3:3.9")
     implementation("tech.tablesaw:tablesaw-core:${project.rootProject.ext["tablesawVersion"]}")

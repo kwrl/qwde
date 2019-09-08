@@ -33,6 +33,7 @@ configure(subprojects.filter { it.name == "analytics"  || it.name == "dataprovid
   dependencies {
     "implementation"("com.google.guava:guava:23.0")
       "implementation"("ch.qos.logback:logback-classic:1.3.0-alpha4")
+      "implementation"("one.util:streamex:0.7.0")
       "testImplementation"("com.flextrade.jfixture:jfixture:2.7.2")
       "testImplementation"("org.junit.jupiter:junit-jupiter-api:5.4.1")
       "testRuntimeOnly"("org.junit.jupiter:junit-jupiter-engine:5.4.1")

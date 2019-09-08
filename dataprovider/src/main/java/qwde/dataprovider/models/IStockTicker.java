@@ -3,7 +3,7 @@ package qwde.dataprovider.models;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public interface StockPrice extends Comparable<StockPrice> {
+public interface IStockTicker extends Comparable<IStockTicker> {
   BigDecimal getPrice();
 
   BigDecimal getHigh();

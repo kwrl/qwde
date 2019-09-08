@@ -37,7 +37,7 @@ public final class FileUtil {
       if (xdgDataHome == null || xdgDataHome.isEmpty()) {
         xdgDataHome = Path.of(System.getenv("HOME"), ".cache", APPNAME).toAbsolutePath().toString();
       }
-      return Path.of(xdgDataHome, APPNAME).toAbsolutePath().toString();
+      return Path.of(xdgDataHome).toAbsolutePath().toString();
     } else {
       throw new NotImplementedException("Only defined data dirs for windows and unix-like (XDG) OS, so far");
     }

@@ -1,7 +1,7 @@
 package qwde.web;
 
 import io.micronaut.runtime.Micronaut;
-//import io.prometheus.client.exporter.HTTPServer;
+import io.prometheus.client.exporter.HTTPServer;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;
@@ -53,15 +53,8 @@ class App implements Callable<Integer> {
   )
   private String port;
 
-  @Option(names = { "-s" },
-        description = "Port to run HTTP server on",
-        defaultValue = "8080"
-  )
-  private String serverPort;
-
   @Override
   public Integer call() {
-/*
     try {
       DatabaseManager.initialize();
     } catch (ClassNotFoundException | IOException | SQLException exception) {
@@ -75,7 +68,6 @@ class App implements Callable<Integer> {
       LOG.error("Could not start prometheus server at {}", this.port, exception);
       return 1;
     }
-*/
 
     Micronaut.run(App.class);
 
