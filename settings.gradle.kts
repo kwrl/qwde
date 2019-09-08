@@ -1,4 +1,4 @@
-rootProject.name = "stockerface"
+rootProject.name = "qwde"
 
 include("analytics")
 include("dataprovider")

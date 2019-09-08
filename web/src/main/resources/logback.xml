@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <configuration scan="true" scanPeriod="10 seconds">
+    <contextName>qwde.web</contextName>
   <property name="LOGDIR" value="${LOGDIR:-./.log}"/>
     <property name="LOGNAME" value="${APPNAME:-qwde}"/>
 
@@ -9,17 +10,16 @@
             <level>INFO</level>
         </filter>
         <encoder>
-            <pattern>%d{yyyyMMdd-HHmmss.SSS};%-5level;${HOSTNAME};${APPNAME:-app};[%thread];%logger{35};%msg %n
+            <pattern>%d{yyyyMMdd-HHmmss.SSS};%-5level;${HOSTNAME};%contextName;[%thread];%logger{35};%msg %n
             </pattern>
         </encoder>
     </appender>
 
-    <logger name="com.zaxxer.hikari.pool" level="info"/>
+    <logger name="com.zaxxer.hikari.pool" level="INFO"/>
+    <logger name="com.mitchellbosecke.pebble.loader" level="INFO" />
 
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
-        <!-- <appender-ref ref="FILE"/> -->
-        <!-- <appender-ref ref="syslog"/> -->
     </root>
 
 </configuration>

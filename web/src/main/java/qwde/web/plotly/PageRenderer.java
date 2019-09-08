@@ -14,21 +14,21 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 public final class PageRenderer {
-  private static Logger logger = LoggerFactory.getLogger(PageRenderer.class);
-  private static Configuration cfg = new Configuration(Configuration.VERSION_2_3_29);
+  private static final Logger LOG = LoggerFactory.getLogger(PageRenderer.class);
+  private static final Configuration CFG = new Configuration(Configuration.VERSION_2_3_29);
 
   private PageRenderer() {
   }
 
   static {
-    cfg.setClassForTemplateLoading(PageRenderer.class, "/");
-    cfg.setDefaultEncoding("UTF-8");
-    cfg.setLocale(Locale.US);
+    CFG.setClassForTemplateLoading(PageRenderer.class, "/");
+    CFG.setDefaultEncoding("UTF-8");
+    CFG.setLocale(Locale.US);
   }
 
   public static String renderFigure(String pageTitle, List<FigureTemplate> figures) {
     @SuppressWarnings("serial")
-    HashMap<String, Object> input = new HashMap<String, Object>() {
+    HashMap<String, Object> input = new HashMap<>() {
       {
         put("pageTitle", pageTitle);
         put("figures", figures);
@@ -36,12 +36,12 @@ public final class PageRenderer {
     };
 
     try {
-      Template template = cfg.getTemplate("graphpage.ftl");
+      Template template = CFG.getTemplate("graphpage.ftl");
       StringWriter stringWriter = new StringWriter();
       template.process(input, stringWriter);
       return stringWriter.toString();
     } catch (TemplateException | IOException exception) {
-      logger.error("", exception);
+      LOG.error("", exception);
       return "error occured, see logs :(";
     }
   }

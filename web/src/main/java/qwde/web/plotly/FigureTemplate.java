@@ -4,6 +4,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 import tech.tablesaw.plotly.components.Figure;
 
+@SuppressWarnings("unused")
 public class FigureTemplate {
   private final Figure figure;
   private final String title;

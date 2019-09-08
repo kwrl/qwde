@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.DayOfWeek;
@@ -31,16 +31,18 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import qwde.dataprovider.models.StockPrice;
+import qwde.dataprovider.models.IStockTicker;
+import qwde.dataprovider.models.StockTicker;
 import qwde.dataprovider.util.FileUtil;
-import qwde.dataprovider.util.StockPriceReader;
 
-public class PystockStockPriceReader implements StockPriceReader {
-  private static Logger logger = LoggerFactory.getLogger(PystockStockPriceReader.class);
+public final class PystockDataReader {
+  private static final Logger LOG = LoggerFactory.getLogger(PystockDataReader.class);
 
-  private final List<StockPrice> stockPrices;
   private static final String DATA_FOLDER = "pystock-data";
   public static final DateTimeFormatter DATETIMEFORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+  private PystockDataReader() {
+  }
 
   private static boolean fileNameMatchesDate(String fileName, Set<LocalDate> dates) {
     try {
@@ -56,24 +58,24 @@ public class PystockStockPriceReader implements StockPriceReader {
   }
 
   @SuppressWarnings("PMD.ExceptionAsFlowControl")
-  public PystockStockPriceReader(Predicate<String> fileNameFilter) throws IOException {
-      // Not pretty, but it covers most use-cases by other devs.
-      // I.e., we search in XDG_DATA_HOME, XDG_DATA_DIRS, and the current working directory, and the directory above
-    Optional<Path> pystockDataPath = Stream.of(FileUtil.findFolderInDatapath(DATA_FOLDER), FileUtil.findInPath(DATA_FOLDER, "."), FileUtil.findInPath(DATA_FOLDER, ".."), FileUtil.findInPath(DATA_FOLDER, "../dataprovider")).filter(Optional::isPresent).map(Optional::get).findFirst();
+  public static Stream<IStockTicker> read(Predicate<String> fileNameFilter) throws IOException {
+    // Not pretty, but it covers most use-cases by other devs.
+    // I.e., we search in XDG_DATA_HOME, XDG_DATA_DIRS, and the current working directory, and the directory above
+    Optional<Path> pystockDataPath = Stream.of(FileUtil.findFolderInDatapath(DATA_FOLDER), FileUtil.findInPath(DATA_FOLDER, "."), FileUtil.findInPath(DATA_FOLDER, ".."), FileUtil.findInPath(DATA_FOLDER, "../dataprovider"), FileUtil.findInPath(DATA_FOLDER, "./dataprovider")).filter(Optional::isPresent).map(Optional::get).findFirst();
     if (pystockDataPath.isEmpty()) {
       throw new FileNotFoundException("Unable to find pystock-data files. See README.md for more documentation.");
     }
-    logger.debug("Located pystock-data in {}", pystockDataPath.get());
+    LOG.debug("Located pystock-data in {}", pystockDataPath.get());
     try {
-      logger.info("Reading pystock-data...");
-      this.stockPrices = Files.walk(pystockDataPath.get())
+      LOG.info("Reading pystock-data...");
+      return Files.walk(pystockDataPath.get())
         .map(Path::toFile)
         .filter(File::isFile)
         .filter(file -> file.getName().endsWith(".tar.gz"))
         .filter(f -> fileNameFilter.test(FilenameUtils.getBaseName(FilenameUtils.getBaseName(f.getName()))))
         .map(file -> {
           try {
-            logger.trace("Parsing {}", file);
+            LOG.trace("Parsing {}", file);
             return Files.newInputStream(file.toPath());
           } catch (IOException exception) {
             throw new UncheckedIOException(exception);
@@ -85,35 +87,30 @@ public class PystockStockPriceReader implements StockPriceReader {
           } catch (IOException e) {
             throw new UncheckedIOException(e);
           }
-        })
-      .sorted().distinct()
-      .collect(Collectors.toList());
-
-      logger.info("{} entries loaded in memory from pystock-data", this.stockPrices.size());
+        });
     } catch (UncheckedIOException exception) {
       throw new IOException(exception);
     }
   }
 
-  public static PystockStockPriceReader getPystockStockPriceReader(LocalDate startDate, LocalDate endDate) throws IOException {
+  public static Stream<IStockTicker> getPystockStockPriceReader(LocalDate startDate, LocalDate endDate) throws IOException {
     Set<LocalDate> desirableDates = getDateRange(startDate, endDate.plusDays(1));
-    return new PystockStockPriceReader(f -> fileNameMatchesDate(f, desirableDates));
+    return PystockDataReader.read(f -> fileNameMatchesDate(f, desirableDates));
   }
 
-  public static PystockStockPriceReader fromDate(LocalDate date) throws IOException {
+  public static Stream<IStockTicker> fromDate(LocalDate date) throws IOException {
     return getPystockStockPriceReader(date, date);
   }
 
   @SuppressWarnings("PMD.AssignmentInOperand")
-  private static List<StockPrice> getPricesFromCompressedArchive(InputStream compressedArchive) throws IOException {
+  private static List<IStockTicker> getPricesFromCompressedArchive(InputStream compressedArchive) throws IOException {
     TarArchiveInputStream stream = new TarArchiveInputStream(new GzipCompressorInputStream(compressedArchive));
     TarArchiveEntry entry;
     while ((entry = stream.getNextTarEntry()) != null) {
-      entry = stream.getNextTarEntry();
       if ("prices.csv".equals(entry.getName())) {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, Charset.forName("UTF-8")))) {
-          // Skip header
-          return reader.lines().skip(1).map(PystockStockPriceReader::parseStockPrice).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+          // Skip header. Stream has to be collected so that it lives outside of the try-with-resources block
+          return reader.lines().skip(1).map(PystockDataReader::parseStockPrice).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
         }
       }
     }
@@ -121,21 +118,16 @@ public class PystockStockPriceReader implements StockPriceReader {
     return Collections.emptyList();
   }
 
-  private static Optional<StockPrice> parseStockPrice(String line) {
+  private static Optional<IStockTicker> parseStockPrice(String line) {
     if (line.startsWith("symbol")) {
       return Optional.empty();
     }
     String[] tokens = line.split(",");
-    return Optional.of(new PystockStockPrice(new BigDecimal(tokens[3]), new BigDecimal(tokens[4]), new BigDecimal(tokens[5]), tokens[0], parseTimestamp(tokens[1])));
+    return Optional.of(new StockTicker(tokens[0], new BigDecimal(tokens[3]), new BigDecimal(tokens[4]), new BigDecimal(tokens[5]), Long.parseLong(tokens[6]), parseTimestamp(tokens[1])));
   }
 
   private static LocalDateTime parseTimestamp(String line) {
     String[] tokens = line.split("-");
     return LocalDateTime.of(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]), 0, 0, 0, 0);
-  }
-
-  @Override
-  public List<StockPrice> read() {
-    return this.stockPrices;
   }
 }

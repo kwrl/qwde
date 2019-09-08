@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <configuration scan="true" scanPeriod="10 seconds">
-  <property name="LOGDIR" value="${LOGDIR:-./.log}"/>
+    <contextName>qwde.dataprovider</contextName>
+    <property name="LOGDIR" value="${LOGDIR:-./.log}"/>
     <property name="LOGNAME" value="${APPNAME:-qwde}"/>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
@@ -9,7 +10,7 @@
             <level>DEBUG</level>
         </filter>
         <encoder>
-            <pattern>%d{yyyyMMdd-HHmmss.SSS};%-5level;${HOSTNAME};${APPNAME:-app};[%thread];%logger{35};%msg %n
+            <pattern>%d{yyyyMMdd-HHmmss.SSS};%-5level;${HOSTNAME};%contextName;[%thread];%logger{35};%msg %n
             </pattern>
         </encoder>
     </appender>

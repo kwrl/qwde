@@ -1,5 +1,6 @@
 package qwde.dataprovider.db;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -20,18 +21,18 @@ import qwde.dataprovider.pystock.PystockToDB;
 import qwde.dataprovider.util.FileUtil;
 
 public final class DatabaseManager {
-  private static Logger logger = LoggerFactory.getLogger(DatabaseManager.class);
-  private final HikariConfig config = new HikariConfig();
+  private static final Logger LOG = LoggerFactory.getLogger(DatabaseManager.class);
   private final HikariDataSource ds;
   private static DatabaseManager manager;
 
   private DatabaseManager(String jdbcUrl) {
-    this.config.setJdbcUrl(jdbcUrl);
-    this.config.addDataSourceProperty("cachePrepStmts", "true");
-    this.config.addDataSourceProperty("prepStmtCacheSize", "250");
-    this.config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-    this.config.setAutoCommit(false);
-    this.config.setMaximumPoolSize(2);
+    HikariConfig config = new HikariConfig();
+    config.setJdbcUrl(jdbcUrl);
+    config.addDataSourceProperty("cachePrepStmts", "true");
+    config.addDataSourceProperty("prepStmtCacheSize", "250");
+    config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+    config.setAutoCommit(false);
+    config.setMaximumPoolSize(2);
     this.ds = new HikariDataSource(config);
   }
 
@@ -54,6 +55,9 @@ public final class DatabaseManager {
     }
 
     try (InputStream inputstream = DatabaseManager.class.getClassLoader().getResourceAsStream("database.properties")) {
+      if (inputstream == null) {
+        throw new FileNotFoundException("database.properties");
+      }
       Properties properties = new Properties();
       properties.load(inputstream);
       Class.forName(properties.getProperty("development.disk.driver"));
@@ -65,16 +69,16 @@ public final class DatabaseManager {
       if (m.find()) {
         jdbcUrl = jdbcUrl.replaceFirst(stringRegex, Path.of(FileUtil.createIfNotExists(FileUtil.getCacheDirectory()), m.group(1)).toAbsolutePath().toString().replace("\\", "/"));
       }
-      logger.info("Connecting to db {}", jdbcUrl);
+      LOG.info("Connecting to db {}", jdbcUrl);
       manager = new DatabaseManager(jdbcUrl);
 
       Flyway flyway = Flyway.configure().dataSource(jdbcUrl, null, null).load();
       flyway.migrate();
 
       if (PystockToDB.databaseHasData()) {
-        logger.info("Found data in DB ({}) : database ready.", jdbcUrl);
+        LOG.info("Found data in DB ({}) : database ready.", jdbcUrl);
       } else {
-        logger.info("No data in DB ({}): populating", jdbcUrl);
+        LOG.info("No data in DB ({}): populating", jdbcUrl);
         PystockToDB.createInitialDB();
       }
     }

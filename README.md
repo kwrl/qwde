@@ -3,9 +3,10 @@
 Getting around with stock data.
 
 Live preview: 
-* http://95.216.220.118:8080/
-* http://95.216.220.118:8080/sma?ticker=twtr&fromdate=20170102&todate=20170301 (you can change dates and tickers in URL from around 20140101 to around 20170330)  
-[![sma](./doc/images/simplemovingaverages.png)](http://95.216.220.118:8080/sma?ticker=twtr&fromdate=20170102&todate=20170301)
+* http://95.216.220.118:8080/ - index page
+* http://95.216.220.118:8080/bb/twtr/20150102?toDate=20170301 - bollinger bands
+* http://95.216.220.118:8080/sma/twtr/20150102?toDate=20170301 - simple moving averages (you can change dates and tickers in URL from around 20140101 to around 20170330)  
+[![sma](./doc/images/simplemovingaverages.png)](http://95.216.220.118:8080/sma/twtr/20150102?toDate=20170301)
 
 # Project Overview
 The general idea is to analyze stock data. One day in some future we hope to make this into a trading robot. For now, to get code done, its mostly important to have fun and build something interesting.  
@@ -21,12 +22,8 @@ The project reads closing-prices and info from the project [pystock-data](https:
 if you forgot recursive:  
 `git submodule update --init`
 
-## Unix-like
-We use `gradle` to build a java-application. Beware that e.g. Ubuntu's repo has an old version of gradle in their repos. To get a more recent version, please install with instructions [from the gradle main site](https://gradle.org/install/).  
-We try to stay up to date on java, java 11+ should be supported. `sudo apt install openjdk` or similar should do the trick.
-
-## Windows
-Search-engine -> java gradle install :smile:
+Install openjdk 11 or higher to run the code.
+You can build the project with `./gradlew build`
 
 # Debug software
 We ship with a java dependency that takes care of all database and network. If you want to look at/debug the database, install sqlite version 3 or higher. After that, you can run something like `sqlite3 $XDG_CACHE_HOME/qwde/database.db`.
@@ -43,7 +40,7 @@ By default a sqlite database copy of pystock-data is written to
 Upon running the application, it is checked whether or not the database exists and has data. If not, it is generated. To re-generate the data, you can point `$XDG_CACHE_HOME` elsewhere, or delete the database.db file.
 
 ## Live server
-Code is continuously deployed to http://95.216.220.118. Its a droplet with 2CPU and 8 GB RAM. If you want access, send me an email or PM.
+Code is continuously deployed to http://95.216.220.118. Its a droplet with 2vCPU and 8 GB RAM. If you want access, send me an email or PM.
 
 # Contributing
 Pull- and feature-requests welcome! :smile:

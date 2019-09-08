@@ -47,7 +47,7 @@ public final class LinePlotRenderer {
     Arrays.setAll(linearXDomain, i -> i + 1);
 
     DoubleColumn xColumn = DoubleColumn.create("xcol", linearXDomain);
-    DoubleColumn yColumn = DoubleColumn.create("ycol", data.stream().toArray(Double[]::new));
+    DoubleColumn yColumn = DoubleColumn.create("ycol", data.toArray(new Double[0]));
 
     Table table = Table.create("table").addColumns(xColumn, yColumn);
     return ScatterTrace.builder(table.nCol("xcol"), table.nCol("ycol"))

@@ -1,70 +1,80 @@
 package qwde.web;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.sql.SQLException;
-import java.util.concurrent.Callable;
-
+import io.micronaut.runtime.Micronaut;
+import io.prometheus.client.exporter.HTTPServer;
+import io.swagger.v3.oas.annotations.ExternalDocumentation;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Contact;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.servers.Server;
+import io.swagger.v3.oas.annotations.servers.ServerVariable;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.prometheus.client.exporter.HTTPServer;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import qwde.dataprovider.db.DatabaseManager;
-import qwde.web.http.HttpServer;
 
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.concurrent.Callable;
+
+@OpenAPIDefinition(
+        info = @Info(
+                title = "the title",
+                version = "0.0",
+                description = "My API",
+                license = @License(name = "GPL v3", url = "http://qwde.info"),
+                contact = @Contact(url = "Apache 2.0", name = "Anders", email = "dontwantto@sharemy.email")
+        ),
+        tags = {
+                @Tag(name = "Tag 1", description = "desc 1", externalDocs = @ExternalDocumentation(description = "docs desc"))
+        },
+        externalDocs = @ExternalDocumentation(description = "definition docs desc"),
+        servers = {
+                @Server(
+                        description = "server 1",
+                        url = "http://95.216.220.118:8080/",
+                        variables = {
+                                @ServerVariable(name = "hetzner", description = "8GB 2vCPU", defaultValue = "1", allowableValues = {"1", "2"}),
+                        })
+        }
+)
 @Command(name = "qwde stuff", mixinStandardHelpOptions = true, version = "0.1")
-public class App implements Callable<Integer> {
-  private static Logger logger = LoggerFactory.getLogger(App.class);
+class App implements Callable<Integer> {
+  private static final Logger LOG = LoggerFactory.getLogger(App.class);
 
   @Option(names = { "-p" },
-      description = "Port to run prometheus on",
-      defaultValue = "9458"
+          description = "Port to run prometheus on",
+          defaultValue = "8012"
   )
   private String port;
 
-  @Option(names = { "-s" },
-      description = "Port to run HTTP server on",
-      defaultValue = "8080"
-  )
-  private String serverPort;
-
   @Override
   public Integer call() {
-    logger.trace("Got argument \"{}\"", this.port);
-
     try {
       DatabaseManager.initialize();
     } catch (ClassNotFoundException | IOException | SQLException exception) {
-      logger.error("", exception);
+      LOG.error("", exception);
       return 1;
     }
 
     try {
       new HTTPServer(Integer.parseInt(this.port));
     } catch (IOException exception) {
-      logger.error("Could not start prometheus server at 9456", exception);
+      LOG.error("Could not start prometheus server at {}", this.port, exception);
       return 1;
     }
 
-    ServerSocket server = null;
-    try {
-      server = new ServerSocket(Integer.parseInt(serverPort), 10);
-    } catch (IOException exception) {
-      logger.error("", exception);
-      return 1;
-    }
-
-    logger.info("Started server {}", server);
+    Micronaut.run(App.class);
 
     while (Thread.currentThread().isAlive()) {
       try {
-        Thread t = new Thread(new HttpServer(server.accept()));
-        t.start();
-      } catch (Exception exception) {
-        logger.error("", exception);
+        Thread.sleep(100_000);
+      } catch (InterruptedException exception) {
+        LOG.error("", exception);
         return 1;
       }
     }
@@ -73,13 +83,8 @@ public class App implements Callable<Integer> {
   }
 
   public static void main(String[] args) {
-    logger.info("Starting");
-
-    try {
-      System.exit(CommandLine.call(new App(), args));
-    } catch (Exception exception) {
-      logger.error("Unexpected error happened", exception);
-      System.exit(1);
-    }
+    LOG.info("Started.");
+    CommandLine cmd = new CommandLine(new App());
+    System.exit(cmd.execute(args));
   }
 }
