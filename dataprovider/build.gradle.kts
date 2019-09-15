@@ -7,6 +7,7 @@ application {
 }
 
 version = "0.0.1-SNAPSHOT"
+val kafkaVersion by extra("2.3.0")
 
 dependencies {
   implementation("com.zaxxer:HikariCP:2.7.8")
@@ -16,6 +17,10 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.9")
     implementation("org.flywaydb:flyway-core:5.2.4")
     implementation("org.xerial:sqlite-jdbc:3.28.0")
+
+    implementation("org.apache.kafka:kafka-clients:${kafkaVersion}")
+    implementation("org.apache.kafka:kafka_2.12:${kafkaVersion}")
+    implementation("com.salesforce.kafka.test:kafka-junit5:3.1.1")
 }
 
 sourceSets {
