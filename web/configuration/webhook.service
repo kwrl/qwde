@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 User=dev
 WorkingDirectory=/home/dev/qwde/
-ExecStart=/usr/bin/webhook -hooks /var/webhook/hooks.json
+ExecStart=/usr/bin/webhook -hooks /var/webhook/hooks.json -verbose -hotreload
 Restart=on-failure
 # Other restart options: always, on-abort, etc
 
