@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 @Controller(value = "/bb", produces = MediaType.TEXT_HTML)
 public final class BollingerBrand {
-  private static final Logger LOG = LoggerFactory.getLogger(SimpleMovingAverage.class);
+  private static final Logger LOG = LoggerFactory.getLogger(BollingerBrand.class);
   public static final DateTimeFormatter DATETIMEFORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
   private static final int SMOOTHING_PERIOD = 20;
 

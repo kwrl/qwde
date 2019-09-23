@@ -45,4 +45,24 @@ public final class PageRenderer {
       return "error occured, see logs :(";
     }
   }
+
+  public static String renderStatistics(String pageTitle, List<FigureTemplate> figures) {
+    @SuppressWarnings("serial")
+    HashMap<String, Object> input = new HashMap<>() {
+      {
+        put("pageTitle", pageTitle);
+        put("figures", figures);
+      }
+    };
+
+    try {
+      Template template = CFG.getTemplate("graphpage.ftl");
+      StringWriter stringWriter = new StringWriter();
+      template.process(input, stringWriter);
+      return stringWriter.toString();
+    } catch (TemplateException | IOException exception) {
+      LOG.error("", exception);
+      return "error occured, see logs :(";
+    }
+  }
 }
