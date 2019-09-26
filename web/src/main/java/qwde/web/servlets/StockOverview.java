@@ -11,8 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qwde.analytics.aggregate.MovingAverage;
 import qwde.analytics.aggregate.StandardDeviation;
+import qwde.analytics.aggregate.Variance;
 import qwde.analytics.db.StockDB;
 import qwde.dataprovider.models.CompanyStockData;
+import qwde.web.models.StockStatistics;
 import qwde.web.plotly.FigureTemplate;
 import qwde.web.plotly.LinePlotRenderer;
 import qwde.web.plotly.PageRenderer;
@@ -31,9 +33,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller(value = "/statistics", produces = MediaType.TEXT_HTML)
-public final class StockStatistics {
-  private static final Logger LOG = LoggerFactory.getLogger(StockStatistics.class);
+public final class StockOverview {
+  private static final Logger LOG = LoggerFactory.getLogger(StockOverview.class);
   public static final DateTimeFormatter DATETIMEFORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
+  private static final int SMOOTHING_PERIOD = 20;
 
   @Get("/{ticker}/{fromDate}")
   public Single<String> doGet(String ticker, @Format("yyyyMMdd") LocalDate fromDate) {
@@ -41,7 +44,7 @@ public final class StockStatistics {
 
     CompanyStockData stockData;
     try {
-      stockData = StockDB.getCompanyData(ticker.toUpperCase(), fromDate.minusDays(20), LocalDate.now());
+      stockData = StockDB.getCompanyData(ticker.toUpperCase(), fromDate.minusDays(SMOOTHING_PERIOD), LocalDate.now());
     } catch (SQLException exception) {
       return Single.just(justGiveTheUserAStackTrace(exception));
     }
@@ -50,7 +53,11 @@ public final class StockStatistics {
       return Single.just("No data found. Are you sure the ticker and date were correct?");
     }
 
-    return Single.just("<h1>stats</h1>");
+    double variance = Variance.variance(stockData.closePrices);
+    double standardDeviation = StandardDeviation.standardDeviation(stockData.closePrices);
+    StockStatistics stockStatistics = new StockStatistics(ticker, variance, standardDeviation);
+
+    return Single.just(PageRenderer.renderStatistics("Statistics - " + ticker, stockStatistics));
   }
 
   private static String justGiveTheUserAStackTrace(Exception exception) {

@@ -42,12 +42,12 @@ public final class BollingerBrand {
       return Single.just("toDate is before fromDate!");
     }
 
-    LocalDate endDate = toDate.orElse(fromDate.plusDays(20));
+    LocalDate endDate = toDate.orElse(fromDate.plusDays(SMOOTHING_PERIOD));
     LOG.debug("Doing render with {}, {}, {}", ticker, fromDate, toDate);
 
     CompanyStockData stockData;
     try {
-      stockData = StockDB.getCompanyData(ticker.toUpperCase(), fromDate.minusDays(20), endDate);
+      stockData = StockDB.getCompanyData(ticker.toUpperCase(), fromDate.minusDays(SMOOTHING_PERIOD), endDate);
     } catch (SQLException exception) {
       return Single.just(justGiveTheUserAStackTrace(exception));
     }

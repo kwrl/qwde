@@ -13,6 +13,8 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
+import qwde.web.models.StockStatistics;
+
 public final class PageRenderer {
   private static final Logger LOG = LoggerFactory.getLogger(PageRenderer.class);
   private static final Configuration CFG = new Configuration(Configuration.VERSION_2_3_29);
@@ -46,17 +48,17 @@ public final class PageRenderer {
     }
   }
 
-  public static String renderStatistics(String pageTitle, List<FigureTemplate> figures) {
+  public static String renderStatistics(String pageTitle, StockStatistics stockStatistics) {
     @SuppressWarnings("serial")
     HashMap<String, Object> input = new HashMap<>() {
       {
         put("pageTitle", pageTitle);
-        put("figures", figures);
+        put("stat", stockStatistics);
       }
     };
 
     try {
-      Template template = CFG.getTemplate("graphpage.ftl");
+      Template template = CFG.getTemplate("statisticspage.ftl");
       StringWriter stringWriter = new StringWriter();
       template.process(input, stringWriter);
       return stringWriter.toString();

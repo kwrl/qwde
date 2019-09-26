@@ -9,7 +9,7 @@ public final class StandardDeviation {
   private StandardDeviation() {
   }
 
-  public static double standardDeviation(List<Double> data, int windowSize) {
+  public static double standardDeviation(List<Double> data) {
     return DoubleColumn.create("data", data.stream().toArray(Double[]::new)).standardDeviation();
   }
 
