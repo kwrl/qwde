@@ -97,7 +97,7 @@ public class App implements Callable<Integer> {
 
     if (micronautPort != null && !micronautPort.isEmpty()) {
       port = Integer.valueOf(micronautPort);
-      LOG.info("Overriding default application.yml port with input {}", micronautPort);
+      LOG.info("Overriding default application.yml port: setting micronaut.server.port = {}", micronautPort);
     }
 
     Micronaut.build((String) null)
