@@ -1,5 +1,7 @@
 package qwde.web.servlets;
 
+import java.util.Collections;
+
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -12,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Random;
 
+import qwde.web.plotly.PageRenderer;
+
 @Controller(value = "/notfound", produces = MediaType.TEXT_HTML)
 public class NotFound {
   private static final Logger LOG = LoggerFactory.getLogger(BollingerBrand.class);
@@ -19,13 +23,10 @@ public class NotFound {
   public NotFound() {
   }
 
-  private static ArrayList<String> theHolySource = new ArrayList<>() {{
-  }};
-
   @Error(status = HttpStatus.NOT_FOUND, global = true)
   public HttpResponse notFound(HttpRequest request) {
     LOG.debug("HTTP 404: {}", request.getUri());
-    return HttpResponse.ok("<h2>404</h2><img src=\"" + theHolySource.get(new Random().nextInt(theHolySource.size())) + "\" alt=\"appropriate gif\" >")
+    return HttpResponse.ok(PageRenderer.renderPage("notfound.ftl", Collections.singletonMap("pageTitle", "404 not found")))
           .contentType(MediaType.TEXT_HTML);
   }
 }

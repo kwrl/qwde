@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,18 @@ public final class PageRenderer {
     CFG.setClassForTemplateLoading(PageRenderer.class, "/");
     CFG.setDefaultEncoding("UTF-8");
     CFG.setLocale(Locale.US);
+  }
+
+  public static String renderPage(String apacheFreemarkerFile, Map<String, Object> vars) {
+    try {
+      Template template = CFG.getTemplate(apacheFreemarkerFile);
+      StringWriter stringWriter = new StringWriter();
+      template.process(vars, stringWriter);
+      return stringWriter.toString();
+    } catch (TemplateException | IOException exception) {
+      LOG.error("", exception);
+      return "error occured, see logs :(";
+    }
   }
 
   public static String renderFigure(String pageTitle, List<FigureTemplate> figures) {
