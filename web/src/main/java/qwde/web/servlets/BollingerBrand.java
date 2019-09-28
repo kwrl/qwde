@@ -1,5 +1,6 @@
 package qwde.web.servlets;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Streams;
 import io.micronaut.core.convert.format.Format;
 import io.micronaut.http.MediaType;
@@ -37,7 +38,7 @@ public final class BollingerBrand {
   private static final int SMOOTHING_PERIOD = 20;
 
   @Get("/{ticker}/{fromDate}")
-  public Single<String> doGet(String ticker, @Format("yyyyMMdd") LocalDate fromDate, @QueryValue @Format("yyyyMMdd") Optional<LocalDate> toDate) {
+  public Single<String> doGet(String ticker, @Format("yyyyMMdd") LocalDate fromDate, @QueryValue @Format("yyyyMMdd") Optional<LocalDate> toDate) throws SQLException {
     if (toDate.isPresent() && toDate.get().isBefore(fromDate)) {
       return Single.just("toDate is before fromDate!");
     }
@@ -46,11 +47,7 @@ public final class BollingerBrand {
     LOG.debug("Doing render with {}, {}, {}", ticker, fromDate, toDate);
 
     CompanyStockData stockData;
-    try {
-      stockData = StockDB.getCompanyData(ticker.toUpperCase(), fromDate.minusDays(SMOOTHING_PERIOD), endDate);
-    } catch (SQLException exception) {
-      return Single.just(justGiveTheUserAStackTrace(exception));
-    }
+    stockData = StockDB.getCompanyData(ticker.toUpperCase(), fromDate.minusDays(SMOOTHING_PERIOD), endDate);
 
     if (stockData.closePrices.isEmpty()) {
       return Single.just("No data found. Are you sure the ticker and date were correct?");
@@ -60,13 +57,13 @@ public final class BollingerBrand {
     traces.add(LinePlotRenderer.genScatterPlot(stockData.closePrices.subList(SMOOTHING_PERIOD, stockData.closePrices.size()), "price"));
     traces.addAll(getBollingerBrand(stockData, SMOOTHING_PERIOD));
 
-    return Single.just(PageRenderer.renderFigure("Bollinger Brand", Collections.singletonList(
-            new FigureTemplate(LinePlotRenderer.scatterPlot(traces, ScatterTrace.class, ticker, "day", "closing price"), "Stock closing prices and BollingerBrands, windows size = 20",
-                    "<div style=\"text-align:center\">Formula taken from <a href=\"https://www.investopedia.com/terms/b/bollingerbands.asp\">investopedia</a></div>"
+    String text = "<div style=\"text-align:center\">Formula taken from <a href=\"https://www.investopedia.com/terms/b/bollingerbands.asp\">investopedia</a></div>"
                     + "$$\n\\left\\{\n\\begin{aligned}\nBOLU&=MA(TP,n)+m*\\sigma{}\\\\\nBOLD&=MA(TP,n)-m*\\sigma{}\n\\end{aligned}\n\\right.\n\\\\\n\\\\\\\n\\textbf{where}\\\\\n"
                     + "\\begin{aligned}\nBOLU &= \\text{Upper Bollinger Band}\\\\\nBOLD&=\\text{Lower Bollinger Band}\\\\\nMA&=\\text{Moving average}\\\\\nTP (\\text{typical price)} &= \\frac{High + Low + Close}{3}\\\\\n"
-                    + "\\text{Number of days in smoothing period} &=  20\\\\\nm&=\\text{Number of standard deviations} = 2\\\\\n\\sigma{}&=\\text{Standard Deviation over last n periods of TP}\n\\end{aligned}\n$$"
-            )
+                    + "\\text{Number of days in smoothing period} &=  20\\\\\nm&=\\text{Number of standard deviations} = 2\\\\\n\\sigma{}&=\\text{Standard Deviation over last n periods of TP}\n\\end{aligned}\n$$";
+
+    return Single.just(PageRenderer.renderPage("graphpage.ftl", ImmutableMap.of("pageTitle", "Bollinger Band", "figures", Collections.singletonList(
+            new FigureTemplate(LinePlotRenderer.scatterPlot(traces, ScatterTrace.class, ticker, "day", "closing price"), "Stock closing prices and BollingerBands, windows size = 20", text))
     )));
   }
 
@@ -92,12 +89,5 @@ public final class BollingerBrand {
         LinePlotRenderer.genScatterPlot(mean, "mean"),
         LinePlotRenderer.genScatterPlot(standardDeviationLower, "lower BB")
     );
-  }
-
-  private static String justGiveTheUserAStackTrace(Exception exception) {
-    StringWriter sw = new StringWriter();
-    PrintWriter pw = new PrintWriter(sw);
-    exception.printStackTrace(pw);
-    return sw.toString();
   }
 }

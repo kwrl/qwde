@@ -1,5 +1,6 @@
 package qwde.web.servlets;
 
+import com.google.common.collect.ImmutableMap;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -33,9 +34,9 @@ public final class Index {
           .boxed()
           .collect(Collectors.toList());
 
-    return Single.just(PageRenderer.renderFigure("Random stock data", Arrays.asList(
+    return Single.just(PageRenderer.renderPage("graphpage.ftl", ImmutableMap.of("pageTitle", "Random stock data", "figures", Arrays.asList(
         new FigureTemplate(LinePlotRenderer.scatterPlot(Collections.singleton(LinePlotRenderer.genScatterPlot(data, "rand")), ScatterTrace.class, "A 2d scatterplot chart", "x", "y"), "Randomized stock data", "$$x_{0..n} = rand()$$Refreshing the page refreshes the data, too."),
         new FigureTemplate(LinePlotRenderer.scatterPlot(Collections.singleton(LinePlotRenderer.genScatterPlot(data2, "rand")), ScatterTrace.class, "Another 2d scatterplot chart", "x", "y"), "Randomized stock data v2", "$$x_{0..n} = rand()$$Refreshing the page refreshes the data, too.")
-        )));
+        ))));
   }
 }

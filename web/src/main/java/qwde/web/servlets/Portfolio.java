@@ -1,7 +1,7 @@
 package qwde.web.servlets;
 
-import com.google.common.collect.Streams;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Streams;
 import io.micronaut.core.convert.format.Format;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
@@ -33,28 +33,36 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Controller(value = "/statistics", produces = MediaType.TEXT_HTML)
-public final class StockOverview {
+@Controller(value = "/portfolio", produces = MediaType.TEXT_HTML)
+public final class Portfolio {
   private static final Logger LOG = LoggerFactory.getLogger(StockOverview.class);
   public static final DateTimeFormatter DATETIMEFORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
   private static final int SMOOTHING_PERIOD = 20;
 
-  @Get("/{ticker}/{fromDate}")
-  public Single<String> doGet(String ticker, @Format("yyyyMMdd") LocalDate fromDate) throws SQLException {
-    LOG.debug("Doing render with {}, {}, {}", ticker, fromDate);
+  @Get("/{tickers}/{fromDate}")
+  public Single<String> portfolio(String tickers, @Format("yyyyMMdd") LocalDate fromDate) throws SQLException {
+    List<String> stockTickers = Arrays.asList(tickers.split(","));
+    LOG.debug("Doing render with {}, {}", tickers);
 
-    CompanyStockData stockData;
-    stockData = StockDB.getCompanyData(ticker.toUpperCase(), fromDate.minusDays(SMOOTHING_PERIOD), LocalDate.now());
+    List<CompanyStockData> companyStockData = new ArrayList<>();
 
-    if (stockData.closePrices.isEmpty()) {
-      return Single.just("No data found. Are you sure the ticker and date were correct?");
+    for (String stock : stockTickers) {
+      CompanyStockData stockData = StockDB.getCompanyData(stock.toUpperCase(), fromDate.minusDays(SMOOTHING_PERIOD), fromDate);
+
+      if (stockData.closePrices.isEmpty()) {
+        return Single.just(String.format("No data found for %s Are you sure the ticker and date were correct?", stock));
+      }
+
+      companyStockData.add(stockData);
     }
 
-    double variance = Variance.variance(stockData.closePrices);
-    double standardDeviation = StandardDeviation.standardDeviation(stockData.closePrices);
-    StockStatistics stockStatistics = new StockStatistics(ticker, variance, standardDeviation);
+    if (companyStockData.isEmpty()) {
+      return Single.just("No stock data found. Are tickers correct?");
+    }
 
-    return Single.just(PageRenderer.renderPage("statisticspage.ftl", ImmutableMap.of("stat", stockStatistics, "pageTitle", "StockStatistics")));
+    qwde.analytics.aggregate.Portfolio portfolio = new qwde.analytics.aggregate.Portfolio(companyStockData);
+
+
+    return Single.just(PageRenderer.renderPage("portfolio.ftl", ImmutableMap.of("pageTitle", "Portfolio analysis", "overviews", portfolio.stockOverviews)));
   }
 }
-

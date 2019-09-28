@@ -11,11 +11,14 @@
 </script>
 </head>
 <body>
-<h3>${stat.symbol}</h3>
 <p>
-Standard deviation: ${stat.standardDeviation}<br />
-Variance: ${stat.variance}<br />
+	<#list overviews as ov>
+    Name: ${ov.symbol} <br />
+    Standard deviation: ${ov.standardDeviation}<br />
+    Variance: ${ov.variance}<br />
+	</#list>
 </p>
  </body>
 </html>
+
 

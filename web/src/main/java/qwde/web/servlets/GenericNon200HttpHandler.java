@@ -17,16 +17,23 @@ import java.util.Random;
 import qwde.web.plotly.PageRenderer;
 
 @Controller(value = "/notfound", produces = MediaType.TEXT_HTML)
-public class NotFound {
-  private static final Logger LOG = LoggerFactory.getLogger(BollingerBrand.class);
+public class GenericNon200HttpHandler {
+  private static final Logger LOG = LoggerFactory.getLogger(GenericNon200HttpHandler.class);
 
-  public NotFound() {
+  public GenericNon200HttpHandler() {
   }
 
   @Error(status = HttpStatus.NOT_FOUND, global = true)
   public HttpResponse notFound(HttpRequest request) {
     LOG.debug("HTTP 404: {}", request.getUri());
     return HttpResponse.ok(PageRenderer.renderPage("notfound.ftl", Collections.singletonMap("pageTitle", "404 not found")))
-          .contentType(MediaType.TEXT_HTML);
+      .contentType(MediaType.TEXT_HTML);
+  }
+
+  @Error(global = true) 
+  public HttpResponse error(HttpRequest request, Throwable e) {
+    LOG.error("Something bad happened", e);
+    return HttpResponse.ok(PageRenderer.renderPage("errorpage.ftl", Collections.singletonMap("pageTitle", "500 error")))
+      .contentType(MediaType.TEXT_HTML);
   }
 }

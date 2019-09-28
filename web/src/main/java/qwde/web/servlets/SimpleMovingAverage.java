@@ -1,5 +1,6 @@
 package qwde.web.servlets;
 
+import com.google.common.collect.ImmutableMap;
 import io.micronaut.core.convert.format.Format;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
@@ -33,7 +34,7 @@ public final class SimpleMovingAverage {
   public static final DateTimeFormatter DATETIMEFORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
 
   @Get("/{ticker}/{fromDate}")
-  public Single<String> doGet(String ticker, @Format("yyyyMMdd") LocalDate fromDate, @QueryValue @Format("yyyyMMdd") Optional<LocalDate> toDate) {
+  public Single<String> doGet(String ticker, @Format("yyyyMMdd") LocalDate fromDate, @QueryValue @Format("yyyyMMdd") Optional<LocalDate> toDate) throws SQLException {
     if (toDate.isPresent() && toDate.get().isBefore(fromDate)) {
       return Single.just("toDate is before fromDate!");
     }
@@ -42,11 +43,7 @@ public final class SimpleMovingAverage {
     LOG.debug("Doing render with {}, {}, {}", ticker, fromDate, toDate);
 
     CompanyStockData stockData;
-    try {
-      stockData = StockDB.getCompanyData(ticker.toUpperCase(), fromDate, endDate);
-    } catch (SQLException exception) {
-      return Single.just(justGiveTheUserAStackTrace(exception));
-    }
+    stockData = StockDB.getCompanyData(ticker.toUpperCase(), fromDate, endDate);
     if (stockData.closePrices.isEmpty()) {
       return Single.just("No data found. Are you sure the ticker and date were correct?");
     }
@@ -55,10 +52,10 @@ public final class SimpleMovingAverage {
     traces.addAll(getAverages(stockData.closePrices));
     traces.add(LinePlotRenderer.genScatterPlot(stockData.closePrices, "price"));
 
-    return Single.just(PageRenderer.renderFigure("Price averages", Collections.singletonList(
+    return Single.just(PageRenderer.renderPage("graphpage.ftl", ImmutableMap.of("pageTitle", "Price averages", "figures", Collections.singletonList(
             new FigureTemplate(LinePlotRenderer.scatterPlot(traces, ScatterTrace.class, ticker, "day", "closing price"), "Stock closing prices and Simple Moving Averages (SMA)",
                     "$$\n\\left\\{\n\\begin{aligned}\ny_{c,d} &= close(d)\\\\\ny_{sma} &= avg(y_{c, d-10x}\\dots{}y_{c, d})\n\\end{aligned}\n\\right.$$")
-    )));
+    ))));
   }
 
   private static List<ScatterTrace> getAverages(List<Double> data) {
@@ -72,12 +69,5 @@ public final class SimpleMovingAverage {
     }
 
     return ret;
-  }
-
-  private static String justGiveTheUserAStackTrace(Exception exception) {
-    StringWriter sw = new StringWriter();
-    PrintWriter pw = new PrintWriter(sw);
-    exception.printStackTrace(pw);
-    return sw.toString();
   }
 }
