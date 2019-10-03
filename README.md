@@ -3,10 +3,10 @@
 Getting around with stock data.
 
 Live preview: 
-* http://95.216.220.118:8080/ - index page
-* http://95.216.220.118:8080/bb/twtr/20150102?toDate=20170301 - bollinger bands
-* http://95.216.220.118:8080/sma/twtr/20150102?toDate=20170301 - simple moving averages (you can change dates and tickers in URL from around 20140101 to around 20170330)  
-[![sma](./doc/images/simplemovingaverages.png)](http://95.216.220.118:8080/sma/twtr/20150102?toDate=20170301)
+* http://qwde.no/ - index page
+* http://qwde.no/bb/twtr/20150102?toDate=20170301 - bollinger bands
+* http://qwde.no/sma/twtr/20150102?toDate=20170301 - simple moving averages (you can change dates and tickers in URL from around 20140101 to around 20170330)  
+[![sma](./doc/images/simplemovingaverages.png)](http://qwde.no:8080/sma/twtr/20150102?toDate=20170301)
 
 # Project Overview
 The general idea is to analyze stock data. One day in some future we hope to make this into a trading robot. For now, to get code done, its mostly important to have fun and build something interesting.  
@@ -40,7 +40,7 @@ By default a sqlite database copy of pystock-data is written to
 Upon running the application, it is checked whether or not the database exists and has data. If not, it is generated. To re-generate the data, you can point `$XDG_CACHE_HOME` elsewhere, or delete the database.db file.
 
 ## Live server
-Code is continuously deployed to http://95.216.220.118. Its a droplet with 2vCPU and 8 GB RAM. If you want access, send me an email or PM.
+Code is continuously deployed to http://qwde.no. Its a droplet with 2vCPU and 8 GB RAM. If you want access, send me an email or PM.
 
 # Contributing
 Pull- and feature-requests welcome! :smile:
