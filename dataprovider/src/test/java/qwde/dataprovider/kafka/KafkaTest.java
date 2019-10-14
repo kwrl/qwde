@@ -13,10 +13,15 @@ import com.salesforce.kafka.test.junit5.SharedKafkaTestResource;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.Node;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -58,7 +63,7 @@ class KafkaTest extends SharedKafkaTestResource {
             .withBrokerProperty("auto.create.topics.enable", "false");
 
     @Test
-    void testStuff() {
+    void testInMemoryConsumer_FixtureData_ProduceAndConsume() {
         KafkaBroker kafkaBroker = sharedKafkaTestResource.getKafkaBrokers().getBrokerById(1);
         KafkaTestUtils kafkaTestUtils = sharedKafkaTestResource.getKafkaTestUtils();
         String topic = "streaming.stockticker.stockticker";
@@ -94,7 +99,7 @@ class KafkaTest extends SharedKafkaTestResource {
     }
 
     @Test
-    void testMoreStuff() {
+    void testKafkaInMemory_JFixtureData_ProduceAndConsume() {
         KafkaBroker kafkaBroker = sharedKafkaTestResource.getKafkaBrokers().getBrokerById(1);
         KafkaTestUtils kafkaTestUtils = sharedKafkaTestResource.getKafkaTestUtils();
         String topic = "streaming.stockticker.stockticker2";
@@ -104,21 +109,29 @@ class KafkaTest extends SharedKafkaTestResource {
         JFixture jFixture = new JFixture();
         StockTicker stockTicker = jFixture.create(StockTicker.class);
 
-        Map<byte[], byte[]> kafkaMap = new HashMap<>();
-        kafkaMap.put(SerializationUtils.serialize(stockTicker.timestamp), SerializationUtils.serialize(stockTicker));
+        final Properties producerProps = new Properties();
+        producerProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBroker.getConnectString());
+        producerProps.put(ProducerConfig.CLIENT_ID_CONFIG, "KafkaExampleProducer");
+        producerProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LocalDateTimeSerializer.class);
+        producerProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        KafkaProducer<LocalDateTime, String> kafkaProducer = new KafkaProducer<>(producerProps);
 
-        kafkaTestUtils.produceRecords(kafkaMap, topic, 0);
-        System.out.println();
+        kafkaProducer.send(new ProducerRecord<>(topic, stockTicker.timestamp, stockTicker.symbol));
+
+        // Identical up to here
+        // Server URL is correct
         final Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBroker.getConnectString().substring(12));
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "KafkaExampleConsumer");
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LocalDateTimeDeserializer.class.getName());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBroker.getConnectString());
+        props.put(ConsumerConfig.CLIENT_ID_CONFIG, "KafkaExampleConsumer");
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LocalDateTimeDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         KafkaConsumer<LocalDateTime, String> kafkaConsumer = new KafkaConsumer<>(props);
-        kafkaConsumer.subscribe(ImmutableList.of(topic));
-        ConsumerRecords<LocalDateTime, String> consumed = kafkaConsumer.poll(Duration.ofSeconds(1));
+        List<TopicPartition> tp = kafkaConsumer.partitionsFor(topic).stream().map(t -> new TopicPartition(topic, 0)).collect(Collectors.toList());
+        kafkaConsumer.assign(tp);
+        kafkaConsumer.seekToBeginning(tp);
+        ConsumerRecords<LocalDateTime, String> consumed = kafkaConsumer.poll(Duration.ofSeconds(2));
+        Truth.assertThat(consumed.count()).isAtLeast(1);
         LocalDateTime ldt = ImmutableList.copyOf(consumed.records(topic)).get(0).key();
-
         Truth.assertThat(ldt).isEqualTo(stockTicker.timestamp);
     }
 }
