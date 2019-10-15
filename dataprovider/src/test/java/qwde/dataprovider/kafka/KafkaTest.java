@@ -57,9 +57,7 @@ class KafkaTest extends SharedKafkaTestResource {
      */
     @RegisterExtension
     public static final SharedKafkaTestResource sharedKafkaTestResource = new SharedKafkaTestResource()
-            // Start a cluster with 2 brokers.
             .withBrokers(1)
-            // Disable topic auto-creation.
             .withBrokerProperty("auto.create.topics.enable", "false");
 
     @Test
