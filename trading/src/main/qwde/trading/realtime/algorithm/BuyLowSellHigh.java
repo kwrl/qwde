@@ -15,24 +15,23 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class BuyLowSellHigh {
-    private BigDecimal lowerstPriceSoFar = new BigDecimal(999999);
+    private BigDecimal lowestPriceSoFar = new BigDecimal(999999);
     private BigDecimal highestPriceSoFar = BigDecimal.ZERO;
 
-    Map<String, List<LocalTime>> bidsPlaced = new HashMap<>();
-    Map<String, List<LocalTime>> asksPlaced = new HashMap<>();
+    private final String ticker;
+    private double budget;
 
-    public BuyLowSellHigh(List<StockTicker> tickers) {
-        tickers.stream().forEach(s -> {
-            bidsPlaced.put(s, new ArrayList<>());
-            asksPlaced.put(s, new ArrayList<>());
-        });
+    public BuyLowSellHigh(StockTicker ticker, double budget) {
+      this.ticker = ticker;
+      this.budget = budget;
     }
 
     public void decide(Iterable<ConsumerRecord<String, StockTicker>> stockTickers) {
         List<BigDecimal> minPrice = StreamSupport.stream(stockTickers.spliterator(), false).map(s -> s.value()).map(StockTicker::getPrice).min(Comparator.naturalOrder()).get();
 
-        if (lowerstPriceSoFar.compareTo(minPrice) < 0) {
-            TradeEngine.getInstance().placeBidMarketOrder(lowerstPriceSoFar);
+        if (lowestPriceSoFar.compareTo(minPrice) < 0) {
+            Order trade = TradeEngine.getInstance().placeBidMarketOrder(lowestPriceSoFar);
+            this.budget -= trade.price * trade.quantity;
         }
     }
 }
