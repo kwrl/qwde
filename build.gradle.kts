@@ -25,7 +25,7 @@ allprojects {
     }
 }
 
-configure(subprojects.filter { it.name == "analytics"  || it.name == "dataprovider" || it.name == "web" } ) {
+configure(subprojects.filter { it.name == "analytics"  || it.name == "dataprovider" || it.name == "web" || it.name == "trading" } ) {
   apply(plugin = "java")
     apply(plugin = "ru.vyarus.quality")
 

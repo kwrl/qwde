@@ -4,6 +4,7 @@ import main.qwde.trading.realtime.algorithm.BuyLowSellHigh;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import qwde.dataprovider.models.StockTicker;
+import com.google.common.collect.TreeMultiSet;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -26,7 +27,8 @@ public class TradeEngine {
   }
 
   public Runnable pollData(KafkaConsumer<String, StockTicker> consumer) {
-    final int giveUp = 100;   int noRecordsCount = 0;
+    final int giveUp = 100;
+    int noRecordsCount = 0;
 
     while (true) {
       final ConsumerRecords<String, StockTicker> consumerRecords = consumer.poll(Duration.ofSeconds(1));
@@ -37,7 +39,14 @@ public class TradeEngine {
         else continue;
       }
 
-      this.algorithms.stream().forEach(a -> a.decide(consumerRecords.records("stocktickers")));
+      for (BuyLowSellHigh algo : this.algorithms) {
+        for (ConsumerRecord<String, StockTicker> record : consumerRecords.records("stocktickers")) {
+          // for all pending market orders, issue a trade at current price + whatever
+          //
+          // for all pending regular orders, check if price <= or >=, then issue a trade at price + commission
+          algo.processTick(record);
+        }
+      }
 
       consumer.commitAsync();
 
@@ -55,10 +64,13 @@ public class TradeEngine {
 
   private final List<Order> buyOrders = new ArrayList<>();
   private final List<Order> sellOrders = new ArrayList<>();
-  private final List<Order> trades = new ArrayList<>();
+  private final List<MarketOrder> marketBuyOrders = new ArrayList<>();
+  private final List<MarketOrder> marketSellOrders = new ArrayList<>();
+  private final List<Trade> trades = new ArrayList<>();
+  private final List<Order> pendingBuyOrders = new TreeMultiSet<>();
 
-  public Order placeBidMarketOrder(String ticker, double price, long quantity, LocalDateTime time) {
-    this.buyOrders.add(new Order(time, ticker, price, quantity, TradeType.BID));
+  public MarketOrder placeBidMarketOrder(String ticker, double price, long quantity, LocalDateTime time) {
+    this.marketBuyOrders.add(new Order(time, ticker, price, quantity, TradeType.BID));
 
     // Pretend we got a matching trade at current price + a spread between .05 and 2 percent
     double tradePrice = price + (price * (0.05 + (new Random().nextDouble() % 0.15)));
@@ -69,8 +81,8 @@ public class TradeEngine {
   }
 
   // TODO: market orders are given right away, limit orders are continously checked (in next batch of data)
-  public Order placeAskMarketOrder(String ticker, double price, long quantity, LocalDateTime time) {
-    this.sellOrders.add(new Order(time, ticker, price, quantity, TradeType.ASK));
+  public MarketOrder placeAskMarketOrder(String ticker, double price, long quantity, LocalDateTime time) {
+    this.marketSellOrders.add(new Order(time, ticker, price, quantity, TradeType.ASK));
 
     // Pretend we got a matching trade at current price - a spread between .05 and 2 percent
     Order trade = new Order(time, ticker, tradePrice, quantity, TradeType.TRADE);
