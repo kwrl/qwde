@@ -1,7 +1,7 @@
 package qwde.trading.model;
 
-public Enum TradeType {
-  TRADE,
+public enum TradeType {
+    TRADE,
     BID,
     ASK
 };

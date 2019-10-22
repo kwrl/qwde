@@ -4,39 +4,34 @@ package qwde.dataprovider.kafka;
 import com.flextrade.jfixture.JFixture;
 import com.google.common.collect.ImmutableList;
 import com.google.common.truth.Truth;
-import kafka.Kafka;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import com.salesforce.kafka.test.KafkaBroker;
 import com.salesforce.kafka.test.KafkaTestUtils;
 import com.salesforce.kafka.test.junit5.SharedKafkaTestResource;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.Node;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import qwde.dataprovider.kafka.serializer.LocalDateTimeDeserializer;
+import qwde.dataprovider.kafka.serializer.LocalDateTimeSerializer;
 import qwde.dataprovider.models.StockTicker;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -62,7 +57,6 @@ class KafkaTest extends SharedKafkaTestResource {
 
     @Test
     void testInMemoryConsumer_FixtureData_ProduceAndConsume() {
-        KafkaBroker kafkaBroker = sharedKafkaTestResource.getKafkaBrokers().getBrokerById(1);
         KafkaTestUtils kafkaTestUtils = sharedKafkaTestResource.getKafkaTestUtils();
         String topic = "streaming.stockticker.stockticker";
 
@@ -80,20 +74,6 @@ class KafkaTest extends SharedKafkaTestResource {
         LocalDateTime ldt = SerializationUtils.deserialize(consumed.get(0).key());
 
         Truth.assertThat(ldt).isEqualTo(stockTicker.timestamp);
-    }
-
-    public static class LocalDateTimeSerializer implements Serializer<LocalDateTime> {
-        @Override
-        public byte[] serialize(String topic, LocalDateTime data) {
-            return SerializationUtils.serialize(data);
-        }
-    }
-
-    public static class LocalDateTimeDeserializer implements Deserializer<LocalDateTime> {
-        @Override
-        public LocalDateTime deserialize(String topic, byte[] data) {
-            return SerializationUtils.deserialize(data);
-        }
     }
 
     @Test

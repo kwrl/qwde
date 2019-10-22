@@ -133,10 +133,10 @@ Finally, it is worth reading the documentation.
     </module>
     <!-- Indentation (Indentation module is incorrect) -->
     <module name="Indentation">
-      <property name="basicOffset" value="2"/>
+      <property name="basicOffset" value="4"/>
       <property name="braceAdjustment" value="0"/>
-      <property name="caseIndent" value="2"/>
-      <property name="throwsIndent" value="4"/>
+      <property name="caseIndent" value="4"/>
+      <property name="throwsIndent" value="8"/>
     </module>
     <!-- Avoid this.-prefix on method calls -->
     <module name="RegexpSinglelineJava">

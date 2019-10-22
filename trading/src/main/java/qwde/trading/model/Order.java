@@ -1,14 +1,18 @@
 package qwde.trading.model;
 
-public class MarketOrder {
+import java.time.LocalDateTime;
+
+public class Order {
   public final LocalDateTime timeOfOrder;
   public final String ticker;
+  public final double price;
   public final long quantity;
   public final boolean isBid;
 
-  public Order(LocalDateTime timeOfOrder, String ticker, long quantity, boolean isBid) {
+  public Order(LocalDateTime timeOfOrder, String ticker, double price, long quantity, boolean isBid) {
     this.timeOfOrder = timeOfOrder;
     this.ticker = ticker;
+    this.price = price;
     this.quantity = quantity;
     this.isBid = isBid;
   }
@@ -17,5 +21,4 @@ public class MarketOrder {
     return price * quantity;
   }
 }
-
 

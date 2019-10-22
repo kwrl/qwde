@@ -7,7 +7,5 @@
     </content>
     <orderEntry type="jdk" jdkName="13" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="qwde.dataprovider.main" />
-    <orderEntry type="library" name="Gradle: org.apache.kafka:kafka-clients:2.3.0" level="project" />
   </component>
 </module>

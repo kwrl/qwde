@@ -5,15 +5,15 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public interface IStockTicker extends Comparable<IStockTicker>, Serializable {
-  BigDecimal getPrice();
+    BigDecimal getPrice();
 
-  BigDecimal getHigh();
+    BigDecimal getHigh();
 
-  BigDecimal getLow();
+    BigDecimal getLow();
 
-  Long getVolume();
+    Long getVolume();
 
-  String getCompany();
+    String getCompany();
 
-  LocalDateTime getTimestamp();
+    LocalDateTime getTimestamp();
 }
