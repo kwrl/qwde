@@ -15,8 +15,15 @@
         </encoder>
     </appender>
 
-    <logger name="com.zaxxer.hikari.pool" level="info"/>
     <logger name="com.zaxxer.hikari.HikariConfig" level="info"/>
+    <logger name="com.zaxxer.hikari.pool" level="info"/>
+    <logger name="kafka.cluster.Partition" level="warn"/>
+    <logger name="kafka.cluster.Replica" level="warn"/>
+    <logger name="kafka.log" level="warn"/>
+    <logger name="kafka.request.logger" level="warn"/>
+    <logger name="kafka.server.ReplicaManager" level="warn"/>
+    <logger name="kafka.utils.KafkaScheduler" level="info"/>
+    <logger name="kafka.zookeeper" level="warn"/>
     <logger name="org.apache.kafka" level="info"/>
     <logger name="org.apache.zookeeper" level="warn"/>
 

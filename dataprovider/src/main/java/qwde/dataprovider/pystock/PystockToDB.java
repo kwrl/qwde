@@ -39,9 +39,9 @@ public final class PystockToDB {
                 try {
                     for (IStockTicker stockPrice : stockTickers) {
                         ps.setString(1, stockPrice.getCompany());
-                        ps.setBigDecimal(2, stockPrice.getPrice());
-                        ps.setBigDecimal(3, stockPrice.getHigh());
-                        ps.setBigDecimal(4, stockPrice.getLow());
+                        ps.setDouble(2, stockPrice.getPrice());
+                        ps.setDouble(3, stockPrice.getHigh());
+                        ps.setDouble(4, stockPrice.getLow());
                         ps.setLong(5, stockPrice.getVolume());
                         ps.setTimestamp(6, Timestamp.valueOf(stockPrice.getTimestamp()));
                         ps.addBatch();

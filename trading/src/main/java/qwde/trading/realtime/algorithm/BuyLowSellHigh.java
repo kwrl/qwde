@@ -5,19 +5,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qwde.dataprovider.models.StockTicker;
 import qwde.trading.engine.TradeEngine;
-import qwde.trading.model.Order;
 import qwde.trading.model.Trade;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BuyLowSellHigh {
     private static final Logger LOG = LoggerFactory.getLogger(TradeEngine.class);
-    private BigDecimal lowestPriceSoFar = new BigDecimal(999999);
-    private BigDecimal highestPriceSoFar = BigDecimal.ZERO;
+    private Double lowestPriceSoFar = Double.MAX_VALUE;
 
-    private final List<BigDecimal> pricesSeen = new ArrayList<>();
+    private final List<Double> pricesSeen = new ArrayList<>();
 
     private final String ticker;
     private double budget;
@@ -31,7 +28,7 @@ public class BuyLowSellHigh {
         StockTicker stockTicker = record.value();
         pricesSeen.add(stockTicker.getPrice());
 
-        if (lowestPriceSoFar.compareTo(stockTicker.getPrice()) < 0) {
+        if (lowestPriceSoFar > stockTicker.getPrice()) {
             lowestPriceSoFar = stockTicker.getPrice();
             if (this.budget > lowestPriceSoFar.doubleValue() * 100L) {
                 TradeEngine.getInstance().placeBidMarketOrder(this.ticker, 100L);

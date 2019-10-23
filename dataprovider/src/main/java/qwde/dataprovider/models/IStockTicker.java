@@ -1,15 +1,14 @@
 package qwde.dataprovider.models;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public interface IStockTicker extends Comparable<IStockTicker>, Serializable {
-    BigDecimal getPrice();
+    double getPrice();
 
-    BigDecimal getHigh();
+    double getHigh();
 
-    BigDecimal getLow();
+    double getLow();
 
     Long getVolume();
 

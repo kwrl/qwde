@@ -83,8 +83,3 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
 }
 
-tasks {
-    test {
-        testLogging.showExceptions = true
-    }
-}

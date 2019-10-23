@@ -7,5 +7,3 @@ public class Trade extends Order {
         super(timeOfOrder, ticker, price, quantity, isBid);
     }
 }
-
-

@@ -1,5 +1,15 @@
 package qwde.dataprovider.pystock;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import qwde.dataprovider.models.IStockTicker;
+import qwde.dataprovider.models.StockTicker;
+import qwde.dataprovider.util.FileUtil;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -7,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,17 +32,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import qwde.dataprovider.models.IStockTicker;
-import qwde.dataprovider.models.StockTicker;
-import qwde.dataprovider.util.FileUtil;
 
 public final class PystockDataReader {
     private static final Logger LOG = LoggerFactory.getLogger(PystockDataReader.class);
@@ -75,7 +73,7 @@ public final class PystockDataReader {
                   .filter(f -> fileNameFilter.test(FilenameUtils.getBaseName(FilenameUtils.getBaseName(f.getName()))))
                   .map(file -> {
                       try {
-                          LOG.trace("Parsing {}", file);
+                          LOG.debug("Parsing {}", file);
                           return Files.newInputStream(file.toPath());
                       } catch (IOException exception) {
                           throw new UncheckedIOException(exception);
@@ -123,7 +121,7 @@ public final class PystockDataReader {
             return Optional.empty();
         }
         String[] tokens = line.split(",");
-        return Optional.of(new StockTicker(tokens[0], new BigDecimal(tokens[3]), new BigDecimal(tokens[4]), new BigDecimal(tokens[5]), Long.parseLong(tokens[6]), parseTimestamp(tokens[1])));
+        return Optional.of(new StockTicker(tokens[0], Double.valueOf(tokens[3]), Double.valueOf(tokens[4]), Double.valueOf(tokens[5]), Long.parseLong(tokens[6]), parseTimestamp(tokens[1])));
     }
 
     private static LocalDateTime parseTimestamp(String line) {

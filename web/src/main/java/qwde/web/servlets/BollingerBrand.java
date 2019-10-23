@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qwde.analytics.aggregate.MovingAverage;
 import qwde.analytics.aggregate.StandardDeviation;
-import qwde.analytics.db.StockDB;
+import qwde.dataprovider.kafka.db.StockDB;
 import qwde.dataprovider.models.CompanyStockData;
 import qwde.web.plotly.FigureTemplate;
 import qwde.web.plotly.LinePlotRenderer;

@@ -51,6 +51,7 @@ public class InMemoryKafkaStore {
         final Properties consumerProps = new Properties();
         consumerProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, sharedKafkaTestResource.getKafkaBrokers().getBrokerById(1).getConnectString());
         consumerProps.put(ConsumerConfig.CLIENT_ID_CONFIG, name);
+        consumerProps.put(ConsumerConfig.GROUP_ID_CONFIG, name);
         consumerProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, keyClass);
         consumerProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valClass);
         KafkaConsumer<K, V> kafkaConsumer = new KafkaConsumer<>(consumerProps);

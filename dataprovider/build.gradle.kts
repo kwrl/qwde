@@ -35,13 +35,3 @@ java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
 }
-
-tasks {
-    test {
-        testLogging.showExceptions = true
-    }
-}
-
-tasks.named<Test>("test") {
-    useJUnitPlatform()
-}

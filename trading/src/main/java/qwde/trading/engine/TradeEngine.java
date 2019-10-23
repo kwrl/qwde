@@ -20,9 +20,8 @@ import java.util.Stack;
 
 public class TradeEngine {
     private static final Logger LOG = LoggerFactory.getLogger(TradeEngine.class);
-    private static TradeEngine engine;
-    private List<BuyLowSellHigh> algorithms = new ArrayList<>();
-    private volatile int tickCounter = 0;
+    private final List<BuyLowSellHigh> algorithms = new ArrayList<>();
+    private int tickCounter;
     private final List<Order> buyOrders = new ArrayList<>();
     private final List<Order> sellOrders = new ArrayList<>();
     private final List<MarketOrder> buyHistory = new ArrayList<>();
@@ -31,14 +30,15 @@ public class TradeEngine {
     private final List<Order> pendingAskOrders = new ArrayList<>();
     private final Stack<MarketOrder> pendingMarketOrders = new Stack<>();
 
-    public static TradeEngine getInstance() {
-        if (engine == null) {
-            engine = new TradeEngine();
-        }
-        return engine;
+    private static class LazyHolder {
+        static final TradeEngine INSTANCE = new TradeEngine();
     }
 
-    public final class Summary {
+    public static TradeEngine getInstance() {
+        return LazyHolder.INSTANCE;
+    }
+
+    public static final class Summary {
         public final ImmutableList<Order> buyOrders;
         public final ImmutableList<Order> sellOrders;
         public final ImmutableList<MarketOrder> buyHistory;
@@ -56,7 +56,7 @@ public class TradeEngine {
         }
     }
 
-    public Summary pollData(KafkaConsumer<String, StockTicker> consumer) {
+    public Summary pollData(KafkaConsumer<String, StockTicker> consumer, String topic) {
         final int giveUp = 3;
         int noRecordsCount = 0;
 
@@ -64,18 +64,22 @@ public class TradeEngine {
             final ConsumerRecords<String, StockTicker> consumerRecords = consumer.poll(Duration.ofSeconds(1));
 
             if (consumerRecords.count() == 0) {
+                LOG.info("No records polled, attempt {}/{}", noRecordsCount, giveUp);
                 noRecordsCount++;
-                if (noRecordsCount > giveUp) break;
-                else continue;
+                if (noRecordsCount > giveUp) {
+                    break;
+                } else {
+                    continue;
+                }
             }
 
             for (BuyLowSellHigh algo : this.algorithms) {
-                for (ConsumerRecord<String, StockTicker> record : consumerRecords.records("stocktickers")) {
+                for (ConsumerRecord<String, StockTicker> record : consumerRecords.records(topic)) {
                     // for all pending market orders, issue a trade at current price + whatever
                     //
                     // for all pending regular orders, check if price <= or >=, then issue a trade at price + commission
                     while (!this.pendingMarketOrders.isEmpty()) {
-                        double tradePrice = record.value().closePrice.doubleValue();
+                        double tradePrice = record.value().closePrice;
                         MarketOrder order = this.pendingMarketOrders.pop();
                         Trade trade = new Trade(LocalDateTime.now(), order.ticker, tradePrice, order.quantity, order.isBid);
                         this.trades.add(trade);
