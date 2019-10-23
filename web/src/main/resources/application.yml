@@ -1,5 +1,11 @@
 micronaut:
   application:
-    name: qwde-web
+    name: qwde
   server:
     port: 8080
+  router:
+    static-resources:
+      default:
+        enabled: true
+        mapping: "/**.js"
+        paths: "classpath:public"

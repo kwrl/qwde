@@ -1,17 +1,15 @@
 package qwde.web.plotly;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Locale;
+import java.util.Map;
 
 public final class PageRenderer {
     private static final Logger LOG = LoggerFactory.getLogger(PageRenderer.class);
@@ -26,19 +24,11 @@ public final class PageRenderer {
         CFG.setLocale(Locale.US);
     }
 
-    public static String renderFigure(String pageTitle, List<FigureTemplate> figures) {
-        @SuppressWarnings("serial")
-        HashMap<String, Object> input = new HashMap<>() {
-            {
-                put("pageTitle", pageTitle);
-                put("figures", figures);
-            }
-        };
-
+    public static String renderPage(String apacheFreemarkerFile, Map<String, Object> vars) {
         try {
-            Template template = CFG.getTemplate("graphpage.ftl");
+            Template template = CFG.getTemplate(apacheFreemarkerFile);
             StringWriter stringWriter = new StringWriter();
-            template.process(input, stringWriter);
+            template.process(vars, stringWriter);
             return stringWriter.toString();
         } catch (TemplateException | IOException exception) {
             LOG.error("", exception);

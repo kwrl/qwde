@@ -9,14 +9,14 @@ public final class StandardDeviation {
     private StandardDeviation() {
     }
 
-    public static double standardDeviation(List<Double> data, int windowSize) {
+    public static double standardDeviation(List<Double> data) {
         return DoubleColumn.create("data", data.stream().toArray(Double[]::new)).standardDeviation();
     }
 
     public static List<Double> rollingStandardDeviation(List<Double> data, int windowSize) {
         return ((DoubleColumn) DoubleColumn.create("data", data.stream().toArray(Double[]::new))
-              .rolling(windowSize)
-              .calc(tech.tablesaw.aggregate.AggregateFunctions.standardDeviation)
+                .rolling(windowSize)
+                .calc(tech.tablesaw.aggregate.AggregateFunctions.standardDeviation)
         ).asList();
     }
 

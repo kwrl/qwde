@@ -1,8 +1,7 @@
-package qwde.dataprovider.kafka.db;
+package qwde.dataprovider.db;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import qwde.dataprovider.db.DatabaseManager;
 import qwde.dataprovider.models.CompanyStockData;
 import qwde.dataprovider.models.StockTicker;
 

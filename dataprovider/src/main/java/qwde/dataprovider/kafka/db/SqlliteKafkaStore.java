@@ -5,6 +5,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import qwde.dataprovider.db.StockDB;
 import qwde.dataprovider.kafka.InMemoryKafkaStore;
 import qwde.dataprovider.kafka.serializer.StockTickerDeserializer;
 import qwde.dataprovider.kafka.serializer.StockTickerSerializer;

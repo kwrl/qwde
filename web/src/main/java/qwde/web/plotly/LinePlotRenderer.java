@@ -22,22 +22,22 @@ public final class LinePlotRenderer {
 
     public static <T extends AbstractTrace> Figure scatterPlot(Collection<T> traces, Class<T> traceClass, String graphText, String xAxisText, String yAxisText) {
         Axis xAxis = Axis.builder()
-              .title(xAxisText)
-              .autoRange(Axis.AutoRange.TRUE)
-              .build();
+                .title(xAxisText)
+                .autoRange(Axis.AutoRange.TRUE)
+                .build();
 
         Axis yAxis = Axis.builder()
-              .title(yAxisText)
-              .autoRange(Axis.AutoRange.TRUE)
-              .build();
+                .title(yAxisText)
+                .autoRange(Axis.AutoRange.TRUE)
+                .build();
 
         Layout layout = Layout.builder()
-              .title(graphText)
-              .xAxis(xAxis)
-              .yAxis(yAxis)
-              .width(1280)
-              .height(720)
-              .build();
+                .title(graphText)
+                .xAxis(xAxis)
+                .yAxis(yAxis)
+                .width(1280)
+                .height(720)
+                .build();
 
         return new Figure(layout, FluentIterable.from(traces).toArray(traceClass));
     }
@@ -51,9 +51,9 @@ public final class LinePlotRenderer {
 
         Table table = Table.create("table").addColumns(xColumn, yColumn);
         return ScatterTrace.builder(table.nCol("xcol"), table.nCol("ycol"))
-              .mode(ScatterTrace.Mode.LINE)
-              .opacity(0.5)
-              .name(name)
-              .build();
+                .mode(ScatterTrace.Mode.LINE)
+                .opacity(0.5)
+                .name(name)
+                .build();
     }
 }
