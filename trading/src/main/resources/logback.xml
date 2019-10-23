@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration scan="true" scanPeriod="10 seconds">
+    <contextName>qwde.dataprovider</contextName>
+    <property name="LOGDIR" value="${LOGDIR:-./.log}"/>
+    <property name="LOGNAME" value="${APPNAME:-qwde}"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder>
+            <pattern>%d{yyyyMMdd-HHmmss.SSS};%-5level;${HOSTNAME};%contextName;[%thread];%logger{35};%msg %n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.zaxxer.hikari.HikariConfig" level="info"/>
+    <logger name="com.zaxxer.hikari.pool" level="info"/>
+    <logger name="kafka.cluster.Partition" level="warn"/>
+    <logger name="kafka.cluster.Replica" level="warn"/>
+    <logger name="kafka.log" level="warn"/>
+    <logger name="kafka.request.logger" level="warn"/>
+    <logger name="kafka.server.ReplicaManager" level="warn"/>
+    <logger name="kafka.utils.KafkaScheduler" level="info"/>
+    <logger name="kafka.zookeeper" level="warn"/>
+    <logger name="org.apache.kafka" level="info"/>
+    <logger name="org.apache.zookeeper" level="warn"/>
+
+    <root level="TRACE">
+        <appender-ref ref="STDOUT"/>
+        <!-- <appender-ref ref="FILE"/> -->
+        <!-- <appender-ref ref="syslog"/> -->
+    </root>
+
+</configuration>
+

@@ -1,0 +1,12 @@
+[Unit]
+Description=Qwde Blog Webserver
+After=network.target
+
+[Service]
+Type=simple
+User=dev
+ExecStart=/home/dev/blog/runWeb.sh
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

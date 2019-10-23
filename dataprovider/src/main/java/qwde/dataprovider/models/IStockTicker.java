@@ -1,18 +1,18 @@
 package qwde.dataprovider.models;
 
-import java.math.BigDecimal;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public interface IStockTicker extends Comparable<IStockTicker> {
-  BigDecimal getPrice();
+public interface IStockTicker extends Comparable<IStockTicker>, Serializable {
+    double getPrice();
 
-  BigDecimal getHigh();
+    double getHigh();
 
-  BigDecimal getLow();
+    double getLow();
 
-  Long getVolume();
+    Long getVolume();
 
-  String getCompany();
+    String getCompany();
 
-  LocalDateTime getTimestamp();
+    LocalDateTime getTimestamp();
 }
