@@ -28,5 +28,6 @@ class BuyLowSellHighTest {
         TradeEngine.Summary summary = TradeEngine.getInstance().pollData(kafkaConsumer, SqlliteKafkaStore.TOPIC);
 
         Truth.assertThat(summary.buyHistory).isNotEmpty();
+        Truth.assertThat(summary.buyOrders).isNotEmpty();
     }
 }
