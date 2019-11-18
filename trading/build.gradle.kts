@@ -14,6 +14,7 @@ dependencies {
     implementation("info.picocli:picocli:3.9.5")
     implementation("org.apache.kafka:kafka-clients:${project.rootProject.ext["kafkaVersion"]}")
     implementation("com.salesforce.kafka.test:kafka-junit5:3.1.1")
+    implementation("org.apache.commons:commons-lang3:3.9")
 
     compile(project(":analytics"))
     compile(project(":dataprovider"))
