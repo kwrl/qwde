@@ -1,18 +1,14 @@
 package qwde.web.servlets;
 
-import com.google.common.collect.ImmutableMap;
 import io.micronaut.core.convert.format.Format;
-import io.micronaut.http.HttpMessage;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
-import io.reactivex.Single;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qwde.dataprovider.db.StockDB;
 import qwde.dataprovider.models.CompanyStockData;
-import qwde.web.plotly.PageRenderer;
 
 import java.sql.SQLException;
 import java.time.LocalDate;

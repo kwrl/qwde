@@ -22,6 +22,11 @@ public final class StockDB {
     private StockDB() {
     }
 
+    public static Collection<String> getTickers(LocalDate fromDate, LocalDate toDate) {
+        final String query = "SELECT symbol FROM StockTicker WHERE timestamp BETWEEN ? AND ?";
+        try (Connection connection = DatabaseManager.getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
+    }
+
     public static CompanyStockData getCompanyData(String stockTicker, LocalDate fromDate, LocalDate toDate) throws SQLException {
         final String query = "SELECT close_price, low_price, high_price, volume, timestamp FROM StockTicker WHERE symbol = ? AND timestamp BETWEEN ? AND ?";
         try (Connection connection = DatabaseManager.getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {

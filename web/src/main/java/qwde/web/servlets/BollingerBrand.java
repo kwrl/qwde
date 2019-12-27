@@ -38,8 +38,7 @@ public final class BollingerBrand {
         LocalDate endDate = toDate.orElse(fromDate.plusDays(DEFAULT_VIEW_DAYS));
         LOG.debug("Doing render with {}, {}, {}", ticker, fromDate, toDate);
 
-        CompanyStockData stockData;
-        stockData = StockDB.getCompanyData(ticker.toUpperCase(), fromDate.minusDays(SMOOTHING_PERIOD), endDate);
+        CompanyStockData stockData = StockDB.getCompanyData(ticker.toUpperCase(), fromDate.minusDays(SMOOTHING_PERIOD), endDate);
 
         if (stockData.closePrices.isEmpty()) {
             return HttpResponse.badRequest("No data found. Are you sure the ticker and date were correct?");
