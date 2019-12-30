@@ -19,6 +19,7 @@ library shared
     -O2 -threaded -Wall -rtsopts
   build-depends:
     base < 5,
+    ghcjs-base,
     containers,
     miso,
     servant
@@ -39,6 +40,7 @@ executable server
     base < 5,
     containers,
     http-types,
+    jsaddle-warp,
     lucid,
     miso,
     mtl,

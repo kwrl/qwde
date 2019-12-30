@@ -17,6 +17,8 @@ import Servant.Links
 import           Miso
 import           Miso.String
 
+import qualified API
+
 -- | We can pretty much share everything
 --
 -- model, action, view, router, links, events map
@@ -147,11 +149,13 @@ template content Model{..} =
   div_ [ ] [
   hero content uri navMenuOpen
   , middle
+  , secondMiddle
   , footer
   ]
 
-middle :: View action
-middle =
+
+secondMiddle :: View Action
+secondMiddle =
   section_ [class_ "hero" ] [
     div_ [class_ "hero-body"] [
       div_ [class_ "container"] [
@@ -219,6 +223,74 @@ middle =
         ]
       ]
 
+middle :: View Action
+middle =
+  section_ [class_ "hero" ] [
+    div_ [class_ "hero-body"] [
+      div_ [class_ "container"] [
+        nav_ [class_ "columns"] [
+               a_ [ class_ "column has-text-centered"
+                   , href_ "https://rawgit.com/krausest/js-framework-benchmark/master/webdriver-ts-results/table.html"
+                   , target_ "_blank"
+                   , rel_ "noopener"
+                   ] [
+                  span_ [class_   "icon is-large"] [
+                      i_ [class_   "fa fa-flash"] [ ]
+                      ],
+                  p_ [class_   "title is-4"] [
+                     strong_ [] [ text  "Fast"]
+                  ],
+                  p_ [class_   "subtitle"] [
+                        text  "Virtual DOM diffing algorithm"
+                      ]
+                  ]
+
+              , a_ [ class_   "column has-text-centered"
+                   , href_  "https://en.wikipedia.org/wiki/Isomorphic_JavaScript"
+                   , target_ "_blank"
+                   , rel_ "noopener"
+                   ] [
+                  span_ [class_   "icon is-large"] [
+                      i_ [class_   "fa fa-line-chart"] [ ]
+                      ],
+                  p_ [class_   "title is-4"] [
+                     strong_ [] [ text  "Isomorphic"]
+                  ],
+                  p_ [class_   "subtitle"]
+                      [ text  "Seamless web experience" ]
+                  ],
+                  a_ [ class_   "column has-text-centered"
+                     , target_  "_blank"
+                     , href_  "http://book.realworldhaskell.org/read/concurrent-and-multicore-programming.html"
+                     , rel_ "noopener"
+                     ] [
+                    span_ [class_  "icon is-large"] [
+                       i_ [class_  "fa fa-gears"] [ ]
+                    ], p_ [class_  "title is-4"] [
+                        strong_ [] [ text  "Concurrent" ]
+                       ],
+                      p_ [class_   "subtitle"] [
+                        text  "Type-safe and polymorphic, GHC Haskell"
+                       ]
+                    ],
+                  a_ [class_ "column has-text-centered"
+                     , href_  "https://github.com/ghcjs/ghcjs/blob/master/doc/foreign-function-interface.md"
+                     , rel_ "noopener"
+                     , target_  "_blank"
+                     ] [
+                    span_ [class_   "icon is-large"] [
+                       i_ [class_   "fa fa-code-fork"] [ ]
+                    ], p_ [class_   "title is-4"] [
+                        strong_ [] [ text  "Interoperable" ]
+                       ],
+                      p_ [class_   "subtitle"] [
+                        text  "via the GHCJS FFI"
+                        ]
+                    ]
+              ]
+          ]
+        ]
+      ]
 
 cols :: View action
 cols = section_[][div_ [ class_  "container" ] [
