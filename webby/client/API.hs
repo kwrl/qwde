@@ -9,10 +9,12 @@ module API where
 import qualified Data.Map                      as M
 import           Data.Maybe
 import           GHC.Generics
-import           JavaScript.Web.XMLHttpRequest
+import JavaScript.Web.XMLHttpRequest
 
 import           Miso                          hiding (defaultOptions)
 import           Miso.String
+import           Data.Aeson
+import           Data.Aeson.Types
 
 -- | Model
 data Model

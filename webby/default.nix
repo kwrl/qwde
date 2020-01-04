@@ -1,7 +1,9 @@
-{pkgs, miso}:
+{pkgs ? import <nixpkgs> {} }:
 let
-  client = pkgs.haskell.packages.ghcjs86.callCabal2nix "qwde-web" ./. { miso = miso; };
-  server = pkgs.haskell.packages.ghc865.callCabal2nix "qwde-web" ./. {};
+  client = pkgs.haskell.packages.ghcjs86.callCabal2nix "qwde-web" ./. {
+  };
+  server = pkgs.haskell.packages.ghc865.callCabal2nix "qwde-web" ./. {
+  };
 in
   pkgs.runCommand "qwde-web" { inherit client server;  } ''
     mkdir -p $out/{bin,static}

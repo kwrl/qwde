@@ -17,8 +17,6 @@ import Servant.Links
 import           Miso
 import           Miso.String
 
-import qualified API
-
 -- | We can pretty much share everything
 --
 -- model, action, view, router, links, events map

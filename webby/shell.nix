@@ -12,7 +12,10 @@ let
     };
   };
 
-  pkgs = import <nixpkgs> { config.packageOverrides = overrides; };
+  pkgs = import <nixpkgs> { 
+    config.packageOverrides = overrides; 
+    #config.allowBroken = true;
+  };
 
   project = import ./release.nix;
 in

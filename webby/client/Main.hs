@@ -7,6 +7,8 @@ import Data.Proxy
 import Miso
 import Miso.String
 
+import qualified API
+
 main :: IO ()
 main = miso $ \currentURI -> App
         { model = Model currentURI False
