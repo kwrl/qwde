@@ -6,6 +6,7 @@
 {-# LANGUAGE TypeOperators              #-}
 {-# LANGUAGE TypeApplications           #-}
 {-# LANGUAGE CPP                        #-}
+{-# LANGUAGE QuasiQuotes #-}
 module Main where
 
 import           Common
@@ -26,6 +27,7 @@ import qualified System.IO                            as IO
 
 import           Miso
 import           Miso.String
+import Text.Heredoc (str)
 
 main :: IO ()
 main = do
@@ -84,6 +86,23 @@ handle404 _ respond = respond $ responseLBS
     [("Content-Type", "text/html")] $
       renderBS $ toHtml $ Wrapper $ the404 Model { uri = goHome, navMenuOpen = False }
 
+superAdvancedScript :: MisoString
+superAdvancedScript = [str|function doSimpleTrace(){
+    |var trace1 = {
+    |x: [1, 2, 3, 4],
+    |y: [10, 15, 13, 17],
+    |type: 'scatter'
+  |};
+  |var trace2 = {
+    |x: [1, 2, 3, 4],
+    |y: [16, 5, 11, 9],
+    |type: 'scatter'
+  |};
+  |var data = [trace1, trace2];
+  |Plotly.newPlot('myDiv', data);
+  |};
+  |]
+
 instance L.ToHtml a => L.ToHtml (Wrapper a) where
   toHtmlRaw = L.toHtml
   toHtml (Wrapper x) = do
@@ -112,7 +131,9 @@ instance L.ToHtml a => L.ToHtml (Wrapper a) where
           cssRef bulmaRef
           cssRef fontAwesomeRef
           jsRef "https://buttons.github.io/buttons.js"
-          L.script_ analytics
+          jsSyncRef "https://cdn.plot.ly/plotly-latest.min.js"
+          L.script_ "function sayHello(){alert('hello, you');};"
+          L.script_ superAdvancedScript
           jsRef "static/all.js"
         L.body_ (L.toHtml x)
           where
@@ -121,6 +142,10 @@ instance L.ToHtml a => L.ToHtml (Wrapper a) where
                 [ makeAttribute "src" href
                 , makeAttribute "async" mempty
                 , makeAttribute "defer" mempty
+                ]
+            jsSyncRef href =
+              L.with (L.script_ mempty)
+                [ makeAttribute "src" href
                 ]
             cssRef href =
               L.with (L.link_ mempty) [
@@ -150,16 +175,26 @@ analytics =
     , "ga('send', 'pageview');"
     ]
 
+-- serverHandlers ::
+--        Handler (Wrapper (View Action))
+--   :<|> Handler (Wrapper (View Action))
+--   :<|> Handler (Wrapper (View Action))
+-- serverHandlers = examplesHandler
+--   :<|> docsHandler
+--   :<|> homeHandler
+--      where
+--        send f u = pure $ Wrapper $ f Model {uri = u, navMenuOpen = False}
+--        homeHandler = send home goHome
+--        examplesHandler = send examples goExamples
+--        docsHandler  = send docs goDocs
+
 serverHandlers ::
        Handler (Wrapper (View Action))
   :<|> Handler (Wrapper (View Action))
   :<|> Handler (Wrapper (View Action))
-serverHandlers = examplesHandler
-  :<|> docsHandler
+serverHandlers = homeHandler
+  :<|> homeHandler
   :<|> homeHandler
      where
        send f u = pure $ Wrapper $ f Model {uri = u, navMenuOpen = False}
        homeHandler = send home goHome
-       examplesHandler = send examples goExamples
-       docsHandler  = send docs goDocs
-

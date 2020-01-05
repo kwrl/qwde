@@ -38,3 +38,4 @@ updateModel Alert m@Model{..} = m <# do
 updateModel ToggleNavMenu m@Model{..} = m { navMenuOpen = not navMenuOpen } <# do
   pure NoOp
 updateModel NoOp m = noEff m
+

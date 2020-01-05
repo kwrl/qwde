@@ -19,6 +19,8 @@ executable server
     buildable: False
   else
     buildable: True
+  other-modules:
+    Common
   ghc-options:
     -O2 -threaded -Wall -rtsopts
   hs-source-dirs:
@@ -27,6 +29,7 @@ executable server
     aeson,
     base < 5,
     containers,
+    heredoc,
     http-types,
     jsaddle-warp,
     lucid,
@@ -51,6 +54,8 @@ executable client
     buildable: False
   else
     buildable: True
+  other-modules:
+    Common
   ghcjs-options:
     -dedupe -DGHCJS_GC_INTERVAL=5000
   hs-source-dirs:
@@ -60,6 +65,8 @@ executable client
     base < 5,
     containers,
     ghcjs-base,
+    heredoc,
+    lucid,
     miso,
     servant
   default-language:

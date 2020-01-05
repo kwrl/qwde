@@ -29,5 +29,6 @@ pkgs.stdenv.mkDerivation {
      pkgs.haskellPackages.cabal-install
      pkgs.git
      pkgs.entr
+     pkgs.haskellPackages.hoogle
   ];
 }
