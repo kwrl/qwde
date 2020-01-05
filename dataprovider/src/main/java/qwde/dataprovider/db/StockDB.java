@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,9 +23,12 @@ public final class StockDB {
     private StockDB() {
     }
 
-    public static Collection<String> getTickers(LocalDate fromDate, LocalDate toDate) {
+    public static Collection<String> getTickers(LocalDate fromDate, LocalDate toDate) throws SQLException {
         final String query = "SELECT symbol FROM StockTicker WHERE timestamp BETWEEN ? AND ?";
         try (Connection connection = DatabaseManager.getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
+        }
+
+        return Collections.emptyList();
     }
 
     public static CompanyStockData getCompanyData(String stockTicker, LocalDate fromDate, LocalDate toDate) throws SQLException {

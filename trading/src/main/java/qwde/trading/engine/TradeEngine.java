@@ -43,7 +43,7 @@ public class TradeEngine {
     }
 
     public Summary pollDataSql(List<String> tickers, LocalDate fromDate, LocalDate endDate) throws IOException {
-        try (KafkaConsumer<String, StockTicker> kafkaConsumer = SqlliteKafkaStore.sqlliteKafkaStore(tickers, fromDate, endDate)) {
+        try (KafkaConsumer<String, StockTicker> kafkaConsumer = SqlliteKafkaStore.sqliteKafkaStore(tickers, fromDate, endDate)) {
             return pollData(kafkaConsumer, SqlliteKafkaStore.TOPIC);
         } catch (SQLException exception) {
             throw new IOException(exception);

@@ -1,5 +1,7 @@
 package qwde.trading.aggregate;
 
+import jdk.jshell.spi.ExecutionControl;
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import qwde.dataprovider.db.StockDB;
@@ -17,7 +19,7 @@ public final class AggregatesComputer {
     public static void main() {
         LOG.info("Computing averages for each year across all indices");
 
-        StockDB.getCompanyData()
-        StockDB.getCompanyData(ticker.toUpperCase(), fromDate.minusDays(SMOOTHING_PERIOD), endDate)
+        throw new NotImplementedException("aaa");
+        //StockDB.getCompanyData(ticker.toUpperCase(), fromDate.minusDays(SMOOTHING_PERIOD), endDate);
     }
 }
