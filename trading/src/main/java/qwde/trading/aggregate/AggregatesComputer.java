@@ -1,11 +1,8 @@
 package qwde.trading.aggregate;
 
-import jdk.jshell.spi.ExecutionControl;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import qwde.dataprovider.db.StockDB;
-import qwde.dataprovider.models.StockTicker;
 
 /**
  * Class to do one-off jobs such as mean, stddev, etc, for all of

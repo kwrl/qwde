@@ -1,10 +1,7 @@
 package qwde.analytics.aggregate;
 
 import one.util.streamex.StreamEx;
-import tech.tablesaw.aggregate.AggregateFunctions;
-import tech.tablesaw.api.DoubleColumn;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;

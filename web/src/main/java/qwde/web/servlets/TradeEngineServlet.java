@@ -40,7 +40,7 @@ public final class TradeEngineServlet {
         try {
             List<TradingAlgorithm.Type> algorithmTypes = new ArrayList<>();
             for (String alg : Arrays.asList(algorithms.split(","))) {
-                 algorithmTypes.add(TradingAlgorithm.Type.valueOf(alg.toUpperCase()));
+                algorithmTypes.add(TradingAlgorithm.Type.valueOf(alg.toUpperCase()));
             }
 
             return HttpResponse.ok(doTradeEngine(stockTickers, algorithmTypes, fromDate, endDate));
