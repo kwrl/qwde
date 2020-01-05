@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,8 +23,16 @@ public final class StockDB {
     private StockDB() {
     }
 
+    public static Collection<String> getTickers(LocalDate fromDate, LocalDate toDate) throws SQLException {
+        final String query = "SELECT symbol FROM StockTicker WHERE timestamp BETWEEN ? AND ?";
+        try (Connection connection = DatabaseManager.getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
+        }
+
+        return Collections.emptyList();
+    }
+
     public static CompanyStockData getCompanyData(String stockTicker, LocalDate fromDate, LocalDate toDate) throws SQLException {
-        final String query = "SELECT close_price, low_price, high_price, volume, timestamp FROM StockTicker WHERE symbol = ? AND timestamp >= ? AND timestamp <= ?";
+        final String query = "SELECT close_price, low_price, high_price, volume, timestamp FROM StockTicker WHERE symbol = ? AND timestamp BETWEEN ? AND ?";
         try (Connection connection = DatabaseManager.getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, stockTicker);
             statement.setDate(2, java.sql.Date.valueOf(fromDate));
@@ -52,7 +61,7 @@ public final class StockDB {
     }
 
     public static List<StockTicker> getCompanyData(Collection<String> stockTickers, LocalDate fromDate, LocalDate toDate) throws SQLException {
-        final String query = "SELECT symbol, close_price, low_price, high_price, volume, timestamp FROM StockTicker WHERE symbol = ? AND timestamp >= ? AND timestamp <= ? ORDER BY timestamp ASC";
+        final String query = "SELECT symbol, close_price, low_price, high_price, volume, timestamp FROM StockTicker WHERE symbol = ? AND timestamp BETWEEN ? AND ? ORDER BY timestamp ASC";
         List<StockTicker> ret = new ArrayList<>();
         for (String ticker : stockTickers) {
             try (Connection connection = DatabaseManager.getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {

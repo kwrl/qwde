@@ -36,6 +36,7 @@ dependencies {
     implementation("tech.tablesaw:tablesaw-jsplot:${project.rootProject.ext["tablesawVersion"]}")
     compile(project(":dataprovider"))
     compile(project(":analytics"))
+    compile(project(":trading"))
 
     annotationProcessor(platform("io.micronaut:micronaut-bom:$micronautVersion"))
     annotationProcessor("io.micronaut:micronaut-inject-java")

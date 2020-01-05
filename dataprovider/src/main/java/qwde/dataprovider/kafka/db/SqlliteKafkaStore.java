@@ -24,15 +24,14 @@ public final class SqlliteKafkaStore {
     private SqlliteKafkaStore() {
     }
 
-    public static KafkaConsumer<String, StockTicker> sqlliteKafkaStore(Collection<String> tickers, LocalDate fromDate, LocalDate toDate) throws IOException, SQLException {
-
+    public static KafkaConsumer<String, StockTicker> sqliteKafkaStore(Collection<String> tickers, LocalDate fromDate, LocalDate toDate) throws IOException, SQLException {
         InMemoryKafkaStore store = new InMemoryKafkaStore();
         store.createTopic(TOPIC);
-        KafkaProducer<String, StockTicker> kafkaProducer = store.makeProducer("test", StringSerializer.class, StockTickerSerializer.class);
+        try (KafkaProducer<String, StockTicker> kafkaProducer = store.makeProducer("test", StringSerializer.class, StockTickerSerializer.class)) {
+            List<StockTicker> stockData = StockDB.getCompanyData(tickers, fromDate, toDate);
+            stockData.stream().forEach(t -> kafkaProducer.send(new ProducerRecord<>(TOPIC, t.symbol, t)));
 
-        List<StockTicker> stockData = StockDB.getCompanyData(tickers, fromDate, toDate);
-        stockData.stream().forEach(t -> kafkaProducer.send(new ProducerRecord<>(TOPIC, t.symbol, t)));
-
-        return store.makeConsumer("regularConsumer", TOPIC, StringDeserializer.class, StockTickerDeserializer.class);
+            return store.makeConsumer("regularConsumer", TOPIC, StringDeserializer.class, StockTickerDeserializer.class);
+        }
     }
 }

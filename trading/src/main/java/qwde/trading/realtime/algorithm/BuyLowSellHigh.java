@@ -8,20 +8,17 @@ import qwde.trading.engine.TradeEngine;
 import qwde.trading.model.Trade;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-public class BuyLowSellHigh {
-    private static final Logger LOG = LoggerFactory.getLogger(TradeEngine.class);
+public class BuyLowSellHigh extends TradingAlgorithm {
+    private static final Logger LOG = LoggerFactory.getLogger(BuyLowSellHigh.class);
     private Double lowestPriceSoFar = Double.MAX_VALUE;
 
     private final List<Double> pricesSeen = new ArrayList<>();
 
-    private final String ticker;
-    private double budget;
-
-    public BuyLowSellHigh(String ticker, double budget) {
-        this.ticker = ticker;
-        this.budget = budget;
+    public BuyLowSellHigh(Collection<String> tickers, double budget) {
+        super(tickers, budget);
     }
 
     public void processTick(ConsumerRecord<String, StockTicker> record) {
@@ -30,10 +27,10 @@ public class BuyLowSellHigh {
 
         if (lowestPriceSoFar > stockTicker.getPrice()) {
             lowestPriceSoFar = stockTicker.getPrice();
-            if (this.budget > lowestPriceSoFar.doubleValue() * 100L) {
-                TradeEngine.getInstance().placeBidMarketOrder(this.ticker, 100L);
+            if (super.budget > lowestPriceSoFar.doubleValue() * 100L) {
+                TradeEngine.getInstance().placeBidMarketOrder(record.key(), 100L);
             } else {
-                LOG.info("Not making trade for price {} since budget is too low ({})", lowestPriceSoFar, this.budget);
+                LOG.info("Not making trade for price {} since budget is too low ({})", lowestPriceSoFar, super.budget);
             }
         }
         // If order is pending, do nothing
