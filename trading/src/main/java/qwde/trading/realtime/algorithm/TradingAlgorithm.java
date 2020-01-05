@@ -36,7 +36,7 @@ public abstract class TradingAlgorithm {
                 // Practical? No. Fun? yes.
                 return ConstructorUtils.getMatchingAccessibleConstructor(this.classType, List.class, Double.class).newInstance(tickerNames, tradingBudget);
             } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
-                throw new RuntimeException("could not find expected constructor");
+                throw new IllegalStateException("could not find expected constructor", e);
             }
         }
     }

@@ -1,6 +1,6 @@
 package qwde.analytics.aggregate;
 
-public class JensensAlpha {
+public final class JensensAlpha {
     private JensensAlpha() {
     }
 

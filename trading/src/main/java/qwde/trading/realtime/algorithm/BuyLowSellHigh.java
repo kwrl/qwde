@@ -21,6 +21,7 @@ public class BuyLowSellHigh extends TradingAlgorithm {
         super(tickers, budget);
     }
 
+    @Override
     public void processTick(ConsumerRecord<String, StockTicker> record) {
         StockTicker stockTicker = record.value();
         pricesSeen.add(stockTicker.getPrice());
@@ -37,6 +38,7 @@ public class BuyLowSellHigh extends TradingAlgorithm {
         // if price is 20% higher than
     }
 
+    @Override
     public void processTrade(Trade trade) {
         if (trade.isBid) {
             this.budget -= trade.getTotalPrice();
