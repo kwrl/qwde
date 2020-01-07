@@ -1,5 +1,6 @@
 package qwde.web.servlets;
 
+import com.google.common.collect.ImmutableMap;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
@@ -13,11 +14,11 @@ import java.util.stream.DoubleStream;
 @Controller(value = "/random", produces = MediaType.TEXT_JSON)
 public final class Random {
     @Get("/")
-    public HttpResponse<List<Double>> doGet() {
-        return HttpResponse.ok(DoubleStream
+    public HttpResponse<ImmutableMap<String, List<Double>> doGet() {
+        return HttpResponse.ok(ImmutableMap.of("data", DoubleStream
                 .generate(ThreadLocalRandom.current()::nextDouble)
                 .limit(10)
                 .boxed()
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList())));
     }
 }
