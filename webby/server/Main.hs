@@ -6,7 +6,6 @@
 {-# LANGUAGE TypeOperators              #-}
 {-# LANGUAGE TypeApplications           #-}
 {-# LANGUAGE CPP                        #-}
-{-# LANGUAGE QuasiQuotes #-}
 module Main where
 
 import           Common
@@ -27,21 +26,16 @@ import qualified System.IO                            as IO
 
 import           Miso
 import           Miso.String
-import Text.Heredoc (str)
 
 main :: IO ()
 main = do
-  IO.hPutStrLn IO.stderr "Running on port 3002..."
-  run 3002 $ logStdout (compress app)
+  IO.hPutStrLn IO.stderr "Running on port 8081..."
+  run 8081 $ logStdout (compress app)
     where
       compress = gzip def { gzipFiles = GzipCompress }
 
 app :: Application
-#if MIN_VERSION_servant(0,11,0)
 app = serve (Proxy @ API) (static :<|> serverHandlers :<|> pure misoManifest :<|> Tagged handle404)
-#else
-app = serve (Proxy @ API) (static :<|> serverHandlers :<|> pure misoManifest :<|> handle404)
-#endif
   where
     static = serveDirectoryWith (defaultWebAppSettings "static")
 
@@ -84,24 +78,10 @@ handle404 :: Application
 handle404 _ respond = respond $ responseLBS
     status404
     [("Content-Type", "text/html")] $
-      renderBS $ toHtml $ Wrapper $ the404 Model { uri = goHome, navMenuOpen = False }
+      renderBS $ toHtml $ Wrapper $ the404 Model { uri = goHome, navMenuOpen = False, randomNumbers = "[-1]" }
 
 superAdvancedScript :: MisoString
-superAdvancedScript = [str|function doSimpleTrace(){
-    |var trace1 = {
-    |x: [1, 2, 3, 4],
-    |y: [10, 15, 13, 17],
-    |type: 'scatter'
-  |};
-  |var trace2 = {
-    |x: [1, 2, 3, 4],
-    |y: [16, 5, 11, 9],
-    |type: 'scatter'
-  |};
-  |var data = [trace1, trace2];
-  |Plotly.newPlot('myDiv', data);
-  |};
-  |]
+superAdvancedScript = "function doSimpleTrace(num){var trace1 = { x: [1, 2, 3, 4, 5, 6, 7], y: [num, num, num, 10, 15, 13, 17], type: 'scatter' }; var trace2 = { x: [1, 2, 3, 4], y: [16, 5, 11, 9], type: 'scatter' }; var data = [trace1, trace2]; Plotly.newPlot('myDiv', data); };"
 
 instance L.ToHtml a => L.ToHtml (Wrapper a) where
   toHtmlRaw = L.toHtml
@@ -111,7 +91,7 @@ instance L.ToHtml a => L.ToHtml (Wrapper a) where
         L.head_ $ do
           L.title_ "qwde"
           L.link_ [ L.rel_ "stylesheet"
-                  , L.href_ "https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.2/gh-fork-ribbon.min.css"
+                  , L.href_ "static/gh-fork-ribbon.min.css"
                   ]
           L.link_ [ L.rel_ "manifest"
                   , L.href_ "/manifest.json"
@@ -130,9 +110,8 @@ instance L.ToHtml a => L.ToHtml (Wrapper a) where
           cssRef animateRef
           cssRef bulmaRef
           cssRef fontAwesomeRef
-          jsRef "https://buttons.github.io/buttons.js"
-          jsSyncRef "https://cdn.plot.ly/plotly-latest.min.js"
-          L.script_ "function sayHello(){alert('hello, you');};"
+          jsRef "static/buttons.js"
+          jsSyncRef "static/plotly-latest.min.js"
           L.script_ superAdvancedScript
           jsRef "static/all.js"
         L.body_ (L.toHtml x)
@@ -158,22 +137,10 @@ fontAwesomeRef :: MisoString
 fontAwesomeRef = "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
 
 animateRef :: MisoString
-animateRef = "https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css"
+animateRef = "static/animate.min.css"
 
 bulmaRef :: MisoString
 bulmaRef = "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.3/css/bulma.min.css"
-
-analytics :: MisoString
-analytics =
-  -- Multiline strings don’t work well with CPP
-  mconcat
-    [ "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){"
-    , "(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),"
-    , "m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)"
-    , "})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');"
-    , "ga('create', 'UA-102668481-1', 'auto');"
-    , "ga('send', 'pageview');"
-    ]
 
 -- serverHandlers ::
 --        Handler (Wrapper (View Action))
@@ -196,5 +163,5 @@ serverHandlers = homeHandler
   :<|> homeHandler
   :<|> homeHandler
      where
-       send f u = pure $ Wrapper $ f Model {uri = u, navMenuOpen = False}
+       send f u = pure $ Wrapper $ f Model {uri = u, navMenuOpen = False, randomNumbers = "[5]" }
        homeHandler = send home goHome

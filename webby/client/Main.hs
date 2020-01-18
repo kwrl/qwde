@@ -11,7 +11,7 @@ import qualified API
 
 main :: IO ()
 main = miso $ \currentURI -> App
-        { model = Model currentURI False
+        { model = Model currentURI False [1, 2]
         , view = viewModel
         , ..
         }
@@ -37,5 +37,5 @@ updateModel Alert m@Model{..} = m <# do
   pure NoOp
 updateModel ToggleNavMenu m@Model{..} = m { navMenuOpen = not navMenuOpen } <# do
   pure NoOp
+updateModel ShowRandomDefault m@Model{..} = noEff m { randomNumbers = "[2]" }
 updateModel NoOp m = noEff m
-

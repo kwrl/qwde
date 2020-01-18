@@ -4,41 +4,31 @@
 {-# LANGUAGE TypeOperators        #-}
 {-# LANGUAGE DataKinds            #-}
 {-# LANGUAGE CPP                  #-}
-{-# LANGUAGE QuasiQuotes #-}
 module Common where
 
 import           Data.Bool
 import qualified Data.Map    as M
 import           Data.Proxy
 import           Servant.API
-#if MIN_VERSION_servant(0,10,0)
 import Servant.Links
-#endif
 
 import           Miso
-import           Miso.String
-import qualified Lucid                                as L
+import           Miso.String hiding (unwords)
 
--- | We can pretty much share everything
---
--- model, action, view, router, links, events map
--- decoders are all shareable
---
 githubUrl :: MisoString
 githubUrl = "https://github.com/kwrl/qwde"
 
--- | Model
-data Model = Model
-  { uri :: URI
-  , navMenuOpen :: Bool
+data Model = Model { 
+  uri :: URI, navMenuOpen :: Bool,
+  randomNumbers  :: String
   } deriving (Show, Eq)
 
--- | Event Actions
 data Action
   = Alert
   | ChangeURI URI
   | HandleURI URI
   | ToggleNavMenu
+  | ShowRandomDefault
   | NoOp
   deriving (Show, Eq)
 
@@ -59,100 +49,45 @@ type Examples  = "examples" :> View Action
 type Docs      = "docs" :> View Action
 type Home      = View Action
 
--- docs :: Model -> View Action
--- docs = template v x
---   where
---     v = div_ [ class_  "animated fadeIn" ] [ a_ [ href_ githubUrl ] [ img_ [
---            width_  "100"
---          , class_  "animated bounceInDown"
---          , src_ misoSrc
---          , alt_ "miso logo"
---          ] ]
---          , h1_ [ class_  "title animated pulse"
---                , style_ $ M.fromList [(pack "font-size", pack "82px")
---                                      ,(pack "font-weight", pack "100")
---                                      ]
---            ] [ text "docs" ]
---         , h2_ [ class_  "subtitle animated pulse" ] [
---             a_ [ href_  "https://haddocks.haskell-miso.org/"
---                , target_  "_blank"
---                ]
---               [ text "Haddocks" ]
---           , text " / "
---           , a_ [ href_  "https://github.com/dmjio/miso/blob/master/README.md"
---                , target_  "_blank"
---                ]
---             [ text "README" ]
---          ]
---        ]
---     x = text "test"
-
 misoSrc :: MisoString
-misoSrc = pack "https://upload.wikimedia.org/wikipedia/commons/3/3c/Creative-Tail-Animal-cat.svg"
-
--- examples :: Model -> View Action
--- examples = template v
---   where
---     v =
---       div_ [ class_  "animated fadeIn" ] [ a_ [ href_ githubUrl ] [ img_ [
---            width_  "100"
---          , class_  "animated bounceInDown"
---          , src_ misoSrc
---          , alt_ "qwde"
---          ] ]
---          , h1_ [ class_  "title animated pulse"
---                , style_ $ M.fromList [(pack "font-size", pack "82px")
---                                      ,(pack "font-weight", pack "100")
---                                      ]
---            ] [ text "examples" ]
---        , h2_ [ class_  "subtitle animated pulse" ] [
---             a_ [ target_  "_blank"
---                , href_  "https://todo-mvc.haskell-miso.org/"
---                ] [ text "TodoMVC" ]
---           , text " / "
---           , a_ [ target_  "_blank"
---                , href_  "https://mario.haskell-miso.org/" ]
---             [ text "Mario" ]
---           , text " / "
---           , a_ [ target_  "_blank"
---                , href_  "https://flatris.haskell-miso.org/" ]
---             [ text "Flatris" ]
---          ]
---        ]
+misoSrc = pack "/static/Creative-Tail-Animal-cat.svg"
 
 home :: Model -> View Action
-home = template v x
+home m@Model{..} = template header content m
   where
-    x = div_ [ class_  "content has-text-centered" ] [
-        p_ [] [
-          text "hello, world!"
-        ]
-        --, script_ [] [ "alert('Hello, you')[]<>" ]
-        , div_ [ id_ "myDiv" ] []
-        , script_ [] [ "doSimpleTrace()" ]
-      ]
-    v = div_ [ class_  "animated fadeIn" ] [
+    header = div_ [ class_  "animated fadeIn" ] [
         a_ [ href_ githubUrl ] [
-            img_ [ width_ "100"
-                 , class_ "animated bounceInDown"
-                 , src_ misoSrc
-                 , alt_ "miso logo"
-                 ]
-            ]
+           img_ [ width_ "100"
+                , class_ "animated bounceInDown"
+                , src_ misoSrc
+                , alt_ "miso logo"
+                ]
+           ]
         , h1_ [ class_  "title animated pulse"
-               , style_ $ M.fromList [(pack "font-size", pack "82px")
-                                     ,(pack "font-weight", pack "100")
-                                     ]
-           ] [ text "qwde" ]
-        , h2_ [ class_ "subtitle animated pulse" ] [
-         text "making lots of "
-         , a_ [ href_ "https://medium.com/startup-leadership/the-best-way-to-learn-something-make-a-lot-of-pots-7f4aa97e1d3a"
-              , rel_ "noopener"
-              , target_ "_blank"][
-             strong_ [] [text "pots" ]]
-         , text  " for fun."
-         ]
+              , style_ $ M.fromList [(pack "font-size", pack "82px")
+                                    ,(pack "font-weight", pack "100")
+                                    ]
+        ] [ text "qwde" ]
+       , h2_ [ class_ "subtitle animated pulse" ] [
+        text "making lots of "
+        , a_ [ href_ "https://medium.com/startup-leadership/the-best-way-to-learn-something-make-a-lot-of-pots-7f4aa97e1d3a"
+             , rel_ "noopener"
+             , target_ "_blank"][
+            strong_ [] [text "pots" ]]
+        , text  " for fun."
         ]
+      ]
+    content = div_ [ class_  "content has-text-centered" ] ([
+        p_ [] [
+          text $ "hello, world!\n"
+        ]
+      , p_ [ id_ $ toMisoString randomNumbers ] [
+           text $ "hello"
+       ]
+      , button_ [ onClick ShowRandomDefault ] [ text "doit" ]
+        , div_ [ id_ "myDiv" ] []
+        --, script_ [] [ text $ toMisoString $ "doSimpleTrace(" ++ (show $ Prelude.head randomNumbers) ++ ")" ]
+        ]) 
 
 template :: View Action -> View Action -> Model -> View Action
 template header content Model{..} =
@@ -160,7 +95,6 @@ template header content Model{..} =
   hero header uri navMenuOpen
   , content 
   , middle
-  -- , secondMiddle
   , footer
   ]
 
@@ -258,10 +192,9 @@ cols = section_[][div_ [ class_  "container" ] [
   ]]]
 
 the404 :: Model -> View Action
-the404 = template v x
+the404 = template header content
   where
-    x = text "hello, 404"
-    v = div_ [] [ a_ [ href_ githubUrl ] [ img_ [
+    header = div_ [] [ a_ [ href_ githubUrl ] [ img_ [
            width_  "100"
          , class_  "animated bounceOutUp"
          , src_ misoSrc
@@ -277,23 +210,17 @@ the404 = template v x
           , a_ [ href_ "/", onPreventClick (ChangeURI goHome) ] [ text " - Go Home" ]
          ]
        ]
+    content = p_ [] [text ":(" ]
 
 -- | Links
 goHome :: URI
   --, goExamples, goDocs  :: URI
 ( goHome ) =
   -- , goExamples, goDocs ) =
-#if MIN_VERSION_servant(0,10,0)
     ( linkURI (safeLink routes homeProxy)
     -- , linkURI (safeLink routes examplesProxy)
     -- , linkURI (safeLink routes docsProxy)
     )
-#else
-    ( safeLink routes homeProxy
-    -- , safeLink routes examplesProxy
-    -- , safeLink routes docsProxy
-    )
-#endif
 
 homeProxy :: Proxy Home
 homeProxy = Proxy
@@ -305,7 +232,7 @@ routes :: Proxy ClientRoutes
 routes = Proxy
 
 -- | Hero
-hero :: View Action -> URI -> Bool -> View Action
+hero :: View Action -> URI -> Bool ->  View Action
 hero content uri' navMenuOpen' =
   section_ [ class_  "hero is-warning is-bold has-text-centered" ] [
     div_ [ class_ "hero-head" ] [
@@ -364,12 +291,13 @@ footer =
                       ] [  text" here."]
                  ]
          , p_ [] [ a_ [href_"https://bulma.io"] [ img_
-                                                    [ src_ "https://bulma.io/images/made-with-bulma.png"
+                                                    [ src_ "static/made-with-bulma.png"
                                                     , alt_ "Made with Bulma"
                                                     , width_ "128"
                                                     , height_ "24"
                                                     ]
                                                 ] ]
+         , p_ [] ["cat-logo by Vektora kato"]
          , p_ [] [
            a_ [ href_ githubUrl ] [ span_ [ class_"icon is-large"]
                   [
@@ -380,4 +308,3 @@ footer =
         ]
       ]
     ]
-
