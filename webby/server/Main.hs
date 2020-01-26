@@ -78,7 +78,7 @@ handle404 :: Application
 handle404 _ respond = respond $ responseLBS
     status404
     [("Content-Type", "text/html")] $
-      renderBS $ toHtml $ Wrapper $ the404 Model { uri = goHome, navMenuOpen = False, randomNumbers = "[-1]" }
+      renderBS $ toHtml $ Wrapper $ the404 Model { uri = goHome, navMenuOpen = False, randomNumbers = "[-1]", mouseCords = (0,0), mainPlot = "" }
 
 superAdvancedScript :: MisoString
 superAdvancedScript = "function doSimpleTrace(num){var trace1 = { x: [1, 2, 3, 4, 5, 6, 7], y: [num, num, num, 10, 15, 13, 17], type: 'scatter' }; var trace2 = { x: [1, 2, 3, 4], y: [16, 5, 11, 9], type: 'scatter' }; var data = [trace1, trace2]; Plotly.newPlot('myDiv', data); };"
@@ -96,6 +96,7 @@ instance L.ToHtml a => L.ToHtml (Wrapper a) where
           L.link_ [ L.rel_ "manifest"
                   , L.href_ "/manifest.json"
                   ]
+          L.meta_ [ L.httpEquiv_ "content-type", L.content_ "text/html; charset=utf-8" ]
           L.meta_ [ L.charset_ "utf-8" ]
           L.meta_ [ L.name_ "theme-color", L.content_ "#00d1b2" ]
           L.meta_ [ L.httpEquiv_ "X-UA-Compatible"
@@ -107,13 +108,14 @@ instance L.ToHtml a => L.ToHtml (Wrapper a) where
           L.meta_ [ L.name_ "description"
                   , L.content_ "qwde is a work in progress"
                   ]
+          L.style_ "body{font-family:'Open Sans', sans-serif;}.graph .labels.x-labels{text-anchor:middle;}.graph .labels.y-labels{text-anchor:end;}.graph{height:500px;width:800px;}.graph .grid{stroke:#ccc;stroke-dasharray:0;stroke-width:1;}.labels{font-size:13px;}.label-title{font-weight:bold;text-transform:uppercase;font-size:12px;fill:black;}.data{fill:red;stroke-width:1;}"
           cssRef animateRef
           cssRef bulmaRef
           cssRef fontAwesomeRef
-          jsRef "static/buttons.js"
-          jsSyncRef "static/plotly-latest.min.js"
-          L.script_ superAdvancedScript
-          jsRef "static/all.js"
+          jsRef "/static/buttons.js"
+          -- jsSyncRef "static/plotly-latest.min.js"
+          -- L.script_ superAdvancedScript
+          jsRef "/static/all.js"
         L.body_ (L.toHtml x)
           where
             jsRef href =
@@ -163,5 +165,6 @@ serverHandlers = homeHandler
   :<|> homeHandler
   :<|> homeHandler
      where
-       send f u = pure $ Wrapper $ f Model {uri = u, navMenuOpen = False, randomNumbers = "[5]" }
+       send f u = pure $ Wrapper $ f Model {uri = u, navMenuOpen = False, randomNumbers = "[5]", mouseCords = (0,0), mainPlot = "20,20 40,25 60,40 80,120 120,140 200,180"
+ }
        homeHandler = send home goHome

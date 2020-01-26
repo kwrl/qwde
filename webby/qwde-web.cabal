@@ -32,6 +32,7 @@ executable server
     heredoc,
     http-types,
     jsaddle-warp,
+    lens,
     lucid,
     miso,
     mtl,
@@ -66,8 +67,49 @@ executable client
     containers,
     ghcjs-base,
     heredoc,
+    lens,
     lucid,
     miso,
     servant
+  default-language:
+    Haskell2010
+
+library util
+  if impl(ghcjs)
+    buildable: False
+  else
+    buildable: True
+  ghc-options:
+    -O2 -Wall
+  exposed-modules:
+    
+  hs-source-dirs:
+    util
+  build-depends:
+    base < 5
+    , containers
+    , heredoc
+  default-language:
+    Haskell2010
+
+test-suite Utiltest
+  if impl(ghcjs)
+    buildable: False
+  else
+    buildable: True
+  type: exitcode-stdio-1.0
+  other-modules:
+    Test.Data.Graph.Plotter
+  main-is:
+   TestMain.hs 
+  ghc-options:
+    -O2 -threaded -Wall
+  hs-source-dirs:
+    util, util/Test
+  build-depends:
+    base < 5
+    , containers
+    , heredoc
+    , HUnit
   default-language:
     Haskell2010
