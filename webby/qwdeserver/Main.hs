@@ -8,14 +8,16 @@
 {-# LANGUAGE CPP                        #-}
 module Main where
 
-import           Common
+import qualified            Common as C
+import qualified            Data.Graph.Plotter as P
 import           Data.Aeson
 import           Data.Proxy
-import           Data.Text                            (Text)
+import           Data.Text                            (Text, unpack)
 import           GHC.Generics
 import qualified Lucid                                as L
 import           Lucid.Base
 import           Network.HTTP.Types hiding (Header)
+import Network.URI (URI, parseURI)
 import           Network.Wai
 import           Network.Wai.Handler.Warp
 import           Network.Wai.Middleware.Gzip
@@ -34,6 +36,14 @@ main = do
     where
       compress = gzip def { gzipFiles = GzipCompress }
 
+initialModel :: C.Model
+initialModel = C.Model uri False "[1, 2]" (0,0) (P.getPlot 10 C.plotWidth C.plotHeight ([1..10] :: [Double]) (["abc", "def"]))
+  where
+    uri = case parseURI "http://qwde.no" of
+            Just n -> n
+            Nothing -> error "misunderstood API?"
+ 
+
 app :: Application
 app = serve (Proxy @ API) (static :<|> serverHandlers :<|> pure misoManifest :<|> Tagged handle404)
   where
@@ -44,7 +54,7 @@ newtype Wrapper a = Wrapper a
   deriving (Show, Eq)
 
 -- | Convert client side routes into server-side web handlers
-type ServerRoutes = ToServerRoutes ClientRoutes Wrapper Action
+type ServerRoutes = ToServerRoutes C.ClientRoutes Wrapper C.Action
 
 -- | API type
 type API = ("static" :> Raw)
@@ -78,7 +88,7 @@ handle404 :: Application
 handle404 _ respond = respond $ responseLBS
     status404
     [("Content-Type", "text/html")] $
-      renderBS $ toHtml $ Wrapper $ the404 Model { uri = goHome, navMenuOpen = False, randomNumbers = "[-1]", mouseCords = (0,0), mainPlot = "" }
+      renderBS $ toHtml $ Wrapper $ C.the404 C.Model { C.uri = C.goHome, C.navMenuOpen = False, C.randomNumbers = "[-1]", C.mouseCords = (0,0), C.plot = P.getPlot 10 C.plotWidth C.plotHeight  [] [] }
 
 superAdvancedScript :: MisoString
 superAdvancedScript = "function doSimpleTrace(num){var trace1 = { x: [1, 2, 3, 4, 5, 6, 7], y: [num, num, num, 10, 15, 13, 17], type: 'scatter' }; var trace2 = { x: [1, 2, 3, 4], y: [16, 5, 11, 9], type: 'scatter' }; var data = [trace1, trace2]; Plotly.newPlot('myDiv', data); };"
@@ -108,7 +118,7 @@ instance L.ToHtml a => L.ToHtml (Wrapper a) where
           L.meta_ [ L.name_ "description"
                   , L.content_ "qwde is a work in progress"
                   ]
-          L.style_ "body{font-family:'Open Sans', sans-serif;}.graph .labels.x-labels{text-anchor:middle;}.graph .labels.y-labels{text-anchor:end;}.graph{height:500px;width:800px;}.graph .grid{stroke:#ccc;stroke-dasharray:0;stroke-width:1;}.labels{font-size:13px;}.label-title{font-weight:bold;text-transform:uppercase;font-size:12px;fill:black;}.data{fill:red;stroke-width:1;}"
+          L.style_ ((pack ("body{font-family:'Open Sans', sans-serif;}.graph .labels.x-labels{text-anchor:middle;}.graph .labels.y-labels{text-anchor:end;}.graph{height:") <> (pack $ show C.plotHeight) <> (pack "px;width:") <> (pack $ show C.plotWidth) <> (pack "px;}.graph .grid{stroke:#ccc;stroke-dasharray:0;stroke-width:1;}.labels{font-size:13px;}.label-title{font-weight:bold;text-transform:uppercase;font-size:12px;fill:black;}.data{fill:red;stroke-width:1;}")))
           cssRef animateRef
           cssRef bulmaRef
           cssRef fontAwesomeRef
@@ -145,26 +155,25 @@ bulmaRef :: MisoString
 bulmaRef = "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.3/css/bulma.min.css"
 
 -- serverHandlers ::
---        Handler (Wrapper (View Action))
---   :<|> Handler (Wrapper (View Action))
---   :<|> Handler (Wrapper (View Action))
+--        Handler (Wrapper (View C.Action))
+--   :<|> Handler (Wrapper (View C.Action))
+--   :<|> Handler (Wrapper (View C.Action))
 -- serverHandlers = examplesHandler
 --   :<|> docsHandler
 --   :<|> homeHandler
 --      where
---        send f u = pure $ Wrapper $ f Model {uri = u, navMenuOpen = False}
---        homeHandler = send home goHome
+--        send f u = pure $ Wrapper $ f C.Model {uri = u, navMenuOpen = False}
+--        homeHandler = send C.home C.goHome
 --        examplesHandler = send examples goExamples
 --        docsHandler  = send docs goDocs
 
 serverHandlers ::
-       Handler (Wrapper (View Action))
-  :<|> Handler (Wrapper (View Action))
-  :<|> Handler (Wrapper (View Action))
+       Handler (Wrapper (View C.Action))
+  :<|> Handler (Wrapper (View C.Action))
+  :<|> Handler (Wrapper (View C.Action))
 serverHandlers = homeHandler
   :<|> homeHandler
   :<|> homeHandler
      where
-       send f u = pure $ Wrapper $ f Model {uri = u, navMenuOpen = False, randomNumbers = "[5]", mouseCords = (0,0), mainPlot = "20,20 40,25 60,40 80,120 120,140 200,180"
- }
-       homeHandler = send home goHome
+       send f u = pure $ Wrapper $ f initialModel
+       homeHandler = send C.home C.goHome

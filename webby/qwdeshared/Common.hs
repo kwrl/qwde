@@ -10,7 +10,12 @@ import           Data.Bool
 import qualified Data.Map    as M
 import           Data.Proxy
 import           Servant.API
-import           Servant.Utils.Links
+#ifdef __GHCJS__
+import           Servant.Links (linkURI)
+#else
+import           Servant.Utils.Links (linkURI)
+#endif
+import qualified Data.Graph.Plotter as P
 
 import           Miso
 import           Miso.String hiding (unwords)
@@ -26,11 +31,8 @@ data Model = Model {
   uri :: URI, navMenuOpen :: Bool
   , randomNumbers  :: String
   , mouseCords :: (Int, Int) 
-  , mainPlot :: String
-  } deriving (Show, Eq)
-
---initialModel :: Model
---initialModel = Model Uri { uriScheme = "http", uriAuthority = Just False "[1, 2]" (0,0) "20,20 40,25 60,40 80,120 120,140 200,180"
+  , plot :: P.Plot
+  } deriving (Eq, Show)
 
 data Action
   = Alert
@@ -61,8 +63,24 @@ type Examples  = "examples" :> View Action
 type Docs      = "docs" :> View Action
 type Home      = View Action
 
+plotWidth :: Int
+plotWidth = 800
+plotHeight :: Int
+plotHeight = 500
+numLabels :: Int
+numLabels = 10
+
 misoSrc :: MisoString
 misoSrc = pack "/static/Creative-Tail-Animal-cat.svg"
+
+makeAxis :: Bool -> P.Axis -> View Action
+makeAxis isX P.Axis{..} = let letter = if isX then "x" else "y" 
+  in SVG.g_ [ class_ (toMisoString ("grid " ++ letter ++ "-grid")) ] [
+    SVG.line_ [ SVGA.x1_ $ ms x1
+              , SVGA.x2_ $ ms x2
+              , SVGA.y1_ $ ms y1
+              , SVGA.y2_ $ ms y2
+    ] [] ]
 
 home :: Model -> View Action
 home m@Model{..} = template header content m
@@ -113,48 +131,25 @@ home m@Model{..} = template header content m
       --                 ] [ text $ ms $ show (x,y) ]
       --   , SVG.polyline_ [ SVGA.fill_ "none", SVGA.stroke_ "black", SVGA.strokeWidth_ "3", SVGA.points_ $ toMisoString mainPlot ] []
       --     ] ]
-        {- 
-            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graph" aria-labelledby="title" role="img">
-
-            g class="grid x-grid" id="xGrid">
-  <line x1="90" x2="90" y1="5" y2="371"></line>
-</g>
-<g class="grid y-grid" id="yGrid">
-  <line x1="90" x2="705" y1="370" y2="370"></line>
-</g>
-  <g class="labels x-labels">
-  <text x="100" y="400">2008</text>
-  <text x="246" y="400">2009</text>
-  <text x="392" y="400">2010</text>
-  <text x="538" y="400">2011</text>
-  <text x="684" y="400">2012</text>
-  <text x="400" y="440" class="label-title">Year</text>
-</g>
-<g class="labels y-labels">
-  <text x="80" y="15">15</text>
-  <text x="80" y="131">10</text>
-  <text x="80" y="248">5</text>
-  <text x="80" y="373">0</text>
-  <text x="50" y="200" class="label-title">Price</text>
-</g>
--}
         SVG.svg_ [ {-SVGA.viewBox_ "0 0 100 100",-} class_ "graph" ] [
-      SVG.g_ [ class_ "grid x-grid" ] [
-        SVG.line_ [ SVGA.x1_ $ ms (90 :: Double)
-                  , SVGA.x2_ $ ms (90 :: Double)
-                  , SVGA.y1_ $ ms (5 :: Double)
-                  , SVGA.y2_ $ ms (371 :: Double)
-
-              ] []
-              ]
-      , SVG.g_ [ class_ "grid y-grid" ] [
-        SVG.line_ [ SVGA.x1_ $ ms (90 :: Double)
-                  , SVGA.x2_ $ ms (705 :: Double)
-                  , SVGA.y1_ $ ms (370 :: Double)
-                  , SVGA.y2_ $ ms (370 :: Double)
-
-              ] []
-                                             ]
+      makeAxis True (P.xAxis plot)
+      , makeAxis False (P.yAxis plot)
+      -- SVG.g_ [ class_ "grid x-grid" ] [
+      --   SVG.line_ [ SVGA.x1_ $ ms (90 :: Double)
+      --             , SVGA.x2_ $ ms (90 :: Double)
+      --             , SVGA.y1_ $ ms (5 :: Double)
+      --             , SVGA.y2_ $ ms (371 :: Double)
+      --
+      --         ] []
+      --         ]
+      -- , SVG.g_ [ class_ "grid y-grid" ] [
+      --   SVG.line_ [ SVGA.x1_ $ ms (90 :: Double)
+      --             , SVGA.x2_ $ ms (705 :: Double)
+      --             , SVGA.y1_ $ ms (370 :: Double)
+      --             , SVGA.y2_ $ ms (370 :: Double)
+      --
+      --         ] []
+                                             -- ]
       , SVG.g_ [ class_ "labels x-labels" ] [
         SVG.text_ [ SVGA.x_ $ ms (100 :: Double)
                 , SVGA.y_ $ ms (400 :: Double)

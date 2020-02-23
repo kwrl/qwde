@@ -18,7 +18,7 @@ let
     sha256 = "0xpsv1pp1a13vq5vk1wjj1iq0cfnq9cv7lkrv2rl6yd47slwmn2a";
   };
 
-  miso = pkgs.haskell.packages.ghcjs.callCabal2nix "miso" (pkgs.fetchFromGitHub {
+  miso = pkgs.haskell.packages.ghcjs86.callCabal2nix "miso" (pkgs.fetchFromGitHub {
     owner  = "dmjio";
     repo   = "miso";
     rev    = "f11b6a9eb8b69d71ac777975b13d3632d931f61e";

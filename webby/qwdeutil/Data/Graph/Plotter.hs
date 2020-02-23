@@ -10,24 +10,45 @@ data Plot = Plot {
   , yLabels :: [Double]
   , xLabels :: [String]
   , xTicks :: [String]
-          } deriving (Show)
+  , xAxis :: Axis
+  , yAxis :: Axis
+  } deriving (Eq, Show)
+
+data Axis = Axis {
+  x1 :: Int
+  , x2 :: Int
+  , y1 :: Int
+  , y2 :: Int
+  , labelPoints :: [Int]
+  } deriving (Eq, Show)
 
 {--
    numLabels = how often to print a label
-   numPoints = how many, typically pixels, to disperse the dataset on
+   pxHeight = how many, typically pixels, to disperse the dataset on
 --}
-getPlot :: Int -> Int -> [Double] -> [String] -> Plot
-getPlot numLabels numPoints yli xli = Plot { 
+--TODO: labelpoints are probably wrong.
+getPlot :: Int -> Int -> Int -> [Double] -> [String] -> Plot
+getPlot numLabels pxWidth pxHeight yli xli = Plot { 
   yMax = maximum ticks
   , yMin = minimum ticks
-  , yTicks = ticks
+  , yTicks = map ((subtract (minimum ticks)) . (/ (fromIntegral pxHeight))) ticks
   , yLabels = actualLabels
   , xTicks = xli
   , xLabels = labels xli --each (((fromIntegral . length) xli :: Double) / fromIntegral numLabels) xli
+  , xAxis = Axis { x1 = 90, x2 = 90, y1 = 5, y2 = pxHeight -5, labelPoints = xAxisLabelPoints }
+  , yAxis = Axis { x1 = 90, x2 = pxWidth - 90, y1 = pxHeight - 5, y2 = pxHeight - 5, labelPoints = yAxisLabelPoints }
+
 } where
+  
+  xAxisLabelPoints = 
+    let inc = ceiling $ (fromIntegral (pxWidth - 90) :: Double) / (fromIntegral numLabels) :: Int 
+     in take numLabels $ iterate (+ inc) 90 :: [Int]
+  yAxisLabelPoints = 
+    let inc = ceiling $ (fromIntegral (pxHeight - 5) :: Double) / (fromIntegral numLabels) :: Int 
+     in take numLabels $ iterate (+ inc) 5 :: [Int]
   ticks = map average groups
   groups = grouper yli (\l -> length l <= numGroups) [] []
-  numGroups = ceiling $ ((fromIntegral . length) yli :: Double) / (fromIntegral numPoints)
+  numGroups = ceiling $ ((fromIntegral . length) yli :: Double) / (fromIntegral pxHeight)
   labels [] = [] 
   labels (x:[]) = [x]
   labels (x:y:[]) = [x,y]
@@ -39,7 +60,7 @@ getPlot numLabels numPoints yli xli = Plot {
     | numLabels <= 0 = []
     | numLabels == 1 = [head ticks]
     | numLabels == 2 = head ticks : [last ticks]
-    | otherwise = let inc = (interval) / ((fromIntegral . pred) numLabels) in take numLabels $ iterate (\x -> x + inc) (minimum ticks)
+    | otherwise = let inc = (interval) / ((fromIntegral . pred) numLabels) in take numLabels $ iterate (+ inc) (minimum ticks)
 
 grouper :: [a] -> ([a] -> Bool) -> [a] -> [[a]] -> [[a]]
 grouper (x:xs) func a r = let cand = a ++ [x] in if (func cand) then grouper xs (func) cand r else grouper (xs) (func) [x] (r ++ [a]) 

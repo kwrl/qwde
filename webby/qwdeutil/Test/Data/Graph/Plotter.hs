@@ -12,7 +12,7 @@ import           Test.HUnit (Test (..), assertBool, assertEqual)
 test_basic :: Test
 test_basic = TestCase $
   let inData = [1..10] :: [Double]
-      plot = getPlot 10 10 inData
+      plot = getPlot 10 10 10 inData ["a", "b", "c"]
     in
       assertEqual "min" 1.0 (yMin plot) >>
       assertEqual "max" 10.0 (yMax plot) >>
@@ -22,7 +22,7 @@ test_basic = TestCase $
 test_shorten :: Test
 test_shorten = TestCase $
   let inData = [1,2,3] :: [Double]
-      plot = getPlot 2 2 inData
+      plot = getPlot 2 2 10 inData ["a", "b", "c"]
     in
       assertEqual "min" 1.5 (yMin plot) >>
       assertEqual "max" 3.0 (yMax plot) >>

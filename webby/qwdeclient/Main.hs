@@ -1,20 +1,19 @@
 {-# LANGUAGE RecordWildCards #-}
 module Main where
 
-import Control.Arrow
 import qualified Common as C
+import qualified Data.Graph.Plotter as P
+import Touch
+
+import Control.Arrow
 import Data.Proxy
-
 import qualified Data.Map as M
-
 import Miso
 import Miso.String
 
-import Touch
-
 main :: IO ()
 main = miso $ \currentURI -> App
-  { model = C.Model currentURI False "[1, 2]" (0,0) "20,20 40,25 60,40 80,120 120,140 200,180"
+  { model = C.Model currentURI False "[1, 2]" (0,0) (P.getPlot 10 C.plotWidth C.plotHeight ([1..10] :: [Double]) (["abc", "def"]))
   , view = viewModel
   , ..
     }
@@ -45,7 +44,7 @@ updateModel C.Alert m@C.Model{..} = m <# do
   pure C.NoOp
 updateModel C.ToggleNavMenu m@C.Model{..} = m { C.navMenuOpen = not navMenuOpen } <# do
   pure C.NoOp
-updateModel C.ShowRandomDefault m@C.Model{..} = noEff m { {-C.randomNumbers = "[2]", -}C.mainPlot = "0,40 40,40 40,80 80,80 80,120 120,120 120,160" }
+updateModel C.ShowRandomDefault m@C.Model{..} = noEff m { C.plot = P.getPlot 10 C.plotWidth (C.plotHeight - 200) ([10..20] :: [Double]) (["abc", "def"]) }
 updateModel C.NoOp m = noEff m
 updateModel (C.HandleTouch (TouchEvent touch)) model =
   model <# do
