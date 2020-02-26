@@ -16,6 +16,7 @@ test_basic = TestCase $
     in
       assertEqual "min" 1.0 (yMin plot) >>
       assertEqual "max" 10.0 (yMax plot) >>
+      assertEqual "max" 10.0 (yMax plot) >>
       assertEqual "labels" [1..10] (yLabels plot) >>
       assertEqual (show $ yTicks plot) inData (yTicks plot)
 

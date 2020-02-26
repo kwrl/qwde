@@ -82,6 +82,21 @@ makeAxis isX P.Axis{..} = let letter = if isX then "x" else "y"
               , SVGA.y2_ $ ms y2
     ] [] ]
 
+makeLabelpoints :: Bool -> P.Axis -> View Action
+makeLabelpoints isX P.Axis{..} = let letter = if isX then "x" else "y" 
+  in SVG.g_ [ class_ (toMisoString ("labels " ++ letter ++ "-labels")) ] $ labelsFunc labelPoints labels
+  where
+    recurring = if isX then SVGA.y_ $ ms y1 else SVGA.x_ $ ms x1
+    newPoint p = if isX then SVGA.x_ $ ms p else SVGA.y_ $ ms p
+    -- TODO: zip
+    labelsFunc (x:xs) (y:ys) = [SVG.text_ [ recurring , newPoint x ] [(text . toMisoString) y] ] ++ labelsFunc xs ys
+    labelsFunc [] [] = []
+    labelsFunc [] (_:_) = []
+    labelsFunc (_:_) [] = []
+
+-- makeLine :: [(Int,Int)] -> View Action
+-- makeLine points = a
+
 home :: Model -> View Action
 home m@Model{..} = template header content m
   where
@@ -132,56 +147,11 @@ home m@Model{..} = template header content m
       --   , SVG.polyline_ [ SVGA.fill_ "none", SVGA.stroke_ "black", SVGA.strokeWidth_ "3", SVGA.points_ $ toMisoString mainPlot ] []
       --     ] ]
         SVG.svg_ [ {-SVGA.viewBox_ "0 0 100 100",-} class_ "graph" ] [
-      makeAxis True (P.xAxis plot)
-      , makeAxis False (P.yAxis plot)
-      -- SVG.g_ [ class_ "grid x-grid" ] [
-      --   SVG.line_ [ SVGA.x1_ $ ms (90 :: Double)
-      --             , SVGA.x2_ $ ms (90 :: Double)
-      --             , SVGA.y1_ $ ms (5 :: Double)
-      --             , SVGA.y2_ $ ms (371 :: Double)
-      --
-      --         ] []
-      --         ]
-      -- , SVG.g_ [ class_ "grid y-grid" ] [
-      --   SVG.line_ [ SVGA.x1_ $ ms (90 :: Double)
-      --             , SVGA.x2_ $ ms (705 :: Double)
-      --             , SVGA.y1_ $ ms (370 :: Double)
-      --             , SVGA.y2_ $ ms (370 :: Double)
-      --
-      --         ] []
-                                             -- ]
-      , SVG.g_ [ class_ "labels x-labels" ] [
-        SVG.text_ [ SVGA.x_ $ ms (100 :: Double)
-                , SVGA.y_ $ ms (400 :: Double)
-                  ] [ "2008" ]
-        , SVG.text_ [ SVGA.x_ $ ms (246 :: Double)
-            , SVGA.y_ $ ms (400 :: Double)
-            ] [ "2008.5" ]
-        , SVG.text_ [ SVGA.x_ $ ms (392 :: Double)
-            , SVGA.y_ $ ms (400 :: Double)
-            ] [ "2009" ]
-        , SVG.text_ [ SVGA.x_ $ ms (538 :: Double)
-            , SVGA.y_ $ ms (400 :: Double)
-            ] [ "2010" ]
-        , SVG.text_ [ SVGA.x_ $ ms (684 :: Double)
-            , SVGA.y_ $ ms (400 :: Double)
-            ] [ "2011" ]
-                  ]
-      , SVG.g_ [class_ "labels y-labels" ] [
-        SVG.text_ [ SVGA.x_ $ ms (80 :: Double)
-                , SVGA.y_ $ ms (15 :: Double)
-                  ] [ "2008" ]
-        , SVG.text_ [ SVGA.x_ $ ms (80 :: Double)
-            , SVGA.y_ $ ms (131 :: Double)
-            ] [ "2008.5" ]
-        , SVG.text_ [ SVGA.x_ $ ms (80 :: Double)
-            , SVGA.y_ $ ms (248 :: Double)
-            ] [ "2009" ]
-        , SVG.text_ [ SVGA.x_ $ ms (80 :: Double)
-            , SVGA.y_ $ ms (374 :: Double)
-            ] [ "okay" ]
-          ]]
-
+          makeAxis True (P.xAxis plot)
+          , makeAxis False (P.yAxis plot)
+          , makeLabelpoints True (P.xAxis plot)
+          , makeLabelpoints False (P.yAxis plot)
+          ]
         , button_ [ id_ "dome", onClick ShowRandomDefault ] [ text "doit" ]
         , div_ [ id_ "myDiv" ] []
         --, script_ [] [ text $ toMisoString $ "doSimpleTrace(" ++ (show $ Prelude.head randomNumbers) ++ ")" ]
