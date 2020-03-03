@@ -3,6 +3,7 @@ module Main where
 
 import qualified Common as C
 import qualified Data.Graph.Plotter as P
+
 import Touch
 
 import Control.Arrow
@@ -10,6 +11,7 @@ import Data.Proxy
 import qualified Data.Map as M
 import Miso
 import Miso.String
+import System.Random (randomRIO)
 
 main :: IO ()
 main = miso $ \currentURI -> App
@@ -32,6 +34,18 @@ main = miso $ \currentURI -> App
             Left _ -> C.the404 m
             Right v -> v
 
+randomList :: Int -> IO [Int]
+randomList 0 = return []
+randomList n = do
+  r  <- randomRIO (1,6)
+  rs <- randomList (n-1)
+  return (r:rs) 
+
+fetchApiData :: IO C.QwdeApiData
+fetchApiData = do
+  nums <- (Prelude.map fromIntegral) <$> randomList 100
+  return $ C.QwdeApiData nums
+
 
 updateModel :: C.Action -> C.Model -> Effect C.Action C.Model
 updateModel (C.HandleURI u) m = m { C.uri = u } <# do
@@ -44,7 +58,9 @@ updateModel C.Alert m@C.Model{..} = m <# do
   pure C.NoOp
 updateModel C.ToggleNavMenu m@C.Model{..} = m { C.navMenuOpen = not navMenuOpen } <# do
   pure C.NoOp
-updateModel C.ShowRandomDefault m@C.Model{..} = noEff m { C.plot = P.getPlot 10 C.plotWidth (C.plotHeight - 200) ([10..20] :: [Double]) (["abc", "def"]) }
+updateModel C.GetData m@C.Model{..} = m <# do
+  C.SetData <$> fetchApiData
+updateModel (C.SetData apiData) m@C.Model{..} = noEff m { C.plot = P.getPlot 10 C.plotWidth (C.plotHeight - 200) (C.numbers apiData) (["abc", "def"] :: [String]) } 
 updateModel C.NoOp m = noEff m
 updateModel (C.HandleTouch (TouchEvent touch)) model =
   model <# do
@@ -54,4 +70,5 @@ updateModel (C.HandleTouch (TouchEvent touch)) model =
 updateModel (C.HandleMouse newCoords) model =
   noEff model { C.mouseCords = newCoords }
 
+trunc :: (Double, Double) -> (Int, Int)
 trunc = truncate *** truncate

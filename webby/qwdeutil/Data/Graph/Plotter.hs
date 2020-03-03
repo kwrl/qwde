@@ -4,9 +4,7 @@ module Data.Graph.Plotter
 import Data.List (genericLength, sort)
 
 data Plot = Plot {
-  yMax :: Double
-  , yMin :: Double
-  , yTicks :: [Int]
+  yTicks :: [Int]
   , xTicks :: [Int]
   , xAxis :: Axis
   , yAxis :: Axis
@@ -38,40 +36,40 @@ mapToXticks len numPx
 --}
 --TODO: labelpoints are probably wrong.
 getPlot :: Int -> Int -> Int -> [Double] -> [String] -> Plot
-getPlot numLabels pxWidth pxHeight yli xli = Plot { 
-  yMax = maximum ticks
-  , yMin = minimum ticks
-  , yTicks = yTickies
-  , xTicks = mapToXticks (length yTickies) pxWidth
-  , xAxis = Axis { x1 = 90, x2 = 90, y2 = 5, y1 = pxHeight -5, labelPoints = xAxisLabelPoints, labels = xLabels }
-  , yAxis = Axis { x1 = 90, x2 = pxWidth - 90, y2 = pxHeight - 5, y1 = pxHeight - 5, labelPoints = yAxisLabelPoints, labels = yLabels }
+getPlot numLabels pxWidth pxHeight yli xli
+  | or [null yli, null xli] = let axis = Axis 0 0 0 0 [] [] in Plot [] [] axis axis
+  | otherwise = Plot { 
+      yTicks = yTickies
+      , xTicks = mapToXticks (length yTickies) pxWidth
+      , xAxis = Axis { x1 = 90, x2 = 90, y2 = 5, y1 = pxHeight -5, labelPoints = xAxisLabelPoints, labels = xLabels }
+      , yAxis = Axis { x1 = 90, x2 = pxWidth - 90, y2 = pxHeight - 5, y1 = pxHeight - 5, labelPoints = yAxisLabelPoints, labels = yLabels }
 
-} where
-  yLabels = map show $ actualLabels
-  yTickies = map round $ map (* yValToPxRation) (map (subtract (minimum ticks)) ticks)
-  xLabels = map show $ labelsFunc xli --each (((fromIntegral . length) xli :: Double) / fromIntegral numLabels) xli
-  yValToPxRation = (fromIntegral pxHeight) / (maximum ticks - minimum ticks)
-  xAxisLabelPoints = 
-    let inc = ceiling $ (fromIntegral (pxWidth - 90) :: Double) / (fromIntegral numLabels) :: Int 
-     in take numLabels $ iterate (+ inc) 90 :: [Int]
-  yAxisLabelPoints = 
-    let inc = ceiling $ (fromIntegral (pxHeight - 5) :: Double) / (fromIntegral numLabels) :: Int 
-     in take numLabels $ iterate (+ inc) 5 :: [Int]
-  ticks = map average groups
-  groups = grouper yli (\l -> length l <= numGroups) [] []
-  numGroups = ceiling $ ((fromIntegral . length) yli :: Double) / (fromIntegral pxHeight)
-  labelsFunc [] = [] 
-  labelsFunc (x:[]) = [x]
-  labelsFunc (x:y:[]) = [x,y]
-  labelsFunc li'
-    | (length li' <= numLabels) = sort li'
-    | otherwise = each numLabels (sort li')
-  interval = maximum ticks - minimum ticks
-  actualLabels 
-    | numLabels <= 0 = []
-    | numLabels == 1 = [head ticks]
-    | numLabels == 2 = head ticks : [last ticks]
-    | otherwise = let inc = (interval) / ((fromIntegral . pred) numLabels) in take numLabels $ iterate (+ inc) (minimum ticks)
+    } where
+      yLabels = map show $ actualLabels
+      yTickies = map round $ map (* yValToPxRation) (map (subtract (minimum ticks)) ticks)
+      xLabels = map show $ labelsFunc xli --each (((fromIntegral . length) xli :: Double) / fromIntegral numLabels) xli
+      yValToPxRation = (fromIntegral pxHeight) / (maximum ticks - minimum ticks)
+      xAxisLabelPoints = 
+        let inc = ceiling $ (fromIntegral (pxWidth - 90) :: Double) / (fromIntegral numLabels) :: Int 
+        in take numLabels $ iterate (+ inc) 90 :: [Int]
+      yAxisLabelPoints = 
+        let inc = ceiling $ (fromIntegral (pxHeight - 5) :: Double) / (fromIntegral numLabels) :: Int 
+        in take numLabels $ iterate (+ inc) 5 :: [Int]
+      ticks = map average groups
+      groups = grouper yli (\l -> length l <= numGroups) [] []
+      numGroups = ceiling $ ((fromIntegral . length) yli :: Double) / (fromIntegral pxHeight)
+      labelsFunc [] = [] 
+      labelsFunc (x:[]) = [x]
+      labelsFunc (x:y:[]) = [x,y]
+      labelsFunc li'
+        | (length li' <= numLabels) = sort li'
+        | otherwise = each numLabels (sort li')
+      interval = maximum ticks - minimum ticks
+      actualLabels 
+        | numLabels <= 0 = []
+        | numLabels == 1 = [head ticks]
+        | numLabels == 2 = head ticks : [last ticks]
+        | otherwise = let inc = (interval) / ((fromIntegral . pred) numLabels) in take numLabels $ iterate (+ inc) (minimum ticks)
 
 grouper :: [a] -> ([a] -> Bool) -> [a] -> [[a]] -> [[a]]
 grouper (x:xs) func a r = let cand = a ++ [x] in if (func cand) then grouper xs (func) cand r else grouper (xs) (func) [x] (r ++ [a]) 

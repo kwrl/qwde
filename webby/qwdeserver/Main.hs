@@ -12,12 +12,12 @@ import qualified            Common as C
 import qualified            Data.Graph.Plotter as P
 import           Data.Aeson
 import           Data.Proxy
-import           Data.Text                            (Text, unpack)
+import           Data.Text                            (Text)
 import           GHC.Generics
 import qualified Lucid                                as L
 import           Lucid.Base
 import           Network.HTTP.Types hiding (Header)
-import Network.URI (URI, parseURI)
+import Network.URI (parseURI)
 import           Network.Wai
 import           Network.Wai.Handler.Warp
 import           Network.Wai.Middleware.Gzip

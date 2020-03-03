@@ -34,12 +34,17 @@ data Model = Model {
   , plot :: P.Plot
   } deriving (Eq, Show)
 
+data QwdeApiData = QwdeApiData {
+  numbers :: [Double]
+} deriving (Eq, Show)
+
 data Action
   = Alert
   | ChangeURI URI
   | HandleURI URI
   | ToggleNavMenu
-  | ShowRandomDefault
+  | GetData
+  | SetData QwdeApiData
   | HandleTouch TouchEvent
   | HandleMouse (Int, Int)
   | NoOp
@@ -94,12 +99,24 @@ makeLabelpoints isX P.Axis{..} = let letter = if isX then "x" else "y"
     labelsFunc [] (_:_) = []
     labelsFunc (_:_) [] = []
 
--- makeLine :: [(Int,Int)] -> View Action
--- makeLine points = a
+pairs :: [a] -> [(a, a)]
+pairs = Prelude.zip <*> Prelude.tail
+
+makeLine :: [(Int,Int)] -> [(Int,Int)] -> View Action
+makeLine xp yp = SVG.g_ [] $ pointsFunc xp yp
+  where
+    pointsFunc (x:xs) (y:ys) = 
+      let (x1, x2) = x
+          (y1, y2) = y 
+       in [ SVG.line_ [ SVGA.stroke_ "black", SVGA.x1_ $ ms x1, SVGA.x2_ $ ms x2, SVGA.y1_ $ ms y1, SVGA.y2_ $ ms y2 ] []] ++ pointsFunc xs ys
+    pointsFunc [] [] = []
+    pointsFunc [] (_:_) = []
+    pointsFunc (_:_) [] = []
 
 home :: Model -> View Action
-home m@Model{..} = template header content m
+home m@Model{..} = template header (content showGraph) m
   where
+    showGraph = (if (Prelude.null $ P.yTicks plot) then "hidden" else "visible" )
     header = div_ [ class_  "animated fadeIn" ] [
         a_ [ href_ githubUrl ] [
            img_ [ width_ "100"
@@ -124,7 +141,7 @@ home m@Model{..} = template header content m
       ]
     x = fst mouseCords
     y = (snd mouseCords) - 10
-    content = div_ [ class_  "content has-text-centered" ] ([
+    content show' = div_ [ class_  "content has-text-centered" ] ([
         p_ [] [
           text $ "hello, world!\n"
         ]
@@ -133,28 +150,16 @@ home m@Model{..} = template header content m
           , text $ toMisoString randomNumbers
        ]
       , div_ [ ] [
-      --   SVG.svg_ [ SVGA.viewBox_ "0 0 500 100" , (SVGA.style_ chartCssOneLine) ] [ 
-      -- SVG.g_ [] [
-      --   SVG.ellipse_ [ SVGA.cx_ $ ms x
-      --           , SVGA.cy_ $ ms y
-      --           , style_ svgStyle
-      --           , SVGA.rx_ "100"
-      --           , SVGA.ry_ "100"
-      --           ] [ ]
-      --         , SVG.text_ [ SVGA.x_ $ ms x
-      --                 , SVGA.y_ $ ms y
-      --                 ] [ text $ ms $ show (x,y) ]
-      --   , SVG.polyline_ [ SVGA.fill_ "none", SVGA.stroke_ "black", SVGA.strokeWidth_ "3", SVGA.points_ $ toMisoString mainPlot ] []
-      --     ] ]
-        SVG.svg_ [ {-SVGA.viewBox_ "0 0 100 100",-} class_ "graph" ] [
-          makeAxis True (P.xAxis plot)
-          , makeAxis False (P.yAxis plot)
-          , makeLabelpoints True (P.xAxis plot)
-          , makeLabelpoints False (P.yAxis plot)
-          ]
-        , button_ [ id_ "dome", onClick ShowRandomDefault ] [ text "doit" ]
+          SVG.svg_ [ class_ "graph", SVGA.visibility_ show'] [
+              makeAxis True (P.xAxis plot)
+              , makeAxis False (P.yAxis plot)
+              , makeLabelpoints True (P.xAxis plot)
+              , makeLabelpoints False (P.yAxis plot)
+              , makeLine (pairs $ P.xTicks plot) (pairs $ P.yTicks plot)
+            ]
+        --else h3_ [] ["no data"]
+        , button_ [ id_ "dome", onClick GetData ] [ text "doit" ]
         , div_ [ id_ "myDiv" ] []
-        --, script_ [] [ text $ toMisoString $ "doSimpleTrace(" ++ (show $ Prelude.head randomNumbers) ++ ")" ]
      ]]) 
 
 chartCss :: M.Map MisoString MisoString
@@ -171,7 +176,7 @@ template :: View Action -> View Action -> Model -> View Action
 template header content Model{..} =
   div_ [ ] [
   hero header uri navMenuOpen
-  , content 
+  , content
   , middle
   , footer
   ]
