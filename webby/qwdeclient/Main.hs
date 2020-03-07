@@ -9,9 +9,12 @@ import Touch
 import Control.Arrow
 import Data.Proxy
 import qualified Data.Map as M
-import Miso
-import Miso.String
+import Miso hiding (defaultOptions)
+import Miso.String 
 import System.Random (randomRIO)
+import JavaScript.Web.XMLHttpRequest
+import Data.Aeson
+import Data.Aeson.Types
 
 main :: IO ()
 main = miso $ \currentURI -> App
@@ -41,6 +44,24 @@ randomList n = do
   rs <- randomList (n-1)
   return (r:rs) 
 
+instance FromJSON C.QwdeApiData where
+  parseJSON = genericParseJSON defaultOptions { fieldLabelModifier = camelTo '_' }
+
+getQwdeRandom :: IO C.QwdeApiData
+getQwdeRandom = do
+  Just resp <- contents <$> xhrByteString req
+  case eitherDecodeStrict resp :: Either String C.QwdeApiData of
+    Left s -> error s
+    Right j -> pure j
+  where
+    req = Request { reqMethod = GET
+                  , reqURI = pack "http://localhost:8080/random"
+                  , reqLogin = Nothing
+                  , reqHeaders = []
+                  , reqWithCredentials = False
+                  , reqData = NoData
+                  }
+
 fetchApiData :: IO C.QwdeApiData
 fetchApiData = do
   nums <- (Prelude.map fromIntegral) <$> randomList 100
@@ -59,7 +80,8 @@ updateModel C.Alert m@C.Model{..} = m <# do
 updateModel C.ToggleNavMenu m@C.Model{..} = m { C.navMenuOpen = not navMenuOpen } <# do
   pure C.NoOp
 updateModel C.GetData m@C.Model{..} = m <# do
-  C.SetData <$> fetchApiData
+  --C.SetData <$> fetchApiData
+  C.SetData <$> getQwdeRandom
 updateModel (C.SetData apiData) m@C.Model{..} = noEff m { C.plot = P.getPlot 10 C.plotWidth (C.plotHeight - 200) (C.numbers apiData) (["abc", "def"] :: [String]) } 
 updateModel C.NoOp m = noEff m
 updateModel (C.HandleTouch (TouchEvent touch)) model =

@@ -25,6 +25,7 @@ executable qwdeclient
     .
   build-depends:
     base < 5
+    , aeson
     , containers
     , ghcjs-base
     , heredoc

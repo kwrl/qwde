@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP                  #-}
 {-# LANGUAGE DataKinds            #-}
+{-# LANGUAGE DeriveGeneric        #-}
 {-# LANGUAGE OverloadedStrings    #-}
 {-# LANGUAGE RecordWildCards      #-}
 {-# LANGUAGE TypeFamilies         #-}
@@ -13,7 +14,7 @@ import           Servant.API
 #ifdef __GHCJS__
 import           Servant.Links (linkURI)
 #else
-import           Servant.Utils.Links (linkURI)
+import           Servant.Links (linkURI)
 #endif
 import qualified Data.Graph.Plotter as P
 
@@ -23,6 +24,7 @@ import qualified Miso.Svg as SVG
 import qualified Miso.Svg.Attribute as SVGA
 import           Touch
 
+import GHC.Generics (Generic)
 
 githubUrl :: MisoString
 githubUrl = "https://github.com/kwrl/qwde"
@@ -36,7 +38,7 @@ data Model = Model {
 
 data QwdeApiData = QwdeApiData {
   numbers :: [Double]
-} deriving (Eq, Show)
+} deriving (Eq, Show, Generic)
 
 data Action
   = Alert

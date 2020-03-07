@@ -2,6 +2,7 @@ module Data.Graph.Plotter
   where
 
 import Data.List (genericLength, sort)
+import Text.Printf (printf)
 
 data Plot = Plot {
   yTicks :: [Int]
@@ -45,7 +46,7 @@ getPlot numLabels pxWidth pxHeight yli xli
       , yAxis = Axis { x1 = 90, x2 = pxWidth - 90, y2 = pxHeight - 5, y1 = pxHeight - 5, labelPoints = yAxisLabelPoints, labels = yLabels }
 
     } where
-      yLabels = map show $ actualLabels
+      yLabels = map (printf "%.2f") $ actualLabels
       yTickies = map round $ map (* yValToPxRation) (map (subtract (minimum ticks)) ticks)
       xLabels = map show $ labelsFunc xli --each (((fromIntegral . length) xli :: Double) / fromIntegral numLabels) xli
       yValToPxRation = (fromIntegral pxHeight) / (maximum ticks - minimum ticks)

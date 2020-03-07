@@ -20,7 +20,7 @@ executable qwdeserver
   else
     buildable: True
   ghc-options:
-    -O2 -threaded -Wall -rtsopts
+    -O0 -threaded -Wall -rtsopts
   hs-source-dirs:
     .
   build-depends:
