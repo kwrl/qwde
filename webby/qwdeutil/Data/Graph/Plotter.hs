@@ -23,13 +23,21 @@ data Axis = Axis {
 mapToXticks :: Int -> Int -> [Int]
 mapToXticks len numPx
   | len < 1 = []
-  | len <= halfsize = take len $ iterate (\x -> x + inc) inc
-  | len < numPx = map round $ take len $ iterate (\x -> x + incD) incD
+  | len <= halfsize = take len $ iterate (+ inc) axisWidth
+  | len < numPx = map floor $ take len $ iterate (+ incD) (fromIntegral axisWidth)
   | otherwise = [1..numPx]
   where
-    inc = ceiling $ (fromIntegral numPx :: Double) / ((succ . fromIntegral) len)
-    incD = (fromIntegral numPx :: Double) / (succ . fromIntegral) len
+    usablePx = numPx - axisWidth
+    inc = floor $ (fromIntegral usablePx :: Double) / ((fromIntegral . pred) len)
+    incD = (fromIntegral usablePx :: Double) / ((fromIntegral . pred) len)
     halfsize = (ceiling $ ((fromIntegral numPx :: Double) / 2))
+
+axisWidth :: Int
+axisWidth = 90
+axisHeight :: Int
+axisHeight = fontHeight
+fontHeight :: Int
+fontHeight = 13
 
 {--
    numLabels = how often to print a label
@@ -42,20 +50,22 @@ getPlot numLabels pxWidth pxHeight yli xli
   | otherwise = Plot { 
       yTicks = yTickies
       , xTicks = mapToXticks (length yTickies) pxWidth
-      , xAxis = Axis { x1 = 90, x2 = 90, y2 = 5, y1 = pxHeight -5, labelPoints = xAxisLabelPoints, labels = xLabels }
-      , yAxis = Axis { x1 = 90, x2 = pxWidth - 90, y2 = pxHeight - 5, y1 = pxHeight - 5, labelPoints = yAxisLabelPoints, labels = yLabels }
+      , xAxis = Axis { x1 = axisWidth, x2 = axisWidth, y2 = 0, y1 = pxHeight - fontHeight, labelPoints = xAxisLabelPoints, labels = xLabels }
+      , yAxis = Axis { x1 = axisWidth, x2 = pxWidth, y2 = pxHeight - fontHeight, y1 = pxHeight - fontHeight, labelPoints = yAxisLabelPoints, labels = yLabels }
 
     } where
       yLabels = map (printf "%.2f") $ actualLabels
-      yTickies = map round $ map (* yValToPxRation) (map (subtract (minimum ticks)) ticks)
-      xLabels = map show $ labelsFunc xli --each (((fromIntegral . length) xli :: Double) / fromIntegral numLabels) xli
-      yValToPxRation = (fromIntegral pxHeight) / (maximum ticks - minimum ticks)
+      yTickies = map ((\x -> subtract x (sph - fontHeight)) . round . (* yValToPxRation) . (subtract (minimum ticks))) ticks
+      xLabels = labelsFunc xli --each (((fromIntegral . length) xli :: Double) / fromIntegral numLabels) xli
+      yValToPxRation = (fromIntegral (sph - sph)) / (maximum ticks - minimum ticks)
       xAxisLabelPoints = 
-        let inc = ceiling $ (fromIntegral (pxWidth - 90) :: Double) / (fromIntegral numLabels) :: Int 
-        in take numLabels $ iterate (+ inc) 90 :: [Int]
+        let inc = floor $ (fromIntegral (pxWidth - axisWidth) :: Double) / ((fromIntegral . pred) numLabels) :: Int
+        in take numLabels $ iterate (+ inc) axisWidth :: [Int]
       yAxisLabelPoints = 
-        let inc = ceiling $ (fromIntegral (pxHeight - 5) :: Double) / (fromIntegral numLabels) :: Int 
-        in take numLabels $ iterate (+ inc) 5 :: [Int]
+        let inc = floor $ (fromIntegral (sph - fontHeight) :: Double) / ((fromIntegral . pred) numLabels) :: Int
+        in take numLabels $ iterate (subtract inc) sph :: [Int]
+      -- StartPoint
+      sph = pxHeight - fontHeight
       ticks = map average groups
       groups = grouper yli (\l -> length l <= numGroups) [] []
       numGroups = ceiling $ ((fromIntegral . length) yli :: Double) / (fromIntegral pxHeight)
@@ -63,8 +73,8 @@ getPlot numLabels pxWidth pxHeight yli xli
       labelsFunc (x:[]) = [x]
       labelsFunc (x:y:[]) = [x,y]
       labelsFunc li'
-        | (length li' <= numLabels) = sort li'
-        | otherwise = each numLabels (sort li')
+        | (length li' <= numLabels) = li'
+        | otherwise = each numLabels li'
       interval = maximum ticks - minimum ticks
       actualLabels 
         | numLabels <= 0 = []

@@ -93,7 +93,8 @@ makeLabelpoints :: Bool -> P.Axis -> View Action
 makeLabelpoints isX P.Axis{..} = let letter = if isX then "x" else "y" 
   in SVG.g_ [ class_ (toMisoString ("labels " ++ letter ++ "-labels")) ] $ labelsFunc labelPoints labels
   where
-    recurring = if isX then SVGA.y_ $ ms y1 else SVGA.x_ $ ms x1
+    --ySpot y = if isX then y - P.axisHeight else y
+    recurring = if isX then SVGA.y_ $ ms (y1 + P.fontHeight) else SVGA.x_ $ ms x1
     newPoint p = if isX then SVGA.x_ $ ms p else SVGA.y_ $ ms p
     -- TODO: zip
     labelsFunc (x:xs) (y:ys) = [SVG.text_ [ recurring , newPoint x ] [(text . toMisoString) y] ] ++ labelsFunc xs ys

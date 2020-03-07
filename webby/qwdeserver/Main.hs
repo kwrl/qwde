@@ -26,8 +26,8 @@ import           Network.Wai.Middleware.RequestLogger
 import           Servant
 import qualified System.IO                            as IO
 
-import           Miso
-import           Miso.String
+import           Miso hiding (map)
+import           Miso.String hiding (map)
 
 main :: IO ()
 main = do
@@ -37,7 +37,7 @@ main = do
       compress = gzip def { gzipFiles = GzipCompress }
 
 initialModel :: C.Model
-initialModel = C.Model uri False "[1, 2]" (0,0) (P.getPlot 10 C.plotWidth C.plotHeight ([1..10] :: [Double]) (["abc", "def"]))
+initialModel = C.Model uri False "[1, 2]" (0,0) (P.getPlot 10 C.plotWidth C.plotHeight [1..10] (map show ([1..10] :: [Int])))
   where
     uri = case parseURI "http://qwde.no" of
             Just n -> n
@@ -118,7 +118,11 @@ instance L.ToHtml a => L.ToHtml (Wrapper a) where
           L.meta_ [ L.name_ "description"
                   , L.content_ "qwde is a work in progress"
                   ]
-          L.style_ ((pack ("body{font-family:'Open Sans', sans-serif;}.graph .labels.x-labels{text-anchor:middle;}.graph .labels.y-labels{text-anchor:end;}.graph{height:") <> (pack $ show C.plotHeight) <> (pack "px;width:") <> (pack $ show C.plotWidth) <> (pack "px;}.graph .grid{stroke:#ccc;stroke-dasharray:0;stroke-width:1;}.labels{font-size:13px;}.label-title{font-weight:bold;text-transform:uppercase;font-size:12px;fill:black;}.data{fill:red;stroke-width:1;}")))
+          L.style_ ((pack ("body{font-family:'Open Sans', sans-serif;}.graph .labels.x-labels{text-anchor:middle;}.graph .labels.y-labels{text-anchor:end;}.graph{height:")
+            <> (pack $ show C.plotHeight)
+            <> (pack "px;width:")
+            <> (pack $ show C.plotWidth) <> (pack "px;}.graph .grid{stroke:#ccc;stroke-dasharray:0;stroke-width:1;}.labels{font-size:")
+            <> (pack $ show P.fontHeight) <> (pack "px;}.label-title{font-weight:bold;text-transform:uppercase;font-size:12px;fill:black;}.data{fill:red;stroke-width:1;}")))
           cssRef animateRef
           cssRef bulmaRef
           cssRef fontAwesomeRef

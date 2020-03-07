@@ -9,8 +9,8 @@ import Touch
 import Control.Arrow
 import Data.Proxy
 import qualified Data.Map as M
-import Miso hiding (defaultOptions)
-import Miso.String 
+import Miso hiding (defaultOptions, map)
+import Miso.String hiding (map)
 import System.Random (randomRIO)
 import JavaScript.Web.XMLHttpRequest
 import Data.Aeson
@@ -18,7 +18,7 @@ import Data.Aeson.Types
 
 main :: IO ()
 main = miso $ \currentURI -> App
-  { model = C.Model currentURI False "[1, 2]" (0,0) (P.getPlot 10 C.plotWidth C.plotHeight ([1..10] :: [Double]) (["abc", "def"]))
+  { model = C.Model currentURI False "[1, 2]" (0,0) (P.getPlot 10 C.plotWidth C.plotHeight ([1..10] :: [Double]) (map show [1..10]))
   , view = viewModel
   , ..
     }
