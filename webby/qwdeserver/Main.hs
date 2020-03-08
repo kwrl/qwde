@@ -37,7 +37,7 @@ main = do
       compress = gzip def { gzipFiles = GzipCompress }
 
 initialModel :: C.Model
-initialModel = C.Model uri False "[1, 2]" (0,0) (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) [[1..10]])
+initialModel = C.Model uri False "[1, 2]" (0,0) (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) [[1..10]]) (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) [[1..10]])
   where
     uri = case parseURI "http://qwde.no" of
             Just n -> n
@@ -88,7 +88,10 @@ handle404 :: Application
 handle404 _ respond = respond $ responseLBS
     status404
     [("Content-Type", "text/html")] $
-      renderBS $ toHtml $ Wrapper $ C.the404 C.Model { C.uri = C.goHome, C.navMenuOpen = False, C.randomNumbers = "[-1]", C.mouseCords = (0,0), C.plot = P.getPlot 10 C.plotWidth C.plotHeight  [] [] }
+      renderBS $ toHtml $ Wrapper $ C.the404 C.Model { C.uri = C.goHome, C.navMenuOpen = False, C.randomNumbers = "[-1]", C.mouseCords = (0,0)
+        , C.randomPlot = P.getPlot 10 C.plotWidth C.plotHeight  [] []
+        , C.smaPlot = P.getPlot 10 C.plotWidth C.plotHeight  [] []
+        }
 
 superAdvancedScript :: MisoString
 superAdvancedScript = "function doSimpleTrace(num){var trace1 = { x: [1, 2, 3, 4, 5, 6, 7], y: [num, num, num, 10, 15, 13, 17], type: 'scatter' }; var trace2 = { x: [1, 2, 3, 4], y: [16, 5, 11, 9], type: 'scatter' }; var data = [trace1, trace2]; Plotly.newPlot('myDiv', data); };"

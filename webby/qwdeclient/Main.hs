@@ -18,7 +18,9 @@ import Data.Aeson.Types
 
 main :: IO ()
 main = miso $ \currentURI -> App
-  { model = C.Model currentURI False "[1, 2]" (0,0) (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) ([[1..10]] :: [[Double]]) )
+  { model = C.Model currentURI False "[1, 2]" (0,0)
+    (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) ([[1..10]] :: [[Double]]))
+    (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) ([[1..10]] :: [[Double]]))
   , view = viewModel
   , ..
     }
@@ -37,20 +39,15 @@ main = miso $ \currentURI -> App
             Left _ -> C.the404 m
             Right v -> v
 
-randomList :: Int -> IO [Int]
-randomList 0 = return []
-randomList n = do
-  r  <- randomRIO (1,6)
-  rs <- randomList (n-1)
-  return (r:rs) 
+instance FromJSON C.QwdeRandom where
+  parseJSON = genericParseJSON defaultOptions { fieldLabelModifier = camelTo2 '_' }
+instance FromJSON C.QwdeSma where
+  parseJSON = genericParseJSON defaultOptions { fieldLabelModifier = camelTo2 '_' }
 
-instance FromJSON C.QwdeApiData where
-  parseJSON = genericParseJSON defaultOptions { fieldLabelModifier = camelTo '_' }
-
-getQwdeRandom :: IO C.QwdeApiData
+getQwdeRandom :: IO C.QwdeRandom
 getQwdeRandom = do
   Just resp <- contents <$> xhrByteString req
-  case eitherDecodeStrict resp :: Either String C.QwdeApiData of
+  case eitherDecodeStrict resp :: Either String C.QwdeRandom of
     Left s -> error s
     Right j -> pure j
   where
@@ -62,11 +59,20 @@ getQwdeRandom = do
                   , reqData = NoData
                   }
 
-fetchApiData :: IO C.QwdeApiData
-fetchApiData = do
-  nums <- (Prelude.map fromIntegral) <$> randomList 100
-  return $ C.QwdeApiData nums
-
+getQwdeSma :: IO C.QwdeSma
+getQwdeSma = do
+  Just resp <- contents <$> xhrByteString req
+  case eitherDecodeStrict resp :: Either String C.QwdeSma of
+    Left s -> error s
+    Right j -> pure j
+  where
+    req = Request { reqMethod = GET
+                  , reqURI = pack "http://localhost:8080/sma/twtr/20150102?toDate=20170301"
+                  , reqLogin = Nothing
+                  , reqHeaders = []
+                  , reqWithCredentials = False
+                  , reqData = NoData
+                  }
 
 updateModel :: C.Action -> C.Model -> Effect C.Action C.Model
 updateModel (C.HandleURI u) m = m { C.uri = u } <# do
@@ -79,12 +85,17 @@ updateModel C.Alert m@C.Model{..} = m <# do
   pure C.NoOp
 updateModel C.ToggleNavMenu m@C.Model{..} = m { C.navMenuOpen = not navMenuOpen } <# do
   pure C.NoOp
-updateModel C.GetData m@C.Model{..} = m <# do
-  --C.SetData <$> fetchApiData
-  C.SetData <$> getQwdeRandom
-updateModel (C.SetData apiData) m@C.Model{..} = noEff m { C.plot = P.getPlot 10 C.plotWidth (C.plotHeight - 200)
+updateModel C.GetRandom m@C.Model{..} = m <# do
+  C.SetRandom <$> getQwdeRandom
+updateModel (C.SetRandom apiData) m@C.Model{..} = noEff m { C.randomPlot = P.getPlot 10 C.plotWidth (C.plotHeight - 200)
   (take (length $ C.numbers apiData) $ map show ([1..] :: [Int]))
-  ((((map P.yData) . P.plotData) plot) ++ [C.numbers apiData])
+  ((((map P.yData) . P.plotData) randomPlot) ++ [C.numbers apiData])
+   }
+updateModel C.GetSma m@C.Model{..} = m <# do
+  C.SetSma <$> getQwdeSma
+updateModel (C.SetSma apiData) m@C.Model{..} = noEff m { C.smaPlot = P.getPlot 10 C.plotWidth (C.plotHeight - 200)
+  (take (length $ C.prices apiData) $ map show ([1..] :: [Int]))
+  ([C.prices apiData] ++ (C.sma apiData))
    }
 updateModel C.NoOp m = noEff m
 updateModel (C.HandleTouch (TouchEvent touch)) model =

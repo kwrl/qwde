@@ -33,11 +33,17 @@ data Model = Model {
   uri :: URI, navMenuOpen :: Bool
   , randomNumbers  :: String
   , mouseCords :: (Int, Int) 
-  , plot :: P.Plot
+  , randomPlot :: P.Plot
+  , smaPlot :: P.Plot
   } deriving (Eq, Show)
 
-data QwdeApiData = QwdeApiData {
+data QwdeRandom = QwdeRandom {
   numbers :: [Double]
+} deriving (Eq, Show, Generic)
+
+data QwdeSma = QwdeSma {
+  prices :: [Double]
+  , sma :: [[Double]]
 } deriving (Eq, Show, Generic)
 
 data Action
@@ -45,8 +51,10 @@ data Action
   | ChangeURI URI
   | HandleURI URI
   | ToggleNavMenu
-  | GetData
-  | SetData QwdeApiData
+  | GetRandom
+  | GetSma
+  | SetRandom QwdeRandom
+  | SetSma QwdeSma
   | HandleTouch TouchEvent
   | HandleMouse (Int, Int)
   | NoOp
@@ -119,7 +127,7 @@ makeLine xp yp = SVG.g_ [] $ pointsFunc xp yp
 home :: Model -> View Action
 home m@Model{..} = template header (content showGraph) m
   where
-    showGraph = (if (Prelude.null $ P.plotData plot) then "hidden" else "visible" )
+    showGraph = (if (Prelude.null $ P.plotData randomPlot) then "hidden" else "visible" )
     header = div_ [ class_  "animated fadeIn" ] [
         a_ [ href_ githubUrl ] [
            img_ [ width_ "100"
@@ -154,15 +162,25 @@ home m@Model{..} = template header (content showGraph) m
        ]
       , div_ [ ] [
           SVG.svg_ [ class_ "graph", SVGA.visibility_ show'] ([
-              makeAxis True (P.xAxis plot)
-              , makeAxis False (P.yAxis plot)
-              , makeLabelpoints True (P.xAxis plot)
-              , makeLabelpoints False (P.yAxis plot)
-            ] ++ (map (\p -> makeLine (pairs $ P.xTicks p) (pairs $ P.yTicks p)) (P.plotData plot)))
-        --else h3_ [] ["no data"]
-        , button_ [ id_ "dome", onClick GetData ] [ text "doit" ]
-        , div_ [ id_ "myDiv" ] []
-     ]]) 
+              makeAxis True (P.xAxis randomPlot)
+              , makeAxis False (P.yAxis randomPlot)
+              , makeLabelpoints True (P.xAxis randomPlot)
+              , makeLabelpoints False (P.yAxis randomPlot)
+            ] ++ (map (\p -> makeLine (pairs $ P.xTicks p) (pairs $ P.yTicks p)) (P.plotData randomPlot)))
+        , button_ [ id_ "dome", onClick GetRandom ] [ text "doit" ]
+     ]
+
+      , div_ [ ] [
+          SVG.svg_ [ class_ "graph", SVGA.visibility_ show'] ([
+              makeAxis True (P.xAxis smaPlot)
+              , makeAxis False (P.yAxis smaPlot)
+              , makeLabelpoints True (P.xAxis smaPlot)
+              , makeLabelpoints False (P.yAxis smaPlot)
+            ] ++ (map (\p -> makeLine (pairs $ P.xTicks p) (pairs $ P.yTicks p)) (P.plotData smaPlot)))
+        , button_ [ id_ "dome", onClick GetSma ] [ text "dothat" ]
+     ]
+
+     ])
 
 chartCss :: M.Map MisoString MisoString
 chartCss = M.insert "background" "white" $

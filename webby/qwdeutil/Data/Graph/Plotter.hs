@@ -62,8 +62,7 @@ getPlot numLabels pxWidth pxHeight xli yli
       minL = minimum $ map minimum yli
       maxL = maximum $ map maximum yli
       yTickies = map (map ((\x -> subtract x (sph - fontHeight)) . round . (* yValToPxRatio) . (subtract (minL)))) (yli) :: [[Int]]
-      --yTickies = [[1..10]] :: [[Int]]
-      xLabels = makeXlabels xli numLabels --each (((fromIntegral . length) xli :: Double) / fromIntegral numLabels) xli
+      xLabels = makeXlabels xli numLabels
       yValToPxRatio = (fromIntegral (sph - fontHeight)) / (maxL - minL)
       xAxisLabelPoints = 
         let inc = floor $ (fromIntegral (pxWidth - axisWidth) :: Double) / ((fromIntegral . pred) numLabels) :: Int
@@ -71,9 +70,8 @@ getPlot numLabels pxWidth pxHeight xli yli
       yAxisLabelPoints = 
         let inc = floor $ (fromIntegral (sph - fontHeight) :: Double) / ((fromIntegral . pred) numLabels) :: Int
         in take numLabels $ iterate (subtract inc) sph :: [Int]
-      -- StartPoint
+      -- StartPointHeight
       sph = pxHeight - fontHeight
-      --ticks = map makeYticks yTicksIn pxHeight
 
 makeXlabels :: [String] -> Int -> [String]
 makeXlabels [] _ = []
