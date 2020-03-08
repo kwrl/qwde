@@ -37,7 +37,7 @@ main = do
       compress = gzip def { gzipFiles = GzipCompress }
 
 initialModel :: C.Model
-initialModel = C.Model uri False "[1, 2]" (0,0) (P.getPlot 10 C.plotWidth C.plotHeight [1..10] (map show ([1..10] :: [Int])))
+initialModel = C.Model uri False "[1, 2]" (0,0) (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) [[1..10]])
   where
     uri = case parseURI "http://qwde.no" of
             Just n -> n

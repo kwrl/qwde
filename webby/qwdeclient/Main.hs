@@ -9,8 +9,8 @@ import Touch
 import Control.Arrow
 import Data.Proxy
 import qualified Data.Map as M
-import Miso hiding (defaultOptions, map)
-import Miso.String hiding (map)
+import Miso hiding (defaultOptions, map, length)
+import Miso.String hiding (map, length, take)
 import System.Random (randomRIO)
 import JavaScript.Web.XMLHttpRequest
 import Data.Aeson
@@ -18,7 +18,7 @@ import Data.Aeson.Types
 
 main :: IO ()
 main = miso $ \currentURI -> App
-  { model = C.Model currentURI False "[1, 2]" (0,0) (P.getPlot 10 C.plotWidth C.plotHeight ([1..10] :: [Double]) (map show [1..10]))
+  { model = C.Model currentURI False "[1, 2]" (0,0) (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) ([[1..10]] :: [[Double]]) )
   , view = viewModel
   , ..
     }
@@ -82,7 +82,10 @@ updateModel C.ToggleNavMenu m@C.Model{..} = m { C.navMenuOpen = not navMenuOpen 
 updateModel C.GetData m@C.Model{..} = m <# do
   --C.SetData <$> fetchApiData
   C.SetData <$> getQwdeRandom
-updateModel (C.SetData apiData) m@C.Model{..} = noEff m { C.plot = P.getPlot 10 C.plotWidth (C.plotHeight - 200) (C.numbers apiData) (["abc", "def"] :: [String]) } 
+updateModel (C.SetData apiData) m@C.Model{..} = noEff m { C.plot = P.getPlot 10 C.plotWidth (C.plotHeight - 200)
+  (take (length $ C.numbers apiData) $ map show ([1..] :: [Int]))
+  ((((map P.yData) . P.plotData) plot) ++ [C.numbers apiData])
+   }
 updateModel C.NoOp m = noEff m
 updateModel (C.HandleTouch (TouchEvent touch)) model =
   model <# do

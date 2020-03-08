@@ -19,7 +19,7 @@ import           Servant.Links (linkURI)
 import qualified Data.Graph.Plotter as P
 
 import           Miso
-import           Miso.String hiding (unwords)
+import           Miso.String hiding (map, unwords)
 import qualified Miso.Svg as SVG
 import qualified Miso.Svg.Attribute as SVGA
 import           Touch
@@ -119,7 +119,7 @@ makeLine xp yp = SVG.g_ [] $ pointsFunc xp yp
 home :: Model -> View Action
 home m@Model{..} = template header (content showGraph) m
   where
-    showGraph = (if (Prelude.null $ P.yTicks plot) then "hidden" else "visible" )
+    showGraph = (if (Prelude.null $ P.plotData plot) then "hidden" else "visible" )
     header = div_ [ class_  "animated fadeIn" ] [
         a_ [ href_ githubUrl ] [
            img_ [ width_ "100"
@@ -153,13 +153,12 @@ home m@Model{..} = template header (content showGraph) m
           , text $ toMisoString randomNumbers
        ]
       , div_ [ ] [
-          SVG.svg_ [ class_ "graph", SVGA.visibility_ show'] [
+          SVG.svg_ [ class_ "graph", SVGA.visibility_ show'] ([
               makeAxis True (P.xAxis plot)
               , makeAxis False (P.yAxis plot)
               , makeLabelpoints True (P.xAxis plot)
               , makeLabelpoints False (P.yAxis plot)
-              , makeLine (pairs $ P.xTicks plot) (pairs $ P.yTicks plot)
-            ]
+            ] ++ (map (\p -> makeLine (pairs $ P.xTicks p) (pairs $ P.yTicks p)) (P.plotData plot)))
         --else h3_ [] ["no data"]
         , button_ [ id_ "dome", onClick GetData ] [ text "doit" ]
         , div_ [ id_ "myDiv" ] []
