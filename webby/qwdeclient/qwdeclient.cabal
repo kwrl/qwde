@@ -26,6 +26,7 @@ executable qwdeclient
   build-depends:
     base < 5
     , aeson
+    , colour
     , containers
     , ghcjs-base
     , heredoc

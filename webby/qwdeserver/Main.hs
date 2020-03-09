@@ -37,7 +37,8 @@ main = do
       compress = gzip def { gzipFiles = GzipCompress }
 
 initialModel :: C.Model
-initialModel = C.Model uri False "[1, 2]" (0,0) (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) [[1..10]]) (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) [[1..10]])
+initialModel = C.Model uri False "[1, 2]" (0,0) (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) [[1..10]])
+  (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) [[1..10]] [P.PlotLegend "" C.defaultColor])
   where
     uri = case parseURI "http://qwde.no" of
             Just n -> n
@@ -91,6 +92,7 @@ handle404 _ respond = respond $ responseLBS
       renderBS $ toHtml $ Wrapper $ C.the404 C.Model { C.uri = C.goHome, C.navMenuOpen = False, C.randomNumbers = "[-1]", C.mouseCords = (0,0)
         , C.randomPlot = P.getPlot 10 C.plotWidth C.plotHeight  [] []
         , C.smaPlot = P.getPlot 10 C.plotWidth C.plotHeight  [] []
+        , P.legend = [P.PlotLegend "" C.defaultColor]
         }
 
 superAdvancedScript :: MisoString

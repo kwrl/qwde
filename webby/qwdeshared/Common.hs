@@ -23,11 +23,16 @@ import           Miso.String hiding (map, unwords)
 import qualified Miso.Svg as SVG
 import qualified Miso.Svg.Attribute as SVGA
 import           Touch
+import Data.Colour (Colour)
+import Data.Colour.Names (black)
 
 import GHC.Generics (Generic)
 
 githubUrl :: MisoString
 githubUrl = "https://github.com/kwrl/qwde"
+
+defaultColor :: Colour Double
+defaultColor = black
 
 data Model = Model { 
   uri :: URI, navMenuOpen :: Bool

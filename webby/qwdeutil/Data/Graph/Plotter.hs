@@ -1,6 +1,7 @@
 module Data.Graph.Plotter
   where
 
+import Data.Colour (Colour)
 import Data.List (genericLength, sort)
 import Text.Printf (printf)
 
@@ -8,12 +9,18 @@ data Plot = Plot {
   plotData :: [PlotData]
   , xAxis :: Axis
   , yAxis :: Axis
+  , legend :: [PlotLegend]
   } deriving (Eq, Show)
 
 data PlotData = PlotData {
   yData :: [Double]
   , yTicks :: [Int]
   , xTicks :: [Int]
+  } deriving (Eq, Show)
+
+data PlotLegend = PlotLegend {
+  name :: String
+  , color :: Colour Double
   } deriving (Eq, Show)
 
 data Axis = Axis {
@@ -49,13 +56,14 @@ fontHeight = 13
    pxHeight = how many, typically pixels, to disperse the dataset on
 --}
 --TODO: labelpoints are probably wrong.
-getPlot :: Int -> Int -> Int -> [String] -> [[Double]] -> Plot
-getPlot numLabels pxWidth pxHeight xli yli
-  | or [null xli] = let axis = Axis 0 0 0 0 [] [] in Plot [(PlotData [] [] [])] axis axis
+getPlot :: Int -> Int -> Int -> [String] -> [[Double]] -> [PlotLegend] -> Plot
+getPlot numLabels pxWidth pxHeight xli yli legends
+  | or [null xli] = let axis = Axis 0 0 0 0 [] [] in Plot [(PlotData [] [] [])] axis axis legends
   | otherwise = Plot {
       plotData = map (\(orig, lam) -> PlotData orig lam (mapToXticks (length lam) pxWidth)) (zip yli yTickies)
       , xAxis = Axis { x1 = axisWidth, x2 = axisWidth, y2 = 0, y1 = pxHeight - fontHeight, labelPoints = xAxisLabelPoints, labels = xLabels }
       , yAxis = Axis { x1 = axisWidth, x2 = pxWidth, y2 = pxHeight - fontHeight, y1 = pxHeight - fontHeight, labelPoints = yAxisLabelPoints, labels = yLabels }
+      , legend = legends
 
     } where
       yLabels = map (printf "%.2f") $ makeYlabels ((sort . concat) $ yli) numLabels minL
@@ -79,7 +87,7 @@ makeXlabels (x:[]) _ = [x]
 makeXlabels (x:y:[]) _ = [x,y]
 makeXlabels li' numLabels
   | (length li' <= numLabels) = li'
-  | otherwise = each numLabels li'
+  | otherwise = each (floor $ ((fromIntegral . length) li' :: Double) / (fromIntegral numLabels :: Double) ) li'
 
 makeYlabels :: [Double] -> Int -> Double -> [Double]
 makeYlabels li numLabels minL

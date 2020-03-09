@@ -6,11 +6,13 @@ import qualified Data.Graph.Plotter as P
 
 import Touch
 
+import Data.Colour (Colour)
+import Data.Colour.Names
 import Control.Arrow
 import Data.Proxy
 import qualified Data.Map as M
 import Miso hiding (defaultOptions, map, length)
-import Miso.String hiding (map, length, take)
+import Miso.String hiding (map, length, take, zip)
 import System.Random (randomRIO)
 import JavaScript.Web.XMLHttpRequest
 import Data.Aeson
@@ -19,8 +21,8 @@ import Data.Aeson.Types
 main :: IO ()
 main = miso $ \currentURI -> App
   { model = C.Model currentURI False "[1, 2]" (0,0)
-    (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) ([[1..10]] :: [[Double]]))
-    (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) ([[1..10]] :: [[Double]]))
+      (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) ([[1..10]] :: [[Double]]) ([P.PlotLegend "" C.defaultColor]))
+      (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) ([[1..10]] :: [[Double]]) ([P.PlotLegend "" C.defaultColor]))
   , view = viewModel
   , ..
     }
@@ -90,12 +92,14 @@ updateModel C.GetRandom m@C.Model{..} = m <# do
 updateModel (C.SetRandom apiData) m@C.Model{..} = noEff m { C.randomPlot = P.getPlot 10 C.plotWidth (C.plotHeight - 200)
   (take (length $ C.numbers apiData) $ map show ([1..] :: [Int]))
   ((((map P.yData) . P.plotData) randomPlot) ++ [C.numbers apiData])
+  ([P.PlotLegend "random" C.defaultColor])
    }
 updateModel C.GetSma m@C.Model{..} = m <# do
   C.SetSma <$> getQwdeSma
 updateModel (C.SetSma apiData) m@C.Model{..} = noEff m { C.smaPlot = P.getPlot 10 C.plotWidth (C.plotHeight - 200)
   (take (length $ C.prices apiData) $ map show ([1..] :: [Int]))
   ([C.prices apiData] ++ (C.sma apiData))
+  ([P.PlotLegend "sma" C.defaultColor ] ++ (map (\c -> P.PlotLegend "+2" c) $ take (length $ C.prices apiData) colorList))
    }
 updateModel C.NoOp m = noEff m
 updateModel (C.HandleTouch (TouchEvent touch)) model =
@@ -108,3 +112,155 @@ updateModel (C.HandleMouse newCoords) model =
 
 trunc :: (Double, Double) -> (Int, Int)
 trunc = truncate *** truncate
+
+
+colorList :: [Colour Double]
+colorList = [
+  aliceblue
+  , antiquewhite
+  , aqua
+  , aquamarine
+  , azure
+  , beige
+  , bisque
+  , blanchedalmond
+  , blue
+  , blueviolet
+  , brown
+  , burlywood
+  , cadetblue
+  , chartreuse
+  , chocolate
+  , coral
+  , cornflowerblue
+  , cornsilk
+  , crimson
+  , cyan
+  , darkblue
+  , darkcyan
+  , darkgoldenrod
+  , darkgray
+  , darkgreen
+  , darkgrey
+  , darkkhaki
+  , darkmagenta
+  , darkolivegreen
+  , darkorange
+  , darkorchid
+  , darkred
+  , darksalmon
+  , darkseagreen
+  , darkslateblue
+  , darkslategray
+  , darkslategrey
+  , darkturquoise
+  , darkviolet
+  , deeppink
+  , deepskyblue
+  , dimgray
+  , dimgrey
+  , dodgerblue
+  , firebrick
+  , floralwhite
+  , forestgreen
+  , fuchsia
+  , gainsboro
+  , ghostwhite
+  , gold
+  , goldenrod
+  , gray
+  , grey
+  , green
+  , greenyellow
+  , honeydew
+  , hotpink
+  , indianred
+  , indigo
+  , ivory
+  , khaki
+  , lavender
+  , lavenderblush
+  , lawngreen
+  , lemonchiffon
+  , lightblue
+  , lightcoral
+  , lightcyan
+  , lightgoldenrodyellow
+  , lightgray
+  , lightgreen
+  , lightgrey
+  , lightpink
+  , lightsalmon
+  , lightseagreen
+  , lightskyblue
+  , lightslategray
+  , lightslategrey
+  , lightsteelblue
+  , lightyellow
+  , lime
+  , limegreen
+  , linen
+  , magenta
+  , maroon
+  , mediumaquamarine
+  , mediumblue
+  , mediumorchid
+  , mediumpurple
+  , mediumseagreen
+  , mediumslateblue
+  , mediumspringgreen
+  , mediumturquoise
+  , mediumvioletred
+  , midnightblue
+  , mintcream
+  , mistyrose
+  , moccasin
+  , navajowhite
+  , navy
+  , oldlace
+  , olive
+  , olivedrab
+  , orange
+  , orangered
+  , orchid
+  , palegoldenrod
+  , palegreen
+  , paleturquoise
+  , palevioletred
+  , papayawhip
+  , peachpuff
+  , peru
+  , pink
+  , plum
+  , powderblue
+  , purple
+  , red
+  , rosybrown
+  , royalblue
+  , saddlebrown
+  , salmon
+  , sandybrown
+  , seagreen
+  , seashell
+  , sienna
+  , silver
+  , skyblue
+  , slateblue
+  , slategray
+  , slategrey
+  , snow
+  , springgreen
+  , steelblue
+  , Data.Colour.Names.tan
+  , teal
+  , thistle
+  , tomato
+  , turquoise
+  , violet
+  , wheat
+  , white
+  , whitesmoke
+  , yellow
+  , yellowgreen
+  ]
+

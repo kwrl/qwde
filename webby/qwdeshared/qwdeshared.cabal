@@ -23,6 +23,7 @@ library
   build-depends:
     aeson
     , base < 5
+    , colour
     , containers
     , miso
     , servant
