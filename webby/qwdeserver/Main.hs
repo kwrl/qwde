@@ -26,7 +26,7 @@ import           Network.Wai.Middleware.RequestLogger
 import           Servant
 import qualified System.IO                            as IO
 
-import           Miso hiding (map)
+import           Miso
 import           Miso.String hiding (map)
 
 main :: IO ()
@@ -37,7 +37,7 @@ main = do
       compress = gzip def { gzipFiles = GzipCompress }
 
 initialModel :: C.Model
-initialModel = C.Model uri False "[1, 2]" (0,0) (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) [[1..10]])
+initialModel = C.Model uri False "[1, 2]" (0,0) (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) [[1..10]] [P.PlotLegend "" C.defaultColor])
   (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) [[1..10]] [P.PlotLegend "" C.defaultColor])
   where
     uri = case parseURI "http://qwde.no" of
@@ -90,13 +90,9 @@ handle404 _ respond = respond $ responseLBS
     status404
     [("Content-Type", "text/html")] $
       renderBS $ toHtml $ Wrapper $ C.the404 C.Model { C.uri = C.goHome, C.navMenuOpen = False, C.randomNumbers = "[-1]", C.mouseCords = (0,0)
-        , C.randomPlot = P.getPlot 10 C.plotWidth C.plotHeight  [] []
-        , C.smaPlot = P.getPlot 10 C.plotWidth C.plotHeight  [] []
-        , P.legend = [P.PlotLegend "" C.defaultColor]
+        , C.randomPlot = C.randomPlot initialModel
+        , C.smaPlot = C.smaPlot initialModel
         }
-
-superAdvancedScript :: MisoString
-superAdvancedScript = "function doSimpleTrace(num){var trace1 = { x: [1, 2, 3, 4, 5, 6, 7], y: [num, num, num, 10, 15, 13, 17], type: 'scatter' }; var trace2 = { x: [1, 2, 3, 4], y: [16, 5, 11, 9], type: 'scatter' }; var data = [trace1, trace2]; Plotly.newPlot('myDiv', data); };"
 
 instance L.ToHtml a => L.ToHtml (Wrapper a) where
   toHtmlRaw = L.toHtml
@@ -132,8 +128,6 @@ instance L.ToHtml a => L.ToHtml (Wrapper a) where
           cssRef bulmaRef
           cssRef fontAwesomeRef
           jsRef "/static/buttons.js"
-          -- jsSyncRef "static/plotly-latest.min.js"
-          -- L.script_ superAdvancedScript
           jsRef "/static/all.js"
         L.body_ (L.toHtml x)
           where

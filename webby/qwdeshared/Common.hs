@@ -129,6 +129,14 @@ makeLine xp yp = SVG.g_ [] $ pointsFunc xp yp
     pointsFunc [] (_:_) = []
     pointsFunc (_:_) [] = []
 
+makeLegend :: [P.PlotLegend] -> MisoString -> View Action
+makeLegend pl name = div_ [id_ name] $ map (\l ->
+  div_ [ ] [
+    div_ [ style_ $ M.fromList [(pack "display", pack "inline-block"), (pack "height", pack "20px"), (pack "width", pack "20px"), (pack "border", pack "2px solid")]] []
+    , span_ [] [ style_ [(pack " ", text . toMisoString $ P.name l ]
+    , span_ [] [ "trololol" ]
+  ] ) pl
+
 home :: Model -> View Action
 home m@Model{..} = template header (content showGraph) m
   where
@@ -173,6 +181,7 @@ home m@Model{..} = template header (content showGraph) m
               , makeLabelpoints False (P.yAxis randomPlot)
             ] ++ (map (\p -> makeLine (pairs $ P.xTicks p) (pairs $ P.yTicks p)) (P.plotData randomPlot)))
         , button_ [ id_ "dome", onClick GetRandom ] [ text "doit" ]
+        , makeLegend (P.legend randomPlot) (toMisoString ("randomLegend" :: String))
      ]
 
       , div_ [ ] [
@@ -183,6 +192,7 @@ home m@Model{..} = template header (content showGraph) m
               , makeLabelpoints False (P.yAxis smaPlot)
             ] ++ (map (\p -> makeLine (pairs $ P.xTicks p) (pairs $ P.yTicks p)) (P.plotData smaPlot)))
         , button_ [ id_ "dome", onClick GetSma ] [ text "dothat" ]
+        , makeLegend (P.legend smaPlot) (toMisoString ("smaPlotLegend" :: String))
      ]
 
      ])

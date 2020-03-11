@@ -11,9 +11,8 @@ import Data.Colour.Names
 import Control.Arrow
 import Data.Proxy
 import qualified Data.Map as M
-import Miso hiding (defaultOptions, map, length)
+import Miso hiding (defaultOptions)
 import Miso.String hiding (map, length, take, zip)
-import System.Random (randomRIO)
 import JavaScript.Web.XMLHttpRequest
 import Data.Aeson
 import Data.Aeson.Types
@@ -90,16 +89,16 @@ updateModel C.ToggleNavMenu m@C.Model{..} = m { C.navMenuOpen = not navMenuOpen 
 updateModel C.GetRandom m@C.Model{..} = m <# do
   C.SetRandom <$> getQwdeRandom
 updateModel (C.SetRandom apiData) m@C.Model{..} = noEff m { C.randomPlot = P.getPlot 10 C.plotWidth (C.plotHeight - 200)
-  (take (length $ C.numbers apiData) $ map show ([1..] :: [Int]))
-  ((((map P.yData) . P.plotData) randomPlot) ++ [C.numbers apiData])
-  ([P.PlotLegend "random" C.defaultColor])
-   }
+    (take (length $ C.numbers apiData) $ map show ([1..] :: [Int]))
+    ((((map P.yData) . P.plotData) randomPlot) ++ [C.numbers apiData])
+    [P.PlotLegend "random" C.defaultColor]
+ }
 updateModel C.GetSma m@C.Model{..} = m <# do
   C.SetSma <$> getQwdeSma
 updateModel (C.SetSma apiData) m@C.Model{..} = noEff m { C.smaPlot = P.getPlot 10 C.plotWidth (C.plotHeight - 200)
   (take (length $ C.prices apiData) $ map show ([1..] :: [Int]))
   ([C.prices apiData] ++ (C.sma apiData))
-  ([P.PlotLegend "sma" C.defaultColor ] ++ (map (\c -> P.PlotLegend "+2" c) $ take (length $ C.prices apiData) colorList))
+  ([P.PlotLegend "sma" C.defaultColor ] ++ (map (\c -> P.PlotLegend "+2" c) $ take (succ . length $ C.sma apiData) colorList))
    }
 updateModel C.NoOp m = noEff m
 updateModel (C.HandleTouch (TouchEvent touch)) model =
