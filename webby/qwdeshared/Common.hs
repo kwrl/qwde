@@ -19,7 +19,7 @@ import           Servant.Links (linkURI)
 import qualified Data.Graph.Plotter as P
 
 import           Miso
-import           Miso.String hiding (map, unwords)
+import           Miso.String hiding (map, unwords, zip)
 import qualified Miso.Svg as SVG
 import qualified Miso.Svg.Attribute as SVGA
 import           Touch
@@ -119,13 +119,13 @@ makeLabelpoints isX P.Axis{..} = let letter = if isX then "x" else "y"
 pairs :: [a] -> [(a, a)]
 pairs = Prelude.zip <*> Prelude.tail
 
-makeLine :: [(Int,Int)] -> [(Int,Int)] -> View Action
-makeLine xp yp = SVG.g_ [] $ pointsFunc xp yp
+makeLine :: [(Int,Int)] -> [(Int,Int)] -> Colour Double -> View Action
+makeLine xp yp c = SVG.g_ [] $ pointsFunc xp yp
   where
     pointsFunc (x:xs) (y:ys) = 
       let (x1, x2) = x
           (y1, y2) = y 
-       in [ SVG.line_ [ SVGA.stroke_ "black", SVGA.x1_ $ ms x1, SVGA.x2_ $ ms x2, SVGA.y1_ $ ms y1, SVGA.y2_ $ ms y2 ] []] ++ pointsFunc xs ys
+       in [ SVG.line_ [ SVGA.stroke_ (pack . sRGB24show $ c), SVGA.x1_ $ ms x1, SVGA.x2_ $ ms x1, SVGA.x2_ $ ms x2, SVGA.y1_ $ ms y1, SVGA.y2_ $ ms y2 ] []] ++ pointsFunc xs ys
     pointsFunc [] [] = []
     pointsFunc [] (_:_) = []
     pointsFunc (_:_) [] = []
@@ -135,7 +135,6 @@ makeLegend pl name = div_ [id_ name] $ map (\l ->
   div_ [ ] [
     div_ [ style_ $ M.fromList [ (pack "background-color", pack (sRGB24show (P.color l))), (pack "display", pack "inline-block"), (pack "height", pack "20px"), (pack "width", pack "20px"), (pack "border", pack "2px solid")]] []
     , span_ [] [ text . toMisoString $ P.name l ]
-    , span_ [] [ "trololol" ]
   ] ) pl
 
 home :: Model -> View Action
@@ -180,7 +179,7 @@ home m@Model{..} = template header (content showGraph) m
               , makeAxis False (P.yAxis randomPlot)
               , makeLabelpoints True (P.xAxis randomPlot)
               , makeLabelpoints False (P.yAxis randomPlot)
-            ] ++ (map (\p -> makeLine (pairs $ P.xTicks p) (pairs $ P.yTicks p)) (P.plotData randomPlot)))
+            ] ++ (map (\(p,l) -> makeLine (pairs $ P.xTicks p) (pairs $ P.yTicks p) (P.color l)) (zip (P.plotData randomPlot) (P.legend randomPlot))))
         , button_ [ id_ "dome", onClick GetRandom ] [ text "doit" ]
         , makeLegend (P.legend randomPlot) (toMisoString ("randomLegend" :: String))
      ]
@@ -191,7 +190,7 @@ home m@Model{..} = template header (content showGraph) m
               , makeAxis False (P.yAxis smaPlot)
               , makeLabelpoints True (P.xAxis smaPlot)
               , makeLabelpoints False (P.yAxis smaPlot)
-            ] ++ (map (\p -> makeLine (pairs $ P.xTicks p) (pairs $ P.yTicks p)) (P.plotData smaPlot)))
+            ] ++ (map (\(p,l) -> makeLine (pairs $ P.xTicks p) (pairs $ P.yTicks p) (P.color l)) (zip (P.plotData smaPlot) (P.legend smaPlot))))
         , button_ [ id_ "dome", onClick GetSma ] [ text "dothat" ]
         , makeLegend (P.legend smaPlot) (toMisoString ("smaPlotLegend" :: String))
      ]

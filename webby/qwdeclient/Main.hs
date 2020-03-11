@@ -98,7 +98,7 @@ updateModel C.GetSma m@C.Model{..} = m <# do
 updateModel (C.SetSma apiData) m@C.Model{..} = noEff m { C.smaPlot = P.getPlot 10 C.plotWidth (C.plotHeight - 200)
   (take (length $ C.prices apiData) $ map show ([1..] :: [Int]))
   ([C.prices apiData] ++ (C.sma apiData))
-  ([P.PlotLegend "sma" C.defaultColor ] ++ (map (\c -> P.PlotLegend "+2" c) $ take (succ . length $ C.sma apiData) colorList))
+  ([P.PlotLegend "sma" C.defaultColor ] ++ (map (\(i,c) -> P.PlotLegend (show $ i * 10) c) $ take (succ . length $ C.sma apiData) (zip ([1..] :: [Int]) colorList)))
    }
 updateModel C.NoOp m = noEff m
 updateModel (C.HandleTouch (TouchEvent touch)) model =
