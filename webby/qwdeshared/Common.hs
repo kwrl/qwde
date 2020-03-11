@@ -24,6 +24,7 @@ import qualified Miso.Svg as SVG
 import qualified Miso.Svg.Attribute as SVGA
 import           Touch
 import Data.Colour (Colour)
+import Data.Colour.SRGB (sRGB24show)
 import Data.Colour.Names (black)
 
 import GHC.Generics (Generic)
@@ -132,8 +133,8 @@ makeLine xp yp = SVG.g_ [] $ pointsFunc xp yp
 makeLegend :: [P.PlotLegend] -> MisoString -> View Action
 makeLegend pl name = div_ [id_ name] $ map (\l ->
   div_ [ ] [
-    div_ [ style_ $ M.fromList [(pack "display", pack "inline-block"), (pack "height", pack "20px"), (pack "width", pack "20px"), (pack "border", pack "2px solid")]] []
-    , span_ [] [ style_ [(pack " ", text . toMisoString $ P.name l ]
+    div_ [ style_ $ M.fromList [ (pack "background-color", pack (sRGB24show (P.color l))), (pack "display", pack "inline-block"), (pack "height", pack "20px"), (pack "width", pack "20px"), (pack "border", pack "2px solid")]] []
+    , span_ [] [ text . toMisoString $ P.name l ]
     , span_ [] [ "trololol" ]
   ] ) pl
 

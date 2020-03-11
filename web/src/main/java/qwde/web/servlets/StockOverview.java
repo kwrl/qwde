@@ -27,7 +27,7 @@ public final class StockOverview {
 
     @Get("/{ticker}/{fromDate}")
     public Single<String> doGet(String ticker, @Format("yyyyMMdd") LocalDate fromDate) throws SQLException {
-        LOG.debug("Doing render with {}, {}, {}", ticker, fromDate);
+        LOG.debug("Doing render with {}, {}", ticker, fromDate);
 
         CompanyStockData stockData;
         stockData = StockDB.getCompanyData(ticker.toUpperCase(), fromDate.minusDays(SMOOTHING_PERIOD), LocalDate.now());

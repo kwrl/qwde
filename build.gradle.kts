@@ -13,7 +13,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath("ru.vyarus:gradle-quality-plugin:3.4.0")
+        classpath("ru.vyarus:gradle-quality-plugin:4.1.0")
     }
 }
 
@@ -51,6 +51,11 @@ configure(subprojects.filter { it.name == "analytics" || it.name == "dataprovide
 
         testLogging.showExceptions = true
     }
+}
+
+tasks.whenTaskAdded { task ->
+  if (task.name.contains("spotbugsMain"))
+    task.enabled = false
 }
 
 subprojects {
