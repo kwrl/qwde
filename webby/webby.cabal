@@ -1,0 +1,13 @@
+name:                qwdeserver
+version:             0.1.0.0
+synopsis:            http://qwde.no
+description:         Website for viewing qwde code
+homepage:            http://qwde.no
+license:             GPL-3
+license-file:        LICENSE
+author:              Anders Sildnes
+maintainer:          andsild@posteo.net
+copyright:           Anders Sildnes
+category:            Web
+build-type:          Simple
+cabal-version:       >=1.10

@@ -1,4 +1,5 @@
 plugins {
+    `java-library`
     `application`
 }
 
@@ -16,8 +17,8 @@ dependencies {
     implementation("com.salesforce.kafka.test:kafka-junit5:3.1.1")
     implementation("org.apache.commons:commons-lang3:3.9")
 
-    compile(project(":analytics"))
-    compile(project(":dataprovider"))
+    api(project(":analytics"))
+    api(project(":dataprovider"))
 }
 
 sourceSets {
