@@ -15,7 +15,7 @@ dependencies {
     implementation("tech.tablesaw:tablesaw-core:${project.rootProject.ext["tablesawVersion"]}")
     implementation("tech.tablesaw:tablesaw-aggregate:${project.rootProject.ext["tablesawVersion"]}")
 
-    compile(project(":dataprovider"))
+    api(project(":dataprovider"))
 }
 
 sourceSets {

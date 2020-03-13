@@ -1,0 +1,48 @@
+name:                qwdeutil
+version:             0.1.0.0
+synopsis:            http://qwde.no
+description:         Website for viewing qwde code
+homepage:            http://qwde.no
+license:             GPL-3
+license-file:        LICENSE
+author:              Anders Sildnes
+maintainer:          andsild@posteo.net
+copyright:           Anders Sildnes
+category:            Web
+build-type:          Simple
+cabal-version:       >=1.10
+
+library
+  ghc-options:
+    -O2 -Wall
+  exposed-modules: Data.Graph.Plotter
+  other-extensions: BangPatterns
+    
+  hs-source-dirs:
+    .
+  build-depends:
+    base < 5
+    , colour
+    , containers
+    , heredoc
+  default-language:
+    Haskell2010
+
+
+test-suite Utiltest
+  type: exitcode-stdio-1.0
+  other-modules:
+    Test.Data.Graph.Plotter
+  main-is:
+   TestMain.hs 
+  ghc-options:
+    -O2 -threaded -Wall
+  hs-source-dirs:
+    ., ./Test
+  build-depends:
+    base < 5
+    , containers
+    , heredoc
+    , HUnit
+  default-language:
+    Haskell2010

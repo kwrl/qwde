@@ -1,6 +1,7 @@
 package qwde.web.servlets;
 
 import com.google.common.truth.Truth;
+import io.micronaut.core.type.Argument;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Map;
 
 @MicronautTest
 class RandomTest {
@@ -19,8 +21,10 @@ class RandomTest {
 
     @Test
     void randomNumbers__returns() {
-        List randomNumbers = client.toBlocking().retrieve(HttpRequest.GET("/random"), List.class);
+        var resp = client.toBlocking().retrieve(HttpRequest.GET("/random"), Argument.of(Map.class, String.class, List.class));
+        @SuppressWarnings("unchecked")
+        List<Double> numbers = (List<Double>) resp.get("numbers");
 
-        Truth.assertThat(randomNumbers.size()).isAtLeast(10);
+        Truth.assertThat(numbers.size()).isAtLeast(10);
     }
 }
