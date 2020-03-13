@@ -53,10 +53,10 @@ configure(subprojects.filter { it.name == "analytics" || it.name == "dataprovide
     }
 }
 
-tasks.whenTaskAdded { task ->
-  if (task.name.contains("spotbugsMain"))
-    task.enabled = false
-}
+//tasks.whenTaskAdded { task ->
+  //if (task.name.contains("spotbugsMain"))
+    //task.enabled = false
+//}
 
 subprojects {
     version = "1.0"

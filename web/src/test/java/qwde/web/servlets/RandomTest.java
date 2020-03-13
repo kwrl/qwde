@@ -22,6 +22,7 @@ class RandomTest {
     @Test
     void randomNumbers__returns() {
         var resp = client.toBlocking().retrieve(HttpRequest.GET("/random"), Argument.of(Map.class, String.class, List.class));
+        @SuppressWarnings("unchecked")
         List<Double> numbers = (List<Double>) resp.get("numbers");
 
         Truth.assertThat(numbers.size()).isAtLeast(10);

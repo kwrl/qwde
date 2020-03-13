@@ -37,7 +37,7 @@ main = do
       compress = gzip def { gzipFiles = GzipCompress }
 
 initialModel :: C.Model
-initialModel = C.Model uri False "[1, 2]" (0,0) (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) [[1..10]] [P.PlotLegend "" C.defaultColor])
+initialModel = C.Model uri False (0,0) (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) [[1..10]] [P.PlotLegend "" C.defaultColor])
   (P.getPlot 10 C.plotWidth C.plotHeight (map show ([1..10] :: [Int])) [[1..10]] [P.PlotLegend "" C.defaultColor])
   where
     uri = case parseURI "http://qwde.no" of
@@ -89,7 +89,7 @@ handle404 :: Application
 handle404 _ respond = respond $ responseLBS
     status404
     [("Content-Type", "text/html")] $
-      renderBS $ toHtml $ Wrapper $ C.the404 C.Model { C.uri = C.goHome, C.navMenuOpen = False, C.randomNumbers = "[-1]", C.mouseCords = (0,0)
+      renderBS $ toHtml $ Wrapper $ C.the404 C.Model { C.uri = C.goHome, C.navMenuOpen = False, C.mouseCords = (0,0)
         , C.randomPlot = C.randomPlot initialModel
         , C.smaPlot = C.smaPlot initialModel
         }
@@ -175,8 +175,9 @@ serverHandlers ::
   :<|> Handler (Wrapper (View C.Action))
   :<|> Handler (Wrapper (View C.Action))
 serverHandlers = homeHandler
-  :<|> homeHandler
+  :<|> smaHandler
   :<|> homeHandler
      where
        send f u = pure $ Wrapper $ f initialModel
        homeHandler = send C.home C.goHome
+       smaHandler = send C.smaPage C.goSma

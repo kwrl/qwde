@@ -18,6 +18,7 @@ public final class Random {
         return HttpResponse.ok(ImmutableMap.of("numbers", DoubleStream
                 .generate(ThreadLocalRandom.current()::nextDouble)
                 .limit(10)
+                .map(x -> Math.ceil(x * 10))
                 .boxed()
                 .collect(Collectors.toList())));
     }

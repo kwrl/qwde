@@ -36,9 +36,9 @@ defaultColor :: Colour Double
 defaultColor = black
 
 data Model = Model { 
-  uri :: URI, navMenuOpen :: Bool
-  , randomNumbers  :: String
-  , mouseCords :: (Int, Int) 
+  uri :: URI
+  , navMenuOpen :: Bool
+  , mouseCords :: (Int, Int)
   , randomPlot :: P.Plot
   , smaPlot :: P.Plot
   } deriving (Eq, Show)
@@ -66,23 +66,14 @@ data Action
   | NoOp
   deriving (Show, Eq)
 
--- | Router
-type ClientRoutes = Examples
-  :<|> Docs
-  :<|> Home
+type ClientRoutes = Home :<|> Sma :<|> Home
 
--- | Handlers
 handlers :: (Model -> View Action) :<|> ((Model -> View Action) :<|> (Model -> View Action))
-handlers = home :<|> home :<|> home
--- examples
---   :<|> docs
---   :<|> home
-
+handlers = home :<|> smaPage :<|> home
 
 -- | Client Routes
-type Examples  = "examples" :> View Action
-type Docs      = "docs" :> View Action
-type Home      = View Action
+type Home = View Action
+type Sma  = "sma" :> View Action
 
 plotWidth :: Int
 plotWidth = 800
@@ -133,47 +124,58 @@ makeLine xp yp c = SVG.g_ [] $ pointsFunc xp yp
 makeLegend :: [P.PlotLegend] -> MisoString -> View Action
 makeLegend pl name = div_ [id_ name] $ map (\l ->
   div_ [ ] [
-    div_ [ style_ $ M.fromList [ (pack "background-color", pack (sRGB24show (P.color l))), (pack "display", pack "inline-block"), (pack "height", pack "20px"), (pack "width", pack "20px"), (pack "border", pack "2px solid")]] []
+    div_ [ style_ $ M.fromList [ (pack "background-color", pack (sRGB24show (P.color l))), (pack "display", pack "inline-block"),
+       (pack "height", pack "20px"), (pack "width", pack "20px"), (pack "border", pack "2px solid")]] []
     , span_ [] [ text . toMisoString $ P.name l ]
   ] ) pl
 
-home :: Model -> View Action
-home m@Model{..} = template header (content showGraph) m
-  where
-    showGraph = (if (Prelude.null $ P.plotData randomPlot) then "hidden" else "visible" )
-    header = div_ [ class_  "animated fadeIn" ] [
-        a_ [ href_ githubUrl ] [
-           img_ [ width_ "100"
-                , class_ "animated bounceInDown"
-                , src_ misoSrc
-                , alt_ "miso logo"
-                ]
-           ]
-        , h1_ [ class_  "title animated pulse"
-              , style_ $ M.fromList [(pack "font-size", pack "82px")
-                                    ,(pack "font-weight", pack "100")
-                                    ]
-        ] [ text "qwde" ]
-       , h2_ [ class_ "subtitle animated pulse" ] [
-        text "making lots of "
-        , a_ [ href_ "https://medium.com/startup-leadership/the-best-way-to-learn-something-make-a-lot-of-pots-7f4aa97e1d3a"
-             , rel_ "noopener"
-             , target_ "_blank"][
-            strong_ [] [text "pots" ]]
-        , text  " for fun."
-        ]
-      ]
-    x = fst mouseCords
-    y = (snd mouseCords) - 10
-    content show' = div_ [ class_  "content has-text-centered" ] ([
-        p_ [] [
-          text $ "hello, world!\n"
-        ]
-      , p_ [ id_ $ toMisoString randomNumbers ] [
-           text $ "hello"
-          , text $ toMisoString randomNumbers
+header :: View Action
+header = div_ [ class_  "animated fadeIn" ] [
+    a_ [ href_ githubUrl ] [
+       img_ [ width_ "100"
+            , class_ "animated bounceInDown"
+            , src_ misoSrc
+            , alt_ "miso logo"
+            ]
        ]
-      , div_ [ ] [
+    , h1_ [ class_  "title animated pulse"
+          , style_ $ M.fromList [(pack "font-size", pack "82px")
+                                ,(pack "font-weight", pack "100")
+                                ]
+    ] [ text "qwde" ]
+   , h2_ [ class_ "subtitle animated pulse" ] [
+    text "making lots of "
+    , a_ [ href_ "https://medium.com/startup-leadership/the-best-way-to-learn-something-make-a-lot-of-pots-7f4aa97e1d3a"
+         , rel_ "noopener"
+         , target_ "_blank"][
+        strong_ [] [text "pots" ]]
+    , text  " for fun."
+    ]
+  ]
+
+smaPage :: Model -> View Action
+smaPage m@Model{..} = template header (drawPlot smaPlot "smaplot"  GetSma) m
+
+drawPlot plot name action = div_ [ class_  "content has-text-centered" ] ([
+                 div_ [ id_ . toMisoString $ (name ++ "id") ] [
+                     SVG.svg_ [ class_ "graph", SVGA.visibility_ showGraph] ([
+                         makeAxis True (P.xAxis plot)
+                         , makeAxis False (P.yAxis plot)
+                         , makeLabelpoints True (P.xAxis plot)
+                         , makeLabelpoints False (P.yAxis plot)
+                       ] ++ (map (\(p,l) -> makeLine (pairs $ P.xTicks p) (pairs $ P.yTicks p) (P.color l)) (zip (P.plotData plot) (P.legend plot))))
+                   , button_ [ id_ (toMisoString $ name ++ "btn"), onClick action ] [ text "Render plot" ]
+                   , makeLegend (P.legend plot) (toMisoString (name ++ "Legend" :: String))
+                ]])
+  where
+    showGraph = (if (Prelude.null $ P.plotData plot) then "hidden" else "visible" )
+
+home :: Model -> View Action
+home m@Model{..} = template header (drawPlot randomPlot "random" GetRandom) m
+{-
+  where
+    content show' = div_ [ class_  "content has-text-centered" ] ([
+      div_ [ id_ . toMisoString $ (name ++ "id") ] [
           SVG.svg_ [ class_ "graph", SVGA.visibility_ show'] ([
               makeAxis True (P.xAxis randomPlot)
               , makeAxis False (P.yAxis randomPlot)
@@ -183,19 +185,8 @@ home m@Model{..} = template header (content showGraph) m
         , button_ [ id_ "dome", onClick GetRandom ] [ text "doit" ]
         , makeLegend (P.legend randomPlot) (toMisoString ("randomLegend" :: String))
      ]
-
-      , div_ [ ] [
-          SVG.svg_ [ class_ "graph", SVGA.visibility_ show'] ([
-              makeAxis True (P.xAxis smaPlot)
-              , makeAxis False (P.yAxis smaPlot)
-              , makeLabelpoints True (P.xAxis smaPlot)
-              , makeLabelpoints False (P.yAxis smaPlot)
-            ] ++ (map (\(p,l) -> makeLine (pairs $ P.xTicks p) (pairs $ P.yTicks p) (P.color l)) (zip (P.plotData smaPlot) (P.legend smaPlot))))
-        , button_ [ id_ "dome", onClick GetSma ] [ text "dothat" ]
-        , makeLegend (P.legend smaPlot) (toMisoString ("smaPlotLegend" :: String))
-     ]
-
      ])
+-}
 
 chartCss :: M.Map MisoString MisoString
 chartCss = M.insert "background" "white" $
@@ -208,9 +199,9 @@ chartCssOneLine :: MisoString
 chartCssOneLine = "background: white; width: 400px; height: 400px; border-left: 1px dotted #555; border-bottom: 1px dotted #555; padding: 20px 20px 20px 0;"
 
 template :: View Action -> View Action -> Model -> View Action
-template header content Model{..} =
+template templateHeader content Model{..} =
   div_ [ ] [
-  hero header uri navMenuOpen
+  hero templateHeader uri navMenuOpen
   , content
   , middle
   , footer
@@ -310,9 +301,9 @@ cols = section_[][div_ [ class_  "container" ] [
   ]]]
 
 the404 :: Model -> View Action
-the404 = template header content
+the404 = template header404 content
   where
-    header = div_ [] [ a_ [ href_ githubUrl ] [ img_ [
+    header404 = div_ [] [ a_ [ href_ githubUrl ] [ img_ [
            width_  "100"
          , class_  "animated bounceOutUp"
          , src_ misoSrc
@@ -331,21 +322,16 @@ the404 = template header content
     content = p_ [] [text ":(" ]
 
 -- | Links
-goHome :: URI
-  --, goExamples, goDocs  :: URI
-( goHome ) =
-  -- , goExamples, goDocs ) =
-    ( linkURI (safeLink routes homeProxy)
-    -- , linkURI (safeLink routes examplesProxy)
-    -- , linkURI (safeLink routes docsProxy)
-    )
+goHome, goSma :: URI
+(goHome, goSma) = (
+  linkURI (safeLink routes homeProxy)
+  , linkURI (safeLink routes smaProxy)
+  )
 
 homeProxy :: Proxy Home
 homeProxy = Proxy
--- examplesProxy :: Proxy Examples
--- examplesProxy = Proxy
--- docsProxy :: Proxy Docs
--- docsProxy = Proxy
+smaProxy :: Proxy Sma
+smaProxy = Proxy
 routes :: Proxy ClientRoutes
 routes = Proxy
 
@@ -369,9 +355,9 @@ hero content uri' navMenuOpen' =
          div_ [ class_ $ "nav-right nav-menu " <> do  bool mempty "is-active" navMenuOpen'] [
           a_ [ class_ $ "nav-item " <> do  bool mempty "is-active" (uriPath uri' == uriPath goHome)
              , href_ "/", onPreventClick (ChangeURI goHome) ] [ text"Home" ]
-          -- a_ [class_ $ "nav-item " <> do  bool mempty "is-active" (uriPath uri' == uriPath goExamples)
-          --    , href_ "/examples", onPreventClick (ChangeURI goExamples)
-          --    ] [ text"Examples" ],
+          , a_ [class_ $ "nav-item " <> do  bool mempty "is-active" (uriPath uri' == uriPath goSma)
+              , href_ "/sma", onPreventClick (ChangeURI goSma)
+              ] [ text "Sma" ]
           -- a_ [class_ $ "nav-item " <> do  bool mempty "is-active" (uriPath uri' == uriPath goDocs)
           --    , href_ "/docs", onPreventClick (ChangeURI goDocs)
           --    ] [ text"Docs" ]
