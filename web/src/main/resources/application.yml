@@ -10,6 +10,7 @@ micronaut:
           allowedOrigins:
             - http://localhost:8081
             - http://qwde.no
+            - http://qwde.no:8080
           allowedMethods:
             - GET
   router:
