@@ -14,7 +14,11 @@ import           Servant.API
 #ifdef __GHCJS__
 import           Servant.Links (linkURI)
 #else
-import           Servant.Links (linkURI)
+#if MIN_VERSION_servant(0,17,0)
+import          Servant.Links (linkURI)
+#else
+import	  Servant.Utils.Links (linkURI)
+#endif
 #endif
 import qualified Data.Graph.Plotter as P
 
